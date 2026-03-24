@@ -23,7 +23,6 @@
           method: 'POST',
           body: JSON.stringify({ action: action, data: data }),
           headers: { 'Content-Type': 'text/plain;charset=utf-8' } // หลีกเลี่ยงปัญหา CORS
-          redirect: 'follow' // <--- เพิ่มบรรทัดนี้ เพื่อให้ทะลุการรีไดเรกต์ของ Google ได้
         });
         const result = await response.json();
         return result;
