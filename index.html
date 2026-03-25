@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V9.5 (Vercel Edition)</title>
+  <title>Print & Copy Management V10.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,11 +12,11 @@
   
   <script>
     // ==========================================
-    // 🔗 ตั้งค่า API URL ตรงนี้! (นำลิงก์ Web App ของ Google Apps Script มาใส่)
+    // 🔗 ตั้งค่า API URL ตรงนี้!
     // ==========================================
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwbuSGBtxAaFEuSwyRDuyzatD5myCtUpNrOphPnoj-erQRPgJ21zqnp7UL7SAKSFq7EyQ/exec";
     
-    // ฟังก์ชันศูนย์กลางสำหรับเรียกใช้ API
+    // 🌟 อัปเดตฟังก์ชันดึงข้อมูลให้ดักจับ Error ได้ละเอียดขึ้น
     async function fetchAPI(action, data = {}) {
       try {
         const response = await fetch(GAS_API_URL, {
@@ -25,11 +25,23 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           redirect: 'follow'
         });
-        const result = await response.json();
-        return result;
+        
+        if (!response.ok) {
+          throw new Error(`การเชื่อมต่อมีปัญหา (HTTP Status: ${response.status})`);
+        }
+        
+        const textData = await response.text();
+        try {
+          const result = JSON.parse(textData);
+          return result;
+        } catch (parseErr) {
+          console.error("เซิร์ฟเวอร์ส่งข้อความผิดรูปแบบ:", textData);
+          throw new Error("ข้อมูลที่ได้รับจากฐานข้อมูลผิดรูปแบบ (อาจเกิดจากการลืมกด Deploy > New deployment ใน Google Sheet)");
+        }
+        
       } catch (err) {
-        console.error("API Error:", err);
-        throw new Error("ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
+        console.error("API Error Detailed:", err);
+        throw new Error(err.message);
       }
     }
   </script>
@@ -193,14 +205,8 @@
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-lg font-bold text-blue-600 mb-4"><i class="fas fa-user"></i> สถิติของฉัน (เดือนล่าสุด)</h3>
           <div class="grid grid-cols-2 gap-4 text-center">
-            <div class="bg-gray-50 p-4 rounded">
-              <p class="text-sm text-gray-500">Print ทั้งหมด</p>
-              <p class="text-2xl font-bold text-gray-800" id="myPrint">0</p>
-            </div>
-            <div class="bg-gray-50 p-4 rounded">
-              <p class="text-sm text-gray-500">Copy ทั้งหมด</p>
-              <p class="text-2xl font-bold text-gray-800" id="myCopy">0</p>
-            </div>
+            <div class="bg-gray-50 p-4 rounded"><p class="text-sm text-gray-500">Print ทั้งหมด</p><p class="text-2xl font-bold text-gray-800" id="myPrint">0</p></div>
+            <div class="bg-gray-50 p-4 rounded"><p class="text-sm text-gray-500">Copy ทั้งหมด</p><p class="text-2xl font-bold text-gray-800" id="myCopy">0</p></div>
           </div>
           <div class="mt-4 p-4 bg-red-50 text-red-700 rounded text-center">
             <p class="text-sm font-medium">ค่าใช้จ่ายของฉันประมาณ</p>
@@ -243,8 +249,7 @@
                 <th class="p-2 text-center">สถานะการอนุมัติ</th>
               </tr>
             </thead>
-            <tbody id="myPrintReqTableBody">
-              </tbody>
+            <tbody id="myPrintReqTableBody"></tbody>
           </table>
         </div>
       </div>
@@ -369,9 +374,7 @@
             <button onclick="addGroupRow()" class="w-full bg-green-100 text-green-700 border border-green-300 py-1 rounded text-sm font-medium hover:bg-green-200">+ เพิ่มในตารางชั่วคราว</button>
           </div>
           <div class="overflow-y-auto h-32 mb-2 border rounded">
-            <table class="min-w-full text-xs text-left">
-              <tbody id="groupTableBody"></tbody>
-            </table>
+            <table class="min-w-full text-xs text-left"><tbody id="groupTableBody"></tbody></table>
           </div>
           <button onclick="saveGroups()" class="w-full bg-green-600 text-white py-1 rounded hover:bg-green-700 text-sm">บันทึกกลุ่มงานทั้งหมดลงฐานข้อมูล</button>
         </div>
@@ -627,7 +630,9 @@
           const selEditGroup = document.getElementById('editGroup');
           
           let html = '';
-          opts.forEach(function(o) { html += `<option value="${o.name}">${o.code} - ${o.name}</option>`; });
+          opts.forEach(function(o) {
+            html += `<option value="${o.name}">${o.code} - ${o.name}</option>`;
+          });
           
           if(selReg) selReg.innerHTML += html;
           if(selAdminReg) selAdminReg.innerHTML += html;
@@ -642,13 +647,26 @@
     function handleError(err) {
       Swal.close();
       console.error(err);
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
+      Swal.fire({ 
+        icon: 'error', 
+        title: 'ข้อมูลหลังบ้านขัดข้อง', 
+        text: err.message 
+      });
     }
 
     function showLoading(txt) { 
-      Swal.fire({ title: txt, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+      Swal.fire({
+        title: txt,
+        allowOutsideClick: false,
+        didOpen: () => { 
+          Swal.showLoading(); 
+        }
+      });
     }
-    function hideLoading() { Swal.close(); }
+    
+    function hideLoading() { 
+      Swal.close();
+    }
 
     function updateAuthUI() {
       const stored = localStorage.getItem('printapp_user');
@@ -659,6 +677,7 @@
       
       if (stored) {
         currentUser = JSON.parse(stored);
+        
         let roleDisplay = '';
         if(currentUser.role === 'admin') roleDisplay = ' (Admin)';
         else if(currentUser.role === 'assistant') roleDisplay = ' (ผู้ช่วย Admin)';
@@ -783,7 +802,7 @@
       try {
         const res = await fetchAPI('getDashboardData');
         if (!res.success || !res.data) {
-          hideLoading(); return Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลจากระบบได้', 'error');
+          hideLoading(); return Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลจากระบบได้', 'error');
         }
         globalData = res.data; 
         populateFilters();
@@ -864,7 +883,6 @@
         groupMap[code].totalP += (pc + pbw); groupMap[code].totalC += (cc + cbw); groupMap[code].total += total;
 
         tP += (pc + pbw); tC += (cc + cbw); tCol += (pc + cc); tBw += (pbw + cbw); tU += total; tCost += ((pc + cc) * cCol) + ((pbw + cbw) * cBw);
-        
         if (r["ชั้น"] === "ชั้น 1") f1 += total; else if (r["ชั้น"] === "ชั้น 2") f2 += total; else if (r["ชั้น"] === "ชั้น 3") f3 += total; 
       });
 
@@ -941,14 +959,8 @@
         tb.innerHTML += `<tr class="border-b"><td class="p-2">${nameLabel}</td><td class="p-2 text-right">${r["รวม Print"]}</td><td class="p-2 text-right">${r["รวม Copy"]}</td><td class="p-2 text-right font-bold text-blue-600">${r["รวมทั้งหมด (Print+Copy)"]}</td></tr>`;
       });
 
-      // 🌟 ดึงข้อมูลประวัติคำขอปริ้นสีของ User
-      let reqTb = document.getElementById('myPrintReqTableBody');
-      reqTb.innerHTML = '';
-      
-      let myReqs = globalData.printReqs.filter(function(r) {
-        let reqMobile = String(r["เบอร์มือถือ"]).replace(/'/g, '').trim();
-        return reqMobile === currentUser.mobile;
-      });
+      let reqTb = document.getElementById('myPrintReqTableBody'); reqTb.innerHTML = '';
+      let myReqs = globalData.printReqs.filter(function(r) { return String(r["เบอร์มือถือ"]).replace(/'/g, '').trim() === currentUser.mobile; });
 
       if (myReqs.length === 0) {
         reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>';
@@ -956,31 +968,13 @@
         myReqs.slice().reverse().forEach(function(r) {
           let dateLabel = r["Timestamp_Str"] || r["Timestamp"];
           let status = r["สถานะ"] || "รอปริ้น";
-          let statusBadge = "";
-          
-          if (status === "รอปริ้น") {
-            statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>`;
-          } else {
-            statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${status}</span>`;
-          }
-          
-          reqTb.innerHTML += `<tr class="border-b">
-            <td class="p-2 text-xs">${dateLabel}</td>
-            <td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]}</td>
-            <td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> ดูไฟล์</a></td>
-            <td class="p-2 text-center">${statusBadge}</td>
-          </tr>`;
+          let statusBadge = status === "รอปริ้น" ? `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>` : `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${status}</span>`;
+          reqTb.innerHTML += `<tr class="border-b"><td class="p-2 text-xs">${dateLabel}</td><td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]}</td><td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> ดูไฟล์</a></td><td class="p-2 text-center">${statusBadge}</td></tr>`;
         });
       }
     }
 
     // --- Admin Functions ---
-    function readFileAsDataURL(file) {
-      return new Promise(function(resolve, reject) {
-        const reader = new FileReader(); reader.onload = function(e) { resolve(e.target.result); }; reader.onerror = function(e) { reject(e); }; reader.readAsDataURL(file);
-      });
-    }
-
     async function handleMultiUpload() {
       const p = document.getElementById('uploadPeriod').value.trim(); 
       if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรอบข้อมูล (เช่น มกราคม 2569) ก่อนทำการอัปโหลด', 'warning');
@@ -1006,6 +1000,12 @@
         if (res.success) { Swal.fire('สำเร็จ!', res.message, 'success').then(function() { window.location.reload(); }); } 
         else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
       } catch (err) { handleError(err); }
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader(); reader.onload = function(e) { resolve(e.target.result); }; reader.onerror = function(e) { reject(e); }; reader.readAsDataURL(file);
+      });
     }
 
     function deleteUpload() {
@@ -1160,8 +1160,9 @@
       showLoading("กำลังบันทึก...");
       const b = document.getElementById('setBw').value; const c = document.getElementById('setColor').value; const e = document.getElementById('setEmails').value;
       try {
-        await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e });
-        Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าแล้ว', 'success'); loadMainData(); 
+        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e });
+        if (res.success) { Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าแล้ว', 'success'); loadMainData(); }
+        else { Swal.fire('ผิดพลาด', res.message, 'error'); }
       } catch (err) { handleError(err); }
     }
 
