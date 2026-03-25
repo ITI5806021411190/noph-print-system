@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V10.0</title>
+  <title>Print & Copy Management V13.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -14,9 +14,8 @@
     // ==========================================
     // 🔗 ตั้งค่า API URL ตรงนี้!
     // ==========================================
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw5hSujh_9nqPeRT5mmNy7rD4aPYblEB-eUYnxWfhOrhZXEthhiFrUNL1660ISAm6-OOQ/exec";
+    const GAS_API_URL = "ใส่_WEB_APP_URL_ของคุณที่นี่";
     
-    // 🌟 อัปเดตฟังก์ชันดึงข้อมูลให้ดักจับ Error ได้ละเอียดขึ้น
     async function fetchAPI(action, data = {}) {
       try {
         const response = await fetch(GAS_API_URL, {
@@ -374,7 +373,9 @@
             <button onclick="addGroupRow()" class="w-full bg-green-100 text-green-700 border border-green-300 py-1 rounded text-sm font-medium hover:bg-green-200">+ เพิ่มในตารางชั่วคราว</button>
           </div>
           <div class="overflow-y-auto h-32 mb-2 border rounded">
-            <table class="min-w-full text-xs text-left"><tbody id="groupTableBody"></tbody></table>
+            <table class="min-w-full text-xs text-left">
+              <tbody id="groupTableBody"></tbody>
+            </table>
           </div>
           <button onclick="saveGroups()" class="w-full bg-green-600 text-white py-1 rounded hover:bg-green-700 text-sm">บันทึกกลุ่มงานทั้งหมดลงฐานข้อมูล</button>
         </div>
@@ -493,7 +494,7 @@
           <button onclick="doLogin()" class="w-full bg-blue-600 text-white font-bold py-3 rounded">เข้าสู่ระบบ</button>
         </div>
         <div class="text-center mt-6">
-          <p class="text-sm">ยังไม่มีบัญชี? <a href="#" onclick="toggleAuth('reg')" class="text-blue-600 font-semibold hover:underline">ลงทะเบียนผู้ใช้ใหม่</a></p>
+          <p class="text-sm">มีบัญชีหรือยัง? <a href="verify.html" class="text-blue-600 font-semibold hover:underline">ลงทะเบียนด้วยตนเองคลิกที่นี่</a></p>
         </div>
       </div>
 
@@ -504,25 +505,16 @@
             <input type="text" id="regMobile" class="w-full border rounded p-2">
           </div>
           <div>
-            <label class="block text-sm">ชื่อ-สกุล</label>
+            <label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
             <input type="text" id="regName" class="w-full border rounded p-2">
           </div>
           <div>
             <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
             <input type="text" id="regPrintUser" class="w-full border rounded p-2" placeholder="เช่น 112233">
           </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-sm">เพศ</label>
-              <select id="regGender" class="w-full border rounded p-2">
-                <option>ชาย</option>
-                <option>หญิง</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm">ตำแหน่ง</label>
-              <input type="text" id="regPos" class="w-full border rounded p-2">
-            </div>
+          <div>
+            <label class="block text-sm">ตำแหน่ง</label>
+            <input type="text" id="regPos" class="w-full border rounded p-2">
           </div>
           <div>
             <label class="block text-sm">กลุ่มงาน</label>
@@ -558,14 +550,26 @@
           </select>
         </div>
         <hr>
-        <div><label class="block text-sm">เบอร์มือถือ</label><input type="text" id="adminRegMobile" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">ชื่อ-สกุล</label><input type="text" id="adminRegName" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label><input type="text" id="adminRegPrintUser" class="w-full border rounded p-2" placeholder="เช่น 112233"></div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-sm">เพศ</label><select id="adminRegGender" class="w-full border rounded p-2"><option>ชาย</option><option>หญิง</option></select></div>
-          <div><label class="block text-sm">ตำแหน่ง</label><input type="text" id="adminRegPos" class="w-full border rounded p-2"></div>
+        <div>
+          <label class="block text-sm">เบอร์มือถือ</label>
+          <input type="text" id="adminRegMobile" class="w-full border rounded p-2">
         </div>
-        <div><label class="block text-sm">กลุ่มงาน</label><select id="adminRegGroup" class="w-full border rounded p-2"></select></div>
+        <div>
+          <label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
+          <input type="text" id="adminRegName" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
+          <input type="text" id="adminRegPrintUser" class="w-full border rounded p-2" placeholder="เช่น 112233">
+        </div>
+        <div>
+          <label class="block text-sm">ตำแหน่ง</label>
+          <input type="text" id="adminRegPos" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm">กลุ่มงาน</label>
+          <select id="adminRegGroup" class="w-full border rounded p-2"></select>
+        </div>
         <button onclick="adminSubmitCreateUser()" class="w-full bg-green-600 text-white font-bold py-3 rounded mt-4 hover:bg-green-700 shadow">ยืนยันการสร้างบัญชี</button>
       </div>
     </div>
@@ -599,12 +603,9 @@
         </div>
         <hr>
         <div><label class="block text-sm">เบอร์มือถือ</label><input type="text" id="editMobile" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">ชื่อ-สกุล</label><input type="text" id="editName" class="w-full border rounded p-2"></div>
+        <div><label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label><input type="text" id="editName" class="w-full border rounded p-2"></div>
         <div><label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label><input type="text" id="editPrintUser" class="w-full border rounded p-2"></div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-sm">เพศ</label><select id="editGender" class="w-full border rounded p-2"><option value="ชาย">ชาย</option><option value="หญิง">หญิง</option></select></div>
-          <div><label class="block text-sm">ตำแหน่ง</label><input type="text" id="editPos" class="w-full border rounded p-2"></div>
-        </div>
+        <div><label class="block text-sm">ตำแหน่ง</label><input type="text" id="editPos" class="w-full border rounded p-2"></div>
         <div><label class="block text-sm">กลุ่มงาน</label><select id="editGroup" class="w-full border rounded p-2"></select></div>
         <button onclick="submitEditUser()" class="w-full bg-blue-600 text-white font-bold py-3 rounded mt-4 hover:bg-blue-700 shadow">บันทึกการแก้ไข</button>
       </div>
@@ -735,9 +736,11 @@
 
     async function doRegister() {
       const data = { 
-        mobile: document.getElementById('regMobile').value.trim(), name: document.getElementById('regName').value.trim(), 
-        gender: document.getElementById('regGender').value, position: document.getElementById('regPos').value.trim(), 
-        group: document.getElementById('regGroup').value, printerUser: document.getElementById('regPrintUser').value.trim() 
+        mobile: document.getElementById('regMobile').value.trim(), 
+        name: document.getElementById('regName').value.trim(), 
+        position: document.getElementById('regPos').value.trim(), 
+        group: document.getElementById('regGroup').value, 
+        printerUser: document.getElementById('regPrintUser').value.trim() 
       };
       if (!data.mobile || !data.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลสำคัญให้ครบถ้วน', 'warning');
       
@@ -975,6 +978,12 @@
     }
 
     // --- Admin Functions ---
+    function readFileAsDataURL(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader(); reader.onload = function(e) { resolve(e.target.result); }; reader.onerror = function(e) { reject(e); }; reader.readAsDataURL(file);
+      });
+    }
+
     async function handleMultiUpload() {
       const p = document.getElementById('uploadPeriod').value.trim(); 
       if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรอบข้อมูล (เช่น มกราคม 2569) ก่อนทำการอัปโหลด', 'warning');
@@ -1000,12 +1009,6 @@
         if (res.success) { Swal.fire('สำเร็จ!', res.message, 'success').then(function() { window.location.reload(); }); } 
         else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
       } catch (err) { handleError(err); }
-    }
-
-    function readFileAsDataURL(file) {
-      return new Promise(function(resolve, reject) {
-        const reader = new FileReader(); reader.onload = function(e) { resolve(e.target.result); }; reader.onerror = function(e) { reject(e); }; reader.readAsDataURL(file);
-      });
     }
 
     function deleteUpload() {
@@ -1104,7 +1107,7 @@
           
           let actionBtns = `<div class="flex justify-center space-x-3">`;
           actionBtns += `<button onclick="viewUserPin('${u.pin}', '${u.name}')" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
-          actionBtns += `<button onclick="openEditUserModal('${u.mobile}', '${u.name}', '${u.group}', '${u.role}', '${u.status}', '${u.gender}', '${u.position}', '${u.printerUser}')" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>`;
+          actionBtns += `<button onclick="openEditUserModal('${u.mobile}', '${u.name}', '${u.group}', '${u.role}', '${u.status}', '${u.position}', '${u.printerUser}')" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>`;
 
           if (u.status === 'pending') actionBtns += `<button onclick="actionUser('${u.mobile}', 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติ"><i class="fas fa-check-circle"></i></button>`;
           if (u.status !== 'pending' && u.role !== 'admin') {
@@ -1123,10 +1126,11 @@
       Swal.fire({ title: `รหัส PIN ของ ${name}`, html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${pin}</span>`, icon: 'info' });
     }
 
-    function openEditUserModal(mobile, name, group, role, status, gender, position, printerUser) {
+    // 🌟 อัปเดตฟังก์ชันแก้ไข ลบช่องเลือกเพศ 🌟
+    function openEditUserModal(mobile, name, group, role, status, position, printerUser) {
       document.getElementById('editMobile').value = mobile; document.getElementById('editOriginalMobile').value = mobile;
       document.getElementById('editName').value = name; document.getElementById('editRole').value = role || 'user';
-      document.getElementById('editStatus').value = status || 'approved'; document.getElementById('editGender').value = gender || 'ชาย';
+      document.getElementById('editStatus').value = status || 'approved'; 
       document.getElementById('editPos').value = position || ''; document.getElementById('editPrintUser').value = printerUser || '';
       
       const selGroup = document.getElementById('editGroup'); selGroup.innerHTML = '';
@@ -1142,9 +1146,13 @@
     async function submitEditUser() {
       const originalMobile = document.getElementById('editOriginalMobile').value;
       const updatedData = {
-        mobile: document.getElementById('editMobile').value.trim(), name: document.getElementById('editName').value.trim(), role: document.getElementById('editRole').value,
-        status: document.getElementById('editStatus').value, gender: document.getElementById('editGender').value, position: document.getElementById('editPos').value.trim(),
-        group: document.getElementById('editGroup').value, printerUser: document.getElementById('editPrintUser').value.trim()
+        mobile: document.getElementById('editMobile').value.trim(), 
+        name: document.getElementById('editName').value.trim(), 
+        role: document.getElementById('editRole').value,
+        status: document.getElementById('editStatus').value, 
+        position: document.getElementById('editPos').value.trim(),
+        group: document.getElementById('editGroup').value, 
+        printerUser: document.getElementById('editPrintUser').value.trim()
       };
       if (!updatedData.mobile || !updatedData.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
 
@@ -1160,9 +1168,8 @@
       showLoading("กำลังบันทึก...");
       const b = document.getElementById('setBw').value; const c = document.getElementById('setColor').value; const e = document.getElementById('setEmails').value;
       try {
-        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e });
-        if (res.success) { Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าแล้ว', 'success'); loadMainData(); }
-        else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+        await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e });
+        Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าแล้ว', 'success'); loadMainData(); 
       } catch (err) { handleError(err); }
     }
 
@@ -1203,8 +1210,12 @@
 
     async function adminSubmitCreateUser() {
       const data = {
-        mobile: document.getElementById('adminRegMobile').value.trim(), name: document.getElementById('adminRegName').value.trim(), gender: document.getElementById('adminRegGender').value,
-        position: document.getElementById('adminRegPos').value.trim(), group: document.getElementById('adminRegGroup').value, printerUser: document.getElementById('adminRegPrintUser').value.trim(), role: document.getElementById('adminRegRole').value
+        mobile: document.getElementById('adminRegMobile').value.trim(), 
+        name: document.getElementById('adminRegName').value.trim(), 
+        position: document.getElementById('adminRegPos').value.trim(), 
+        group: document.getElementById('adminRegGroup').value, 
+        printerUser: document.getElementById('adminRegPrintUser').value.trim(), 
+        role: document.getElementById('adminRegRole').value
       };
       if (!data.mobile || !data.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
       showLoading("กำลังสร้างบัญชี...");
