@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V14.0</title>
+  <title>Print & Copy Management V15.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -318,8 +318,20 @@
               <div><label class="text-sm">เรท ขาว-ดำ</label><input type="number" id="setBw" class="w-full border p-1 rounded"></div>
               <div><label class="text-sm">เรท สี</label><input type="number" id="setColor" class="w-full border p-1 rounded"></div>
             </div>
-            <div><label class="text-sm">อีเมลรับรายงาน</label><input type="text" id="setEmails" class="w-full border p-1 rounded"></div>
-            <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-1 rounded hover:bg-blue-700 text-sm">บันทึก</button>
+            <div><label class="text-sm">อีเมลสรุปรายงานประจำเดือน</label><input type="text" id="setEmails" class="w-full border p-1 rounded"></div>
+            
+            <hr class="my-2">
+            <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
+            <div>
+              <label class="text-sm text-gray-500">Bot Token</label>
+              <input type="text" id="setTgToken" class="w-full border p-1 rounded text-sm" placeholder="เช่น 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
+            </div>
+            <div>
+              <label class="text-sm text-gray-500">Chat ID ของกลุ่ม</label>
+              <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm" placeholder="เช่น -100123456789">
+            </div>
+            
+            <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-bold mt-2 shadow">บันทึกการตั้งค่า</button>
             <hr>
             <div>
               <label class="text-sm">ส่งอีเมลสรุปรอบ:</label>
@@ -386,23 +398,35 @@
           <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติทั้งหมด
         </button>
       </div>
+
     </div>
 
     <div id="view-report" class="view-section hidden">
       <h2 class="text-2xl font-semibold mb-6">ออกรายงาน</h2>
       <div class="bg-white rounded-lg shadow p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div><label class="block text-sm mb-1">รอบข้อมูล</label><select id="repPeriod" class="w-full border p-2 rounded"></select></div>
+          <div>
+            <label class="block text-sm mb-1">รอบข้อมูล</label>
+            <select id="repPeriod" class="w-full border p-2 rounded"></select>
+          </div>
           <div>
             <label class="block text-sm mb-1">รูปแบบ</label>
-            <select id="repFormat" class="w-full border p-2 rounded"><option value="1">ตาราง</option><option value="2">รายการ</option></select>
+            <select id="repFormat" class="w-full border p-2 rounded">
+              <option value="1">ตาราง</option>
+              <option value="2">รายการ</option>
+            </select>
           </div>
           <div>
             <label class="block text-sm mb-1">ระดับ</label>
-            <select id="repLevel" class="w-full border p-2 rounded"><option value="group">กลุ่มงาน</option><option value="staff">รายบุคคล</option></select>
+            <select id="repLevel" class="w-full border p-2 rounded">
+              <option value="group">กลุ่มงาน</option>
+              <option value="staff">รายบุคคล</option>
+            </select>
           </div>
           <div class="flex items-end">
-            <button onclick="generateReport()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"><i class="fas fa-magic"></i> สร้างรายงาน</button>
+            <button onclick="generateReport()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+              <i class="fas fa-magic"></i> สร้างรายงาน
+            </button>
           </div>
         </div>
       </div>
@@ -440,27 +464,13 @@
 
       <div id="regForm" class="hidden">
         <div class="space-y-3">
-          <div>
-            <label class="block text-sm">เบอร์มือถือ (ใช้เป็น Username)</label>
-            <input type="text" id="regMobile" class="w-full border rounded p-2" placeholder="เช่น 0812345678" maxlength="10">
-          </div>
-          <div>
-            <label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
-            <input type="text" id="regName" class="w-full border rounded p-2" placeholder="เช่น นายสมชาย ใจดี">
-          </div>
-          <div>
-            <label class="block text-sm">ตำแหน่ง</label>
-            <input type="text" id="regPos" class="w-full border rounded p-2" placeholder="เช่น นักวิชาการสาธารณสุข">
-          </div>
-          <div>
-            <label class="block text-sm">กลุ่มงาน</label>
-            <select id="regGroup" class="w-full border rounded p-2"></select>
-          </div>
+          <div><label class="block text-sm">เบอร์มือถือ (ใช้เป็น Username)</label><input type="text" id="regMobile" class="w-full border rounded p-2" placeholder="เช่น 0812345678" maxlength="10"></div>
+          <div><label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label><input type="text" id="regName" class="w-full border rounded p-2" placeholder="เช่น นายสมชาย ใจดี"></div>
+          <div><label class="block text-sm">ตำแหน่ง</label><input type="text" id="regPos" class="w-full border rounded p-2" placeholder="เช่น นักวิชาการสาธารณสุข"></div>
+          <div><label class="block text-sm">กลุ่มงาน</label><select id="regGroup" class="w-full border rounded p-2"></select></div>
           
           <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mt-2">
-            <p class="text-xs text-blue-800">
-              <i class="fas fa-info-circle"></i> รหัส PIN 6 หลักที่ระบบสร้างให้ จะถูกนำไปใช้เป็น <strong>"รหัสสำหรับกดเครื่องปริ้นเตอร์"</strong> ในทุกๆ ชั้นอัตโนมัติ
-            </p>
+            <p class="text-xs text-blue-800"><i class="fas fa-info-circle"></i> รหัส PIN 6 หลักที่ระบบสร้างให้ จะถูกนำไปใช้เป็น <strong>"รหัสสำหรับกดเครื่องปริ้นเตอร์"</strong> ในทุกๆ ชั้นอัตโนมัติ</p>
           </div>
 
           <button onclick="doRegister()" class="w-full bg-green-600 text-white font-bold py-3 rounded mt-4 hover:bg-green-700 shadow">ลงทะเบียน & รับรหัส PIN</button>
@@ -480,10 +490,7 @@
         <div>
           <label class="block text-sm font-bold">สิทธิ์การใช้งาน (Role)</label>
           <select id="adminRegRole" class="w-full border-2 border-blue-400 rounded p-2 bg-blue-50">
-            <option value="user">ผู้ใช้งาน (User)</option>
-            <option value="assistant">ผู้ช่วยผู้ดูแลระบบ (Assistant Admin)</option>
-            <option value="admin">ผู้ดูแลระบบสูงสุด (Super Admin)</option>
-            <option value="observer">ผู้สังเกตการณ์ (Observer)</option>
+            <option value="user">ผู้ใช้งาน (User)</option><option value="assistant">ผู้ช่วยผู้ดูแลระบบ (Assistant Admin)</option><option value="admin">ผู้ดูแลระบบสูงสุด (Super Admin)</option><option value="observer">ผู้สังเกตการณ์ (Observer)</option>
           </select>
         </div>
         <hr>
@@ -491,10 +498,7 @@
         <div><label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label><input type="text" id="adminRegName" class="w-full border rounded p-2"></div>
         <div><label class="block text-sm">ตำแหน่ง</label><input type="text" id="adminRegPos" class="w-full border rounded p-2"></div>
         <div><label class="block text-sm">กลุ่มงาน</label><select id="adminRegGroup" class="w-full border rounded p-2"></select></div>
-        <div>
-          <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
-          <input type="text" id="adminRegPrintUser" class="w-full border rounded p-2" placeholder="เว้นว่างไว้ถ่าต้องการให้ระบบสุ่ม PIN ให้">
-        </div>
+        <div><label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label><input type="text" id="adminRegPrintUser" class="w-full border rounded p-2" placeholder="เว้นว่างไว้ถ่าต้องการให้ระบบสุ่ม PIN ให้"></div>
         <button onclick="adminSubmitCreateUser()" class="w-full bg-green-600 text-white font-bold py-3 rounded mt-4 hover:bg-green-700 shadow">ยืนยันการสร้างบัญชี</button>
       </div>
     </div>
@@ -547,7 +551,6 @@
           const selEditGroup = document.getElementById('editGroup');
           
           let html = '';
-          // 🌟 ส่งข้อมูล groupCode และ groupName คู่กันด้วย |
           opts.forEach(function(o) { html += `<option value="${o.code}|${o.name}">${o.code} - ${o.name}</option>`; });
           
           if(selReg) selReg.innerHTML += html;
@@ -611,10 +614,8 @@
       } catch (e) { handleError(e); }
     }
 
-    // 🌟 ระบบลงทะเบียนใหม่ ส่ง GroupCode ไปด้วย 🌟
     async function doRegister() {
       const groupData = document.getElementById('regGroup').value.split('|');
-      
       const data = { 
         mobile: document.getElementById('regMobile').value.trim(), 
         name: document.getElementById('regName').value.trim(), 
@@ -840,7 +841,11 @@
     }
 
     async function loadAdminData() {
-      document.getElementById('setBw').value = globalData.settings.cost_bw || 1; document.getElementById('setColor').value = globalData.settings.cost_color || 5; document.getElementById('setEmails').value = globalData.settings.notify_emails || "";
+      document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
+      document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
+      document.getElementById('setEmails').value = globalData.settings.notify_emails || "";
+      document.getElementById('setTgToken').value = globalData.settings.telegram_bot_token || "";
+      document.getElementById('setTgChatId').value = globalData.settings.telegram_chat_id || "";
       
       let pr = globalData.printReqs || []; let prTb = document.getElementById('printReqBody'); prTb.innerHTML = '';
       pr.slice().reverse().forEach(function(r) { 
@@ -883,7 +888,7 @@
       document.getElementById('editPos').value = position || ''; document.getElementById('editPrintUser').value = printerUser || '';
       
       const selGroup = document.getElementById('editGroup'); selGroup.innerHTML = '';
-      tempGroups.forEach(function(g) { let selected = (g.name === group) ? 'selected' : ''; selGroup.innerHTML += `<option value="${g.name}" ${selected}>${g.code} - ${g.name}</option>`; });
+      tempGroups.forEach(function(g) { let selected = (g.name === group) ? 'selected' : ''; selGroup.innerHTML += `<option value="${g.code}|${g.name}" ${selected}>${g.code} - ${g.name}</option>`; });
       document.getElementById('adminEditUserModal').classList.remove('hidden');
     }
 
@@ -891,16 +896,41 @@
 
     async function submitEditUser() {
       const originalMobile = document.getElementById('editOriginalMobile').value;
-      const updatedData = { mobile: document.getElementById('editMobile').value.trim(), name: document.getElementById('editName').value.trim(), role: document.getElementById('editRole').value, status: document.getElementById('editStatus').value, position: document.getElementById('editPos').value.trim(), group: document.getElementById('editGroup').value, printerUser: document.getElementById('editPrintUser').value.trim() };
+      const groupData = document.getElementById('editGroup').value.split('|');
+      const updatedData = { 
+        mobile: document.getElementById('editMobile').value.trim(), 
+        name: document.getElementById('editName').value.trim(), 
+        role: document.getElementById('editRole').value, 
+        status: document.getElementById('editStatus').value, 
+        position: document.getElementById('editPos').value.trim(), 
+        groupCode: groupData[0],
+        groupName: groupData[1], 
+        printerUser: document.getElementById('editPrintUser').value.trim() 
+      };
+      
       if (!updatedData.mobile || !updatedData.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
       showLoading("กำลังบันทึกข้อมูล...");
       try { const res = await fetchAPI('editUser', { mobile: originalMobile, updatedData: updatedData }); if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeEditUserModal(); loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } } catch(e) { handleError(e); }
     }
     
+    // 🌟 ระบบเซฟตั้งค่ารวม Telegram 🌟
     async function saveAdminSettings() {
       showLoading("กำลังบันทึก...");
-      const b = document.getElementById('setBw').value; const c = document.getElementById('setColor').value; const e = document.getElementById('setEmails').value;
-      try { await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e }); Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าแล้ว', 'success'); loadMainData(); } catch (err) { handleError(err); }
+      const b = document.getElementById('setBw').value; 
+      const c = document.getElementById('setColor').value; 
+      const e = document.getElementById('setEmails').value;
+      const tt = document.getElementById('setTgToken').value;
+      const tc = document.getElementById('setTgChatId').value;
+      
+      try { 
+        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e, tgToken: tt, tgChatId: tc }); 
+        if (res.success) {
+           Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success'); 
+           loadMainData(); 
+        } else {
+           Swal.fire('ผิดพลาด', res.message, 'error'); 
+        }
+      } catch (err) { handleError(err); }
     }
 
     function actionUser(mob, action) {
@@ -917,10 +947,8 @@
 
     function closeAdminCreateUserModal() { document.getElementById('adminCreateUserModal').classList.add('hidden'); }
 
-    // 🌟 ระบบสร้าง User ผ่าน Admin 🌟
     async function adminSubmitCreateUser() {
       const groupData = document.getElementById('adminRegGroup').value.split('|');
-      
       const data = {
         mobile: document.getElementById('adminRegMobile').value.trim(), 
         name: document.getElementById('adminRegName').value.trim(), 
