@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V15.0</title>
+  <title>Print & Copy Management V15.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -24,7 +24,10 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           redirect: 'follow'
         });
-        if (!response.ok) throw new Error(`การเชื่อมต่อมีปัญหา (HTTP Status: ${response.status})`);
+        
+        if (!response.ok) {
+          throw new Error(`การเชื่อมต่อมีปัญหา (HTTP Status: ${response.status})`);
+        }
         
         const textData = await response.text();
         try {
@@ -125,31 +128,45 @@
 
       <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
-          <p class="text-xs text-gray-500 font-medium">ยอดใช้งานรวม</p><p class="text-2xl font-bold text-gray-800 mt-1" id="sumTotal">0</p><p class="text-xs text-gray-400">แผ่น</p>
+          <p class="text-xs text-gray-500 font-medium">ยอดใช้งานรวม</p>
+          <p class="text-2xl font-bold text-gray-800 mt-1" id="sumTotal">0</p>
+          <p class="text-xs text-gray-400">แผ่น</p>
         </div>
         <div class="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
-          <p class="text-xs text-gray-500 font-medium">Print</p><p class="text-2xl font-bold text-green-600 mt-1" id="sumPrint">0</p><p class="text-xs text-gray-400">แผ่น</p>
+          <p class="text-xs text-gray-500 font-medium">Print</p>
+          <p class="text-2xl font-bold text-green-600 mt-1" id="sumPrint">0</p>
+          <p class="text-xs text-gray-400">แผ่น</p>
         </div>
         <div class="bg-white rounded-lg shadow p-5 border-l-4 border-purple-500">
-          <p class="text-xs text-gray-500 font-medium">Copy</p><p class="text-2xl font-bold text-purple-600 mt-1" id="sumCopy">0</p><p class="text-xs text-gray-400">แผ่น</p>
+          <p class="text-xs text-gray-500 font-medium">Copy</p>
+          <p class="text-2xl font-bold text-purple-600 mt-1" id="sumCopy">0</p>
+          <p class="text-xs text-gray-400">แผ่น</p>
         </div>
         <div class="bg-white rounded-lg shadow p-5 border-l-4 border-yellow-500">
           <p class="text-xs text-gray-500 font-medium">สี / ขาวดำ</p>
-          <p class="text-lg font-bold text-gray-800 mt-1"><span class="text-pink-500" id="sumColor">0</span> / <span class="text-gray-600" id="sumBW">0</span></p>
+          <p class="text-lg font-bold text-gray-800 mt-1">
+            <span class="text-pink-500" id="sumColor">0</span> / <span class="text-gray-600" id="sumBW">0</span>
+          </p>
         </div>
         <div class="bg-white rounded-lg shadow p-5 border-l-4 border-red-500">
-          <p class="text-xs text-gray-500 font-medium">ค่าใช้จ่ายประมาณการ</p><p class="text-2xl font-bold text-red-600 mt-1">฿<span id="sumCost">0</span></p><p class="text-xs text-gray-400">บาท</p>
+          <p class="text-xs text-gray-500 font-medium">ค่าใช้จ่ายประมาณการ</p>
+          <p class="text-2xl font-bold text-red-600 mt-1">฿<span id="sumCost">0</span></p>
+          <p class="text-xs text-gray-400">บาท</p>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
           <h3 class="text-lg font-semibold text-gray-700 mb-4">ยอดการใช้งานตามตัวกรอง (10 อันดับแรก)</h3>
-          <div style="position: relative; height: 350px; width: 100%;"><canvas id="barChart"></canvas></div>
+          <div style="position: relative; height: 350px; width: 100%;">
+            <canvas id="barChart"></canvas>
+          </div>
         </div>
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-lg font-semibold text-gray-700 mb-4">สัดส่วนแยกตามชั้น</h3>
-          <div style="position: relative; height: 350px; width: 100%;"><canvas id="pieChart"></canvas></div>
+          <div style="position: relative; height: 350px; width: 100%;">
+            <canvas id="pieChart"></canvas>
+          </div>
         </div>
       </div>
 
@@ -183,8 +200,14 @@
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-lg font-bold text-blue-600 mb-4"><i class="fas fa-user"></i> สถิติของฉัน (เดือนล่าสุด)</h3>
           <div class="grid grid-cols-2 gap-4 text-center">
-            <div class="bg-gray-50 p-4 rounded"><p class="text-sm text-gray-500">Print ทั้งหมด</p><p class="text-2xl font-bold text-gray-800" id="myPrint">0</p></div>
-            <div class="bg-gray-50 p-4 rounded"><p class="text-sm text-gray-500">Copy ทั้งหมด</p><p class="text-2xl font-bold text-gray-800" id="myCopy">0</p></div>
+            <div class="bg-gray-50 p-4 rounded">
+              <p class="text-sm text-gray-500">Print ทั้งหมด</p>
+              <p class="text-2xl font-bold text-gray-800" id="myPrint">0</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded">
+              <p class="text-sm text-gray-500">Copy ทั้งหมด</p>
+              <p class="text-2xl font-bold text-gray-800" id="myCopy">0</p>
+            </div>
           </div>
           <div class="mt-4 p-4 bg-red-50 text-red-700 rounded text-center">
             <p class="text-sm font-medium">ค่าใช้จ่ายของฉันประมาณ</p>
@@ -209,7 +232,9 @@
               <label class="block text-sm text-gray-600">จำนวนแผ่นที่ต้องการปริ้น</label>
               <input type="number" id="reqPages" class="w-full border p-2 rounded text-sm" placeholder="ระบุจำนวนแผ่น">
             </div>
-            <button onclick="submitPrintReq()" class="w-full bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 mt-2">ส่งคำขอให้ Admin</button>
+            <button onclick="submitPrintReq()" class="w-full bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 mt-2">
+              ส่งคำขอให้ Admin
+            </button>
             <p class="text-xs text-gray-500 text-center mt-2">* ระบบจะบันทึกประวัติไว้ด้านล่าง</p>
           </div>
         </div>
@@ -315,10 +340,19 @@
           <h3 class="text-lg font-bold mb-4 text-blue-600"><i class="fas fa-cog"></i> ตั้งค่าทั่วไป</h3>
           <div class="space-y-4">
             <div class="grid grid-cols-2 gap-2">
-              <div><label class="text-sm">เรท ขาว-ดำ</label><input type="number" id="setBw" class="w-full border p-1 rounded"></div>
-              <div><label class="text-sm">เรท สี</label><input type="number" id="setColor" class="w-full border p-1 rounded"></div>
+              <div>
+                <label class="text-sm">เรท ขาว-ดำ</label>
+                <input type="number" id="setBw" class="w-full border p-1 rounded">
+              </div>
+              <div>
+                <label class="text-sm">เรท สี</label>
+                <input type="number" id="setColor" class="w-full border p-1 rounded">
+              </div>
             </div>
-            <div><label class="text-sm">อีเมลสรุปรายงานประจำเดือน</label><input type="text" id="setEmails" class="w-full border p-1 rounded"></div>
+            <div>
+              <label class="text-sm">อีเมลสรุปรายงานประจำเดือน</label>
+              <input type="text" id="setEmails" class="w-full border p-1 rounded">
+            </div>
             
             <hr class="my-2">
             <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
@@ -337,7 +371,9 @@
               <label class="text-sm">ส่งอีเมลสรุปรอบ:</label>
               <div class="flex space-x-2 mt-1">
                 <select id="emailPeriodSel" class="w-full border rounded p-1"></select>
-                <button onclick="triggerEmail()" class="bg-gray-800 text-white px-3 rounded hover:bg-gray-900"><i class="fas fa-paper-plane"></i></button>
+                <button onclick="triggerEmail()" class="bg-gray-800 text-white px-3 rounded hover:bg-gray-900">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -353,7 +389,9 @@
             <button onclick="addGroupRow()" class="w-full bg-green-100 text-green-700 border border-green-300 py-1 rounded text-sm font-medium hover:bg-green-200">+ เพิ่มในตารางชั่วคราว</button>
           </div>
           <div class="overflow-y-auto h-32 mb-2 border rounded">
-            <table class="min-w-full text-xs text-left"><tbody id="groupTableBody"></tbody></table>
+            <table class="min-w-full text-xs text-left">
+              <tbody id="groupTableBody"></tbody>
+            </table>
           </div>
           <button onclick="saveGroups()" class="w-full bg-green-600 text-white py-1 rounded hover:bg-green-700 text-sm">บันทึกกลุ่มงานทั้งหมดลงฐานข้อมูล</button>
         </div>
@@ -365,7 +403,12 @@
           </div>
           <div class="overflow-y-auto h-48 border rounded">
             <table class="min-w-full text-xs text-left">
-              <thead class="bg-gray-100"><tr><th class="p-1">ชื่อ/มือถือ</th><th class="p-1 text-center">จัดการ</th></tr></thead>
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="p-1">ชื่อ/มือถือ</th>
+                  <th class="p-1 text-center">จัดการ</th>
+                </tr>
+              </thead>
               <tbody id="userTableBody"></tbody>
             </table>
           </div>
@@ -431,7 +474,11 @@
         </div>
       </div>
       <div id="reportPreviewContainer" class="hidden">
-        <div class="flex justify-end mb-4"><button onclick="window.print()" class="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-900"><i class="fas fa-print"></i> พิมพ์ / PDF</button></div>
+        <div class="flex justify-end mb-4">
+          <button onclick="window.print()" class="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-900">
+            <i class="fas fa-print"></i> พิมพ์ / PDF
+          </button>
+        </div>
         <div class="bg-white shadow p-8 min-h-screen" id="reportRenderArea"></div>
       </div>
     </div>
@@ -451,8 +498,14 @@
 
       <div id="loginForm">
         <div class="space-y-4">
-          <div><label class="block text-sm">เบอร์มือถือ</label><input type="text" id="logMobile" class="w-full border rounded p-3"></div>
-          <div><label class="block text-sm">PIN 6 หลัก</label><input type="password" id="logPin" maxlength="6" class="w-full border rounded p-3"></div>
+          <div>
+            <label class="block text-sm">เบอร์มือถือ</label>
+            <input type="text" id="logMobile" class="w-full border rounded p-3">
+          </div>
+          <div>
+            <label class="block text-sm">PIN 6 หลัก</label>
+            <input type="password" id="logPin" maxlength="6" class="w-full border rounded p-3">
+          </div>
           <button onclick="doLogin()" class="w-full bg-blue-600 text-white font-bold py-3 rounded">เข้าสู่ระบบ</button>
         </div>
         
@@ -464,10 +517,22 @@
 
       <div id="regForm" class="hidden">
         <div class="space-y-3">
-          <div><label class="block text-sm">เบอร์มือถือ (ใช้เป็น Username)</label><input type="text" id="regMobile" class="w-full border rounded p-2" placeholder="เช่น 0812345678" maxlength="10"></div>
-          <div><label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label><input type="text" id="regName" class="w-full border rounded p-2" placeholder="เช่น นายสมชาย ใจดี"></div>
-          <div><label class="block text-sm">ตำแหน่ง</label><input type="text" id="regPos" class="w-full border rounded p-2" placeholder="เช่น นักวิชาการสาธารณสุข"></div>
-          <div><label class="block text-sm">กลุ่มงาน</label><select id="regGroup" class="w-full border rounded p-2"></select></div>
+          <div>
+            <label class="block text-sm">เบอร์มือถือ (ใช้เป็น Username)</label>
+            <input type="text" id="regMobile" class="w-full border rounded p-2" placeholder="เช่น 0812345678" maxlength="10">
+          </div>
+          <div>
+            <label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
+            <input type="text" id="regName" class="w-full border rounded p-2" placeholder="เช่น นายสมชาย ใจดี">
+          </div>
+          <div>
+            <label class="block text-sm">ตำแหน่ง</label>
+            <input type="text" id="regPos" class="w-full border rounded p-2" placeholder="เช่น นักวิชาการสาธารณสุข">
+          </div>
+          <div>
+            <label class="block text-sm">กลุ่มงาน</label>
+            <select id="regGroup" class="w-full border rounded p-2"></select>
+          </div>
           
           <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mt-2">
             <p class="text-xs text-blue-800"><i class="fas fa-info-circle"></i> รหัส PIN 6 หลักที่ระบบสร้างให้ จะถูกนำไปใช้เป็น <strong>"รหัสสำหรับกดเครื่องปริ้นเตอร์"</strong> ในทุกๆ ชั้นอัตโนมัติ</p>
@@ -485,20 +550,41 @@
   <div id="adminCreateUserModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
       <button onclick="closeAdminCreateUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
-      <div class="text-center mb-6"><h2 class="text-xl font-bold text-green-600">สร้างบัญชีผู้ใช้งานใหม่</h2><p class="text-sm text-gray-500">สำหรับ Admin</p></div>
+      <div class="text-center mb-6">
+        <h2 class="text-xl font-bold text-green-600">สร้างบัญชีผู้ใช้งานใหม่</h2>
+        <p class="text-sm text-gray-500">สำหรับ Admin</p>
+      </div>
       <div class="space-y-3">
         <div>
           <label class="block text-sm font-bold">สิทธิ์การใช้งาน (Role)</label>
           <select id="adminRegRole" class="w-full border-2 border-blue-400 rounded p-2 bg-blue-50">
-            <option value="user">ผู้ใช้งาน (User)</option><option value="assistant">ผู้ช่วยผู้ดูแลระบบ (Assistant Admin)</option><option value="admin">ผู้ดูแลระบบสูงสุด (Super Admin)</option><option value="observer">ผู้สังเกตการณ์ (Observer)</option>
+            <option value="user">ผู้ใช้งาน (User)</option>
+            <option value="assistant">ผู้ช่วยผู้ดูแลระบบ (Assistant Admin)</option>
+            <option value="admin">ผู้ดูแลระบบสูงสุด (Super Admin)</option>
+            <option value="observer">ผู้สังเกตการณ์ (Observer)</option>
           </select>
         </div>
         <hr>
-        <div><label class="block text-sm">เบอร์มือถือ</label><input type="text" id="adminRegMobile" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label><input type="text" id="adminRegName" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">ตำแหน่ง</label><input type="text" id="adminRegPos" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">กลุ่มงาน</label><select id="adminRegGroup" class="w-full border rounded p-2"></select></div>
-        <div><label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label><input type="text" id="adminRegPrintUser" class="w-full border rounded p-2" placeholder="เว้นว่างไว้ถ่าต้องการให้ระบบสุ่ม PIN ให้"></div>
+        <div>
+          <label class="block text-sm">เบอร์มือถือ</label>
+          <input type="text" id="adminRegMobile" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
+          <input type="text" id="adminRegName" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm">ตำแหน่ง</label>
+          <input type="text" id="adminRegPos" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm">กลุ่มงาน</label>
+          <select id="adminRegGroup" class="w-full border rounded p-2"></select>
+        </div>
+        <div>
+          <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
+          <input type="text" id="adminRegPrintUser" class="w-full border rounded p-2" placeholder="เว้นว่างไว้ถ้าต้องการให้ระบบสุ่ม PIN ให้">
+        </div>
         <button onclick="adminSubmitCreateUser()" class="w-full bg-green-600 text-white font-bold py-3 rounded mt-4 hover:bg-green-700 shadow">ยืนยันการสร้างบัญชี</button>
       </div>
     </div>
@@ -507,27 +593,49 @@
   <div id="adminEditUserModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
       <button onclick="closeEditUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
-      <div class="text-center mb-6"><h2 class="text-xl font-bold text-blue-600">แก้ไขข้อมูลผู้ใช้งาน</h2></div>
+      <div class="text-center mb-6">
+        <h2 class="text-xl font-bold text-blue-600">แก้ไขข้อมูลผู้ใช้งาน</h2>
+      </div>
       <div class="space-y-3">
         <input type="hidden" id="editOriginalMobile">
         <div>
           <label class="block text-sm font-bold">สิทธิ์การใช้งาน</label>
           <select id="editRole" class="w-full border rounded p-2 bg-blue-50">
-            <option value="user">ผู้ใช้งาน (User)</option><option value="assistant">ผู้ช่วยผู้ดูแลระบบ (Assistant Admin)</option><option value="admin">ผู้ดูแลระบบสูงสุด (Super Admin)</option><option value="observer">ผู้สังเกตการณ์ (Observer)</option>
+            <option value="user">ผู้ใช้งาน (User)</option>
+            <option value="assistant">ผู้ช่วยผู้ดูแลระบบ (Assistant Admin)</option>
+            <option value="admin">ผู้ดูแลระบบสูงสุด (Super Admin)</option>
+            <option value="observer">ผู้สังเกตการณ์ (Observer)</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-bold">สถานะบัญชี</label>
           <select id="editStatus" class="w-full border rounded p-2 bg-yellow-50">
-            <option value="approved">ใช้งานปกติ (Approved)</option><option value="suspended">ระงับการใช้งาน (Suspended)</option><option value="pending">รออนุมัติ (Pending)</option>
+            <option value="approved">ใช้งานปกติ (Approved)</option>
+            <option value="suspended">ระงับการใช้งาน (Suspended)</option>
+            <option value="pending">รออนุมัติ (Pending)</option>
           </select>
         </div>
         <hr>
-        <div><label class="block text-sm">เบอร์มือถือ</label><input type="text" id="editMobile" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label><input type="text" id="editName" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">ตำแหน่ง</label><input type="text" id="editPos" class="w-full border rounded p-2"></div>
-        <div><label class="block text-sm">กลุ่มงาน</label><select id="editGroup" class="w-full border rounded p-2"></select></div>
-        <div><label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label><input type="text" id="editPrintUser" class="w-full border rounded p-2"></div>
+        <div>
+          <label class="block text-sm">เบอร์มือถือ</label>
+          <input type="text" id="editMobile" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
+          <input type="text" id="editName" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm">ตำแหน่ง</label>
+          <input type="text" id="editPos" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm">กลุ่มงาน</label>
+          <select id="editGroup" class="w-full border rounded p-2"></select>
+        </div>
+        <div>
+          <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
+          <input type="text" id="editPrintUser" class="w-full border rounded p-2">
+        </div>
         <button onclick="submitEditUser()" class="w-full bg-blue-600 text-white font-bold py-3 rounded mt-4 hover:bg-blue-700 shadow">บันทึกการแก้ไข</button>
       </div>
     </div>
@@ -551,7 +659,9 @@
           const selEditGroup = document.getElementById('editGroup');
           
           let html = '';
-          opts.forEach(function(o) { html += `<option value="${o.code}|${o.name}">${o.code} - ${o.name}</option>`; });
+          opts.forEach(function(o) { 
+            html += `<option value="${o.code}|${o.name}">${o.code} - ${o.name}</option>`; 
+          });
           
           if(selReg) selReg.innerHTML += html;
           if(selAdminReg) selAdminReg.innerHTML += html;
@@ -563,55 +673,99 @@
       loadMainData();
     };
 
-    function handleError(err) { Swal.close(); console.error(err); Swal.fire({ icon: 'error', title: 'ข้อมูลหลังบ้านขัดข้อง', text: err.message }); }
-    function showLoading(txt) { Swal.fire({ title: txt, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); }
-    function hideLoading() { Swal.close(); }
+    function handleError(err) { 
+      Swal.close(); 
+      console.error(err); 
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message }); 
+    }
+    
+    function showLoading(txt) { 
+      Swal.fire({ title: txt, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
+    }
+    
+    function hideLoading() { 
+      Swal.close(); 
+    }
 
     function updateAuthUI() {
       const stored = localStorage.getItem('printapp_user');
-      document.getElementById('nav-user').classList.add('hidden'); document.getElementById('nav-upload').classList.add('hidden'); document.getElementById('nav-admin').classList.add('hidden');
+      document.getElementById('nav-user').classList.add('hidden'); 
+      document.getElementById('nav-upload').classList.add('hidden'); 
+      document.getElementById('nav-admin').classList.add('hidden');
       
       if (stored) {
         currentUser = JSON.parse(stored);
         let roleDisplay = '';
-        if(currentUser.role === 'admin') roleDisplay = ' (Admin)'; else if(currentUser.role === 'assistant') roleDisplay = ' (ผู้ช่วย Admin)'; else if(currentUser.role === 'observer') roleDisplay = ' (Observer)';
+        if(currentUser.role === 'admin') roleDisplay = ' (Admin)'; 
+        else if(currentUser.role === 'assistant') roleDisplay = ' (ผู้ช่วย Admin)'; 
+        else if(currentUser.role === 'observer') roleDisplay = ' (Observer)';
         
         document.getElementById('userNameDisplay').innerText = currentUser.name + roleDisplay;
-        document.getElementById('userNameDisplay').classList.remove('hidden'); document.getElementById('navLogoutBtn').classList.remove('hidden'); document.getElementById('navLoginBtn').classList.add('hidden');
+        document.getElementById('userNameDisplay').classList.remove('hidden'); 
+        document.getElementById('navLogoutBtn').classList.remove('hidden'); 
+        document.getElementById('navLoginBtn').classList.add('hidden');
+        
         document.querySelectorAll('.auth-only').forEach(function(el) { el.classList.remove('hidden'); });
 
         if (currentUser.role === 'admin' || currentUser.role === 'assistant') {
           document.querySelectorAll('.admin-only').forEach(function(el) { el.classList.remove('hidden'); });
-          if (currentUser.role === 'admin') document.querySelectorAll('.super-admin-only').forEach(function(el) { el.classList.remove('hidden'); });
-          else document.querySelectorAll('.super-admin-only').forEach(function(el) { el.classList.add('hidden'); });
+          if (currentUser.role === 'admin') {
+            document.querySelectorAll('.super-admin-only').forEach(function(el) { el.classList.remove('hidden'); });
+          } else { 
+            document.querySelectorAll('.super-admin-only').forEach(function(el) { el.classList.add('hidden'); });
+          }
         } 
       } else {
         currentUser = null;
-        document.getElementById('userNameDisplay').classList.add('hidden'); document.getElementById('navLogoutBtn').classList.add('hidden'); document.getElementById('navLoginBtn').classList.remove('hidden');
+        document.getElementById('userNameDisplay').classList.add('hidden'); 
+        document.getElementById('navLogoutBtn').classList.add('hidden'); 
+        document.getElementById('navLoginBtn').classList.remove('hidden');
         document.querySelectorAll('.auth-only').forEach(function(el) { el.classList.add('hidden'); });
       }
     }
 
-    function openAuth(type) { document.getElementById('authContainer').classList.remove('hidden'); toggleAuth(type); }
-    function closeAuth() { document.getElementById('authContainer').classList.add('hidden'); }
+    function openAuth(type) { 
+      document.getElementById('authContainer').classList.remove('hidden'); 
+      toggleAuth(type); 
+    }
+    
+    function closeAuth() { 
+      document.getElementById('authContainer').classList.add('hidden'); 
+    }
+    
     function toggleAuth(type) {
-      if (type === 'reg') { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('regForm').classList.remove('hidden'); } 
-      else { document.getElementById('regForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); }
+      if (type === 'reg') { 
+        document.getElementById('loginForm').classList.add('hidden'); 
+        document.getElementById('regForm').classList.remove('hidden'); 
+      } else { 
+        document.getElementById('regForm').classList.add('hidden'); 
+        document.getElementById('loginForm').classList.remove('hidden'); 
+      }
     }
 
     async function doLogin() {
-      const m = document.getElementById('logMobile').value.trim(); const p = document.getElementById('logPin').value.trim();
-      if (!m || !p) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
+      const m = document.getElementById('logMobile').value.trim(); 
+      const p = document.getElementById('logPin').value.trim();
+      
+      if (!m || !p) {
+        return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
+      }
+      
       showLoading("กำลังเข้าสู่ระบบ...");
       try {
         const res = await fetchAPI('loginUser', { mobile: m, pin: p });
         if (res.success) { 
           localStorage.setItem('printapp_user', JSON.stringify(res.user)); 
-          updateAuthUI(); closeAuth(); 
+          updateAuthUI(); 
+          closeAuth(); 
           Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false });
           loadMainData(); 
-        } else { Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: res.message }); }
-      } catch (e) { handleError(e); }
+        } else { 
+          Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: res.message }); 
+        }
+      } catch (e) { 
+        handleError(e); 
+      }
     }
 
     async function doRegister() {
@@ -624,7 +778,10 @@
         groupName: groupData[1] 
       };
       
-      if (!data.mobile || !data.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลสำคัญให้ครบถ้วน', 'warning');
+      if (!data.mobile || !data.name) {
+        return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลสำคัญให้ครบถ้วน', 'warning');
+      }
+      
       showLoading("กำลังลงทะเบียน...");
       try {
         const res = await fetchAPI('registerUser', data);
@@ -635,17 +792,31 @@
             title: 'ลงทะเบียนสำเร็จ!', 
             html: `ระบบได้สร้างบัญชีของคุณและเชื่อมเข้ากับเครื่องปริ้นเรียบร้อยแล้ว<br><br><b>รหัส PIN เข้าสู่ระบบคือ:<br><span class='text-4xl text-blue-600 tracking-widest mt-2 mb-2 inline-block'>${res.pin}</span></b><br><span class='text-sm text-red-500'>* กรุณาจดจำรหัสนี้ให้ดี และรอ Admin อนุมัติสิทธิ์เข้าใช้งานระบบครับ *</span>`, 
             confirmButtonText: 'รับทราบและกลับสู่หน้าล็อกอิน' 
-          }).then(function() { toggleAuth('log'); });
-        } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-      } catch (e) { handleError(e); }
+          }).then(function() { 
+            toggleAuth('log'); 
+          });
+        } else { 
+          Swal.fire('ผิดพลาด', res.message, 'error'); 
+        }
+      } catch (e) { 
+        handleError(e); 
+      }
     }
 
-    function logout() { localStorage.removeItem('printapp_user'); window.location.reload(); }
+    function logout() { 
+      localStorage.removeItem('printapp_user'); 
+      window.location.reload(); 
+    }
 
     function requestNewPinUI() {
       Swal.fire({
-        title: 'ยืนยันการขอรหัส PIN ใหม่', text: "คุณสามารถขอ PIN ใหม่ได้สูงสุด 3 ครั้งต่อเดือน", icon: 'warning',
-        showCancelButton: true, confirmButtonColor: '#eab308', confirmButtonText: 'ยืนยันการขอรหัส', cancelButtonText: 'ยกเลิก'
+        title: 'ยืนยันการขอรหัส PIN ใหม่', 
+        text: "คุณสามารถขอ PIN ใหม่ได้สูงสุด 3 ครั้งต่อเดือน", 
+        icon: 'warning',
+        showCancelButton: true, 
+        confirmButtonColor: '#eab308', 
+        confirmButtonText: 'ยืนยันการขอรหัส', 
+        cancelButtonText: 'ยกเลิก'
       }).then(async function(result) {
         if (result.isConfirmed) {
           showLoading("กำลังสร้างรหัสใหม่...");
@@ -653,190 +824,528 @@
              const res = await fetchAPI('requestNewPin', { mobile: currentUser.mobile });
              hideLoading(); 
              if(res.success) {
-               Swal.fire({ icon: 'success', title: 'สำเร็จ', html: res.message + "<br><br><b>รหัส PIN ใหม่ของคุณคือ: <span class='text-2xl text-blue-600'>" + res.pin + "</span></b>", confirmButtonText: 'รับทราบและออกจากระบบ' }).then(function() { logout(); });
-             } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-          } catch(e) { handleError(e); }
+               Swal.fire({ 
+                 icon: 'success', 
+                 title: 'สำเร็จ', 
+                 html: res.message + "<br><br><b>รหัส PIN ใหม่ของคุณคือ: <span class='text-2xl text-blue-600'>" + res.pin + "</span></b>", 
+                 confirmButtonText: 'รับทราบและออกจากระบบ' 
+               }).then(function() { 
+                 logout(); 
+               });
+             } else { 
+               Swal.fire('ผิดพลาด', res.message, 'error'); 
+             }
+          } catch(e) { 
+            handleError(e); 
+          }
         }
       });
     }
 
+    // 🌟 ระบบส่งคำขอปริ้น ที่มีการแก้ไขบั๊กการแนบไฟล์เรียบร้อยแล้ว 🌟
     async function submitPrintReq() {
-      const p = document.getElementById('reqPages').value; const fInput = document.getElementById('reqFile');
-      if (!p || fInput.files.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาแนบไฟล์และระบุจำนวนแผ่น', 'warning');
+      const pagesInput = document.getElementById('reqPages').value; 
+      const fileInput = document.getElementById('reqFile');
+      
+      if (!pagesInput || fileInput.files.length === 0) {
+        return Swal.fire('แจ้งเตือน', 'กรุณาแนบไฟล์และระบุจำนวนแผ่น', 'warning');
+      }
+      
+      const file = fileInput.files[0];
+      
+      // ป้องกันไฟล์ใหญ่เกินไปจนทำให้ระบบค้าง (จำกัดไว้ที่ 15MB)
+      if (file.size > 15 * 1024 * 1024) {
+        return Swal.fire('แจ้งเตือน', 'ขนาดไฟล์ใหญ่เกิน 15MB กรุณาบีบอัดไฟล์ก่อนส่ง', 'warning');
+      }
+      
       showLoading("กำลังอัปโหลดไฟล์ส่งคำขอ...");
+      
       const reader = new FileReader();
       reader.onload = async function(e) {
-        const reqData = { mobile: currentUser.mobile, name: currentUser.name, group: currentUser.group, pages: p, fileName: f.name, mimeType: f.type, fileDataURI: e.target.result };
+        const reqData = { 
+          mobile: currentUser.mobile, 
+          name: currentUser.name, 
+          group: currentUser.group, 
+          pages: pagesInput, 
+          fileName: file.name, 
+          mimeType: file.type, 
+          fileDataURI: e.target.result 
+        };
+        
         try {
           const res = await fetchAPI('submitPrintRequest', reqData);
           hideLoading(); 
-          if(res.success) { Swal.fire('สำเร็จ!', res.message, 'success'); document.getElementById('reqPages').value = ""; document.getElementById('reqFile').value = ""; loadMainData(); } 
-          else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-        } catch(err) { handleError(err); }
+          if(res.success) { 
+            Swal.fire('สำเร็จ!', res.message, 'success'); 
+            document.getElementById('reqPages').value = ""; 
+            document.getElementById('reqFile').value = ""; 
+            loadMainData(); 
+          } else { 
+            Swal.fire('ผิดพลาด', res.message, 'error'); 
+          }
+        } catch(err) { 
+          handleError(err); 
+        }
       };
-      reader.readAsDataURL(fInput.files[0]);
+      
+      reader.onerror = function() {
+        hideLoading();
+        Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้ กรุณาลองใหม่', 'error');
+      };
+      
+      reader.readAsDataURL(file);
     }
 
     async function loadMainData() {
       showLoading("กำลังโหลดข้อมูล...");
       try {
         const res = await fetchAPI('getDashboardData');
-        if (!res.success || !res.data) { hideLoading(); return Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลจากระบบได้', 'error'); }
-        globalData = res.data; populateFilters();
-        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'assistant')) loadAdminData();
-        switchView('dashboard'); hideLoading();
-      } catch(e) { handleError(e); }
+        if (!res.success || !res.data) { 
+          hideLoading(); 
+          return Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลจากระบบได้', 'error'); 
+        }
+        
+        globalData = res.data; 
+        populateFilters();
+        
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'assistant')) {
+          loadAdminData();
+        }
+        
+        switchView('dashboard'); 
+        hideLoading();
+      } catch(e) { 
+        handleError(e); 
+      }
     }
 
     function switchView(view) {
       var views = ['dashboard', 'user', 'upload', 'admin', 'report'];
-      views.forEach(function(v) { document.getElementById('view-' + v)?.classList.add('hidden'); document.getElementById('nav-' + v)?.classList.remove('nav-active'); });
-      document.getElementById('view-' + view)?.classList.remove('hidden'); document.getElementById('nav-' + view)?.classList.add('nav-active');
-      if (view === 'dashboard') renderDashboard(); else if (view === 'user') renderUserDash();
+      views.forEach(function(v) { 
+        document.getElementById('view-' + v)?.classList.add('hidden'); 
+        document.getElementById('nav-' + v)?.classList.remove('nav-active'); 
+      });
+      document.getElementById('view-' + view)?.classList.remove('hidden'); 
+      document.getElementById('nav-' + view)?.classList.add('nav-active');
+      
+      if (view === 'dashboard') renderDashboard(); 
+      else if (view === 'user') renderUserDash();
     }
 
     function getGroupDict() {
       let dict = {};
-      if (globalData && globalData.groups) { globalData.groups.forEach(function(g) { dict[String(g.code).padStart(2, '0')] = g.name; }); }
+      if (globalData && globalData.groups) { 
+        globalData.groups.forEach(function(g) { 
+          dict[String(g.code).padStart(2, '0')] = g.name; 
+        }); 
+      }
       return dict;
     }
 
     function populateFilters() {
       if (!globalData || !globalData.totals) return;
+      
       const periods = [...new Set(globalData.totals.map(function(r) { return r["รอบข้อมูล"]; }))].filter(Boolean).sort().reverse();
       const groups = globalData.groups || [];
-      const pf = document.getElementById('periodFilter'); const rf = document.getElementById('repPeriod'); const ef = document.getElementById('emailPeriodSel'); const df = document.getElementById('delPeriodSel'); const gf = document.getElementById('groupFilter');
-      let opts = '<option value="all">ดูข้อมูลรวมทุกรอบ</option>'; let repOpts = '';
-      periods.forEach(function(p) { let t = `<option value="${p}">${p}</option>`; opts += t; repOpts += t; });
-      if (pf) pf.innerHTML = opts; if (rf) rf.innerHTML = repOpts; if (ef) ef.innerHTML = repOpts; if (df) df.innerHTML = repOpts;
-      if (periods.length > 0) { if (pf) pf.value = periods[0]; if (rf) rf.value = periods[0]; if (ef) ef.value = periods[0]; if (df) df.value = periods[0]; }
+      
+      const pf = document.getElementById('periodFilter'); 
+      const rf = document.getElementById('repPeriod'); 
+      const ef = document.getElementById('emailPeriodSel'); 
+      const df = document.getElementById('delPeriodSel'); 
+      const gf = document.getElementById('groupFilter');
+      
+      let opts = '<option value="all">ดูข้อมูลรวมทุกรอบ</option>'; 
+      let repOpts = '';
+      
+      periods.forEach(function(p) { 
+        let t = `<option value="${p}">${p}</option>`; 
+        opts += t; 
+        repOpts += t; 
+      });
+      
+      if (pf) pf.innerHTML = opts; 
+      if (rf) rf.innerHTML = repOpts; 
+      if (ef) ef.innerHTML = repOpts; 
+      if (df) df.innerHTML = repOpts;
+      
+      if (periods.length > 0) { 
+        if (pf) pf.value = periods[0]; 
+        if (rf) rf.value = periods[0]; 
+        if (ef) ef.value = periods[0]; 
+        if (df) df.value = periods[0]; 
+      }
+      
       if (gf) {
         let grpOpts = '<option value="all">รวมทุกกลุ่มงาน</option>';
-        groups.forEach(function(g) { let codePad = String(g.code).padStart(2, '0'); grpOpts += `<option value="${codePad}">${codePad} - ${g.name}</option>`; });
+        groups.forEach(function(g) { 
+          let codePad = String(g.code).padStart(2, '0'); 
+          grpOpts += `<option value="${codePad}">${codePad} - ${g.name}</option>`; 
+        });
         gf.innerHTML = grpOpts;
       }
     }
 
     function renderDashboard() {
       if (!globalData || !globalData.stacks) return;
-      const period = document.getElementById('periodFilter').value; const floorStr = document.getElementById('floorFilter').value; const groupCode = document.getElementById('groupFilter').value;
-      const cBw = parseFloat(globalData.settings.cost_bw) || 1; const cCol = parseFloat(globalData.settings.cost_color) || 5;
+      
+      const period = document.getElementById('periodFilter').value; 
+      const floorStr = document.getElementById('floorFilter').value; 
+      const groupCode = document.getElementById('groupFilter').value;
+      const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
+      const cCol = parseFloat(globalData.settings.cost_color) || 5;
       
       let stacks = globalData.stacks;
-      if (period !== "all") stacks = stacks.filter(function(r) { return r["รอบข้อมูล"] === period; }); 
-      if (floorStr !== "all") { let floorLabel = "ชั้น " + floorStr.replace('F', ''); stacks = stacks.filter(function(r) { return r["ชั้น"] === floorLabel; }); }
-      if (groupCode !== "all") stacks = stacks.filter(function(r) { return String(r["รหัสกลุ่ม"]).padStart(2, '0') === groupCode; }); 
+      if (period !== "all") {
+        stacks = stacks.filter(function(r) { return r["รอบข้อมูล"] === period; }); 
+      }
+      if (floorStr !== "all") { 
+        let floorLabel = "ชั้น " + floorStr.replace('F', ''); 
+        stacks = stacks.filter(function(r) { return r["ชั้น"] === floorLabel; }); 
+      }
+      if (groupCode !== "all") {
+        stacks = stacks.filter(function(r) { return String(r["รหัสกลุ่ม"]).padStart(2, '0') === groupCode; }); 
+      }
 
-      let groupDict = getGroupDict(); let groupMap = {}; let tU = 0, tP = 0, tC = 0, tCol = 0, tBw = 0, tCost = 0; let f1 = 0, f2 = 0, f3 = 0; 
+      let groupDict = getGroupDict(); 
+      let groupMap = {}; 
+      let tU = 0, tP = 0, tC = 0, tCol = 0, tBw = 0, tCost = 0; 
+      let f1 = 0, f2 = 0, f3 = 0; 
+      
       stacks.forEach(function(r) {
-        let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-        if(!groupMap[code]) groupMap[code] = { code: code, name: name, pc:0, pbw:0, cc:0, cbw:0, totalP:0, totalC:0, total:0 };
-        let pc = parseFloat(r["Print สี"]) || 0; let pbw = parseFloat(r["Print ขาวดำ"]) || 0; let cc = parseFloat(r["Copy สี"]) || 0; let cbw = parseFloat(r["Copy ขาวดำ"]) || 0; let total = parseFloat(r["รวมทั้งหมด (Print+Copy)"]) || 0;
-        groupMap[code].pc += pc; groupMap[code].pbw += pbw; groupMap[code].cc += cc; groupMap[code].cbw += cbw; groupMap[code].totalP += (pc + pbw); groupMap[code].totalC += (cc + cbw); groupMap[code].total += total;
-        tP += (pc + pbw); tC += (cc + cbw); tCol += (pc + cc); tBw += (pbw + cbw); tU += total; tCost += ((pc + cc) * cCol) + ((pbw + cbw) * cBw);
-        if (r["ชั้น"] === "ชั้น 1") f1 += total; else if (r["ชั้น"] === "ชั้น 2") f2 += total; else if (r["ชั้น"] === "ชั้น 3") f3 += total; 
+        let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+        let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+        
+        if(!groupMap[code]) {
+          groupMap[code] = { code: code, name: name, pc:0, pbw:0, cc:0, cbw:0, totalP:0, totalC:0, total:0 };
+        }
+        
+        let pc = parseFloat(r["Print สี"]) || 0; 
+        let pbw = parseFloat(r["Print ขาวดำ"]) || 0; 
+        let cc = parseFloat(r["Copy สี"]) || 0; 
+        let cbw = parseFloat(r["Copy ขาวดำ"]) || 0; 
+        let total = parseFloat(r["รวมทั้งหมด (Print+Copy)"]) || 0;
+        
+        groupMap[code].pc += pc; 
+        groupMap[code].pbw += pbw; 
+        groupMap[code].cc += cc; 
+        groupMap[code].cbw += cbw; 
+        groupMap[code].totalP += (pc + pbw); 
+        groupMap[code].totalC += (cc + cbw); 
+        groupMap[code].total += total;
+        
+        tP += (pc + pbw); 
+        tC += (cc + cbw); 
+        tCol += (pc + cc); 
+        tBw += (pbw + cbw); 
+        tU += total; 
+        tCost += ((pc + cc) * cCol) + ((pbw + cbw) * cBw);
+        
+        if (r["ชั้น"] === "ชั้น 1") f1 += total; 
+        else if (r["ชั้น"] === "ชั้น 2") f2 += total; 
+        else if (r["ชั้น"] === "ชั้น 3") f3 += total; 
       });
 
       currentDashData = Object.values(groupMap);
-      document.getElementById('sumTotal').innerText = tU.toLocaleString(); document.getElementById('sumPrint').innerText = tP.toLocaleString(); document.getElementById('sumCopy').innerText = tC.toLocaleString(); document.getElementById('sumColor').innerText = tCol.toLocaleString(); document.getElementById('sumBW').innerText = tBw.toLocaleString(); document.getElementById('sumCost').innerText = tCost.toLocaleString();
+      
+      document.getElementById('sumTotal').innerText = tU.toLocaleString(); 
+      document.getElementById('sumPrint').innerText = tP.toLocaleString(); 
+      document.getElementById('sumCopy').innerText = tC.toLocaleString(); 
+      document.getElementById('sumColor').innerText = tCol.toLocaleString(); 
+      document.getElementById('sumBW').innerText = tBw.toLocaleString(); 
+      document.getElementById('sumCost').innerText = tCost.toLocaleString();
 
       let sortedForChart = [...currentDashData].sort(function(a,b) { return b.total - a.total; }).slice(0, 10);
+      
       if (chartInstances.bar) chartInstances.bar.destroy();
       const barCtx = document.getElementById('barChart');
       if (barCtx) {
-        chartInstances.bar = new Chart(barCtx, { type: 'bar', data: { labels: sortedForChart.map(function(r) { return r.name.substring(3, 18) + "..."; }), datasets: [{ label: 'Print', data: sortedForChart.map(function(r) { return r.totalP; }), backgroundColor: '#10b981' }, { label: 'Copy', data: sortedForChart.map(function(r) { return r.totalC; }), backgroundColor: '#8b5cf6' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } } });
+        chartInstances.bar = new Chart(barCtx, { 
+          type: 'bar', 
+          data: { 
+            labels: sortedForChart.map(function(r) { return r.name.substring(3, 18) + "..."; }), 
+            datasets: [
+              { label: 'Print', data: sortedForChart.map(function(r) { return r.totalP; }), backgroundColor: '#10b981' }, 
+              { label: 'Copy', data: sortedForChart.map(function(r) { return r.totalC; }), backgroundColor: '#8b5cf6' }
+            ] 
+          }, 
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            scales: { x: { stacked: true }, y: { stacked: true } } 
+          } 
+        });
       }
       
       if (chartInstances.pie) chartInstances.pie.destroy();
       const pieCtx = document.getElementById('pieChart');
       if (pieCtx) {
-        chartInstances.pie = new Chart(pieCtx, { type: 'doughnut', data: { labels: ['ชั้น 1','ชั้น 2','ชั้น 3'], datasets: [{ data: [f1,f2,f3], backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+        chartInstances.pie = new Chart(pieCtx, { 
+          type: 'doughnut', 
+          data: { 
+            labels: ['ชั้น 1','ชั้น 2','ชั้น 3'], 
+            datasets: [{ data: [f1,f2,f3], backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] 
+          }, 
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false 
+          } 
+        });
       }
+      
       renderDashTable();
     }
 
     function sortDashTable(col) {
-      if (dashSortCol === col) dashSortAsc = !dashSortAsc; else { dashSortCol = col; dashSortAsc = false; }
+      if (dashSortCol === col) {
+        dashSortAsc = !dashSortAsc; 
+      } else { 
+        dashSortCol = col; 
+        dashSortAsc = false; 
+      }
       renderDashTable();
     }
 
     function renderDashTable() {
-      document.querySelectorAll('#view-dashboard .sortable i').forEach(function(icon) { icon.className = 'fas fa-sort ml-1 text-gray-400'; });
-      currentDashData.sort(function(a, b) { let valA = a[dashSortCol]; let valB = b[dashSortCol]; if (typeof valA === 'string') return dashSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA); else return dashSortAsc ? valA - valB : valB - valA; });
-      let tb = document.getElementById('dashTableBody'); tb.innerHTML = '';
-      currentDashData.forEach(function(r) { tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-gray-600">${r.code}</td><td class="p-3 font-medium">${r.name}</td><td class="p-3 text-right">${r.pc.toLocaleString()}</td><td class="p-3 text-right">${r.pbw.toLocaleString()}</td><td class="p-3 text-right">${r.cc.toLocaleString()}</td><td class="p-3 text-right">${r.cbw.toLocaleString()}</td><td class="p-3 text-right font-bold text-blue-600">${r.total.toLocaleString()}</td></tr>`; });
+      document.querySelectorAll('#view-dashboard .sortable i').forEach(function(icon) { 
+        icon.className = 'fas fa-sort ml-1 text-gray-400'; 
+      });
+      
+      currentDashData.sort(function(a, b) { 
+        let valA = a[dashSortCol]; 
+        let valB = b[dashSortCol]; 
+        if (typeof valA === 'string') {
+          return dashSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA); 
+        } else {
+          return dashSortAsc ? valA - valB : valB - valA; 
+        }
+      });
+      
+      let tb = document.getElementById('dashTableBody'); 
+      tb.innerHTML = '';
+      
+      currentDashData.forEach(function(r) { 
+        tb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+          <td class="p-3 text-gray-600">${r.code}</td>
+          <td class="p-3 font-medium">${r.name}</td>
+          <td class="p-3 text-right">${r.pc.toLocaleString()}</td>
+          <td class="p-3 text-right">${r.pbw.toLocaleString()}</td>
+          <td class="p-3 text-right">${r.cc.toLocaleString()}</td>
+          <td class="p-3 text-right">${r.cbw.toLocaleString()}</td>
+          <td class="p-3 text-right font-bold text-blue-600">${r.total.toLocaleString()}</td>
+        </tr>`; 
+      });
     }
 
     function renderUserDash() {
       if (!currentUser || !globalData.staffs) return;
-      const period = document.getElementById('periodFilter').value; const cBw = parseFloat(globalData.settings.cost_bw) || 1; const cCol = parseFloat(globalData.settings.cost_color) || 5;
+      
+      const period = document.getElementById('periodFilter').value; 
+      const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
+      const cCol = parseFloat(globalData.settings.cost_color) || 5;
       
       let staffs = globalData.staffs;
-      if (period !== "all") staffs = staffs.filter(function(r) { return r["รอบข้อมูล"] === period; });
+      if (period !== "all") {
+        staffs = staffs.filter(function(r) { return r["รอบข้อมูล"] === period; });
+      }
 
       let groupDict = getGroupDict();
-      let me = staffs.find(function(r) { return r["ชื่อ-สกุลบุคลากร"] === currentUser.name || r["Username ในเครื่อง"] === currentUser.printerUser; });
+      let me = staffs.find(function(r) { 
+        return r["ชื่อ-สกุลบุคลากร"] === currentUser.name || r["Username ในเครื่อง"] === currentUser.printerUser; 
+      });
       
       if (me) {
-        document.getElementById('myPrint').innerText = parseFloat(me["รวม Print"] || 0).toLocaleString(); document.getElementById('myCopy').innerText = parseFloat(me["รวม Copy"] || 0).toLocaleString();
-        let cost = (parseFloat(me["Print สี"] || 0) + parseFloat(me["Copy สี"] || 0)) * cCol + (parseFloat(me["Print ขาวดำ"] || 0) + parseFloat(me["Copy ขาวดำ"] || 0)) * cBw; document.getElementById('myCost').innerText = cost.toLocaleString();
+        document.getElementById('myPrint').innerText = parseFloat(me["รวม Print"] || 0).toLocaleString(); 
+        document.getElementById('myCopy').innerText = parseFloat(me["รวม Copy"] || 0).toLocaleString();
+        
+        let cost = (parseFloat(me["Print สี"] || 0) + parseFloat(me["Copy สี"] || 0)) * cCol + 
+                   (parseFloat(me["Print ขาวดำ"] || 0) + parseFloat(me["Copy ขาวดำ"] || 0)) * cBw; 
+        document.getElementById('myCost').innerText = cost.toLocaleString();
       } else {
-        document.getElementById('myPrint').innerText = "0"; document.getElementById('myCopy').innerText = "0"; document.getElementById('myCost').innerText = "0";
+        document.getElementById('myPrint').innerText = "0"; 
+        document.getElementById('myCopy').innerText = "0"; 
+        document.getElementById('myCost').innerText = "0";
       }
 
       document.getElementById('myGroupName').innerText = currentUser.group;
-      let myGroup = staffs.filter(function(r) { let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let mappedName = groupDict[code] || String(r["ชื่อกลุ่ม"]); return mappedName === currentUser.group || String(r["ชื่อกลุ่ม"]) === currentUser.group; });
-      let tb = document.getElementById('myGroupTable'); tb.innerHTML = '';
-      myGroup.sort(function(a,b) { return (parseFloat(b["รวมทั้งหมด (Print+Copy)"]) || 0) - (parseFloat(a["รวมทั้งหมด (Print+Copy)"]) || 0); }).forEach(function(r) { let nameLabel = r["ชื่อ-สกุลบุคลากร"] || r["Username ในเครื่อง"]; tb.innerHTML += `<tr class="border-b"><td class="p-2">${nameLabel}</td><td class="p-2 text-right">${r["รวม Print"]}</td><td class="p-2 text-right">${r["รวม Copy"]}</td><td class="p-2 text-right font-bold text-blue-600">${r["รวมทั้งหมด (Print+Copy)"]}</td></tr>`; });
+      
+      let myGroup = staffs.filter(function(r) { 
+        let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+        let mappedName = groupDict[code] || String(r["ชื่อกลุ่ม"]); 
+        return mappedName === currentUser.group || String(r["ชื่อกลุ่ม"]) === currentUser.group; 
+      });
+      
+      let tb = document.getElementById('myGroupTable'); 
+      tb.innerHTML = '';
+      
+      myGroup.sort(function(a,b) { 
+        return (parseFloat(b["รวมทั้งหมด (Print+Copy)"]) || 0) - (parseFloat(a["รวมทั้งหมด (Print+Copy)"]) || 0); 
+      }).forEach(function(r) { 
+        let nameLabel = r["ชื่อ-สกุลบุคลากร"] || r["Username ในเครื่อง"]; 
+        tb.innerHTML += `<tr class="border-b">
+          <td class="p-2">${nameLabel}</td>
+          <td class="p-2 text-right">${r["รวม Print"]}</td>
+          <td class="p-2 text-right">${r["รวม Copy"]}</td>
+          <td class="p-2 text-right font-bold text-blue-600">${r["รวมทั้งหมด (Print+Copy)"]}</td>
+        </tr>`; 
+      });
 
-      let reqTb = document.getElementById('myPrintReqTableBody'); reqTb.innerHTML = '';
-      let myReqs = globalData.printReqs.filter(function(r) { return String(r["เบอร์มือถือ"]).replace(/'/g, '').trim() === currentUser.mobile; });
+      let reqTb = document.getElementById('myPrintReqTableBody'); 
+      reqTb.innerHTML = '';
+      
+      let myReqs = globalData.printReqs.filter(function(r) { 
+        return String(r["เบอร์มือถือ"]).replace(/'/g, '').trim() === currentUser.mobile; 
+      });
 
-      if (myReqs.length === 0) { reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>'; } 
-      else {
+      if (myReqs.length === 0) { 
+        reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>'; 
+      } else {
         myReqs.slice().reverse().forEach(function(r) {
-          let dateLabel = r["Timestamp_Str"] || r["Timestamp"]; let status = r["สถานะ"] || "รอปริ้น";
-          let statusBadge = status === "รอปริ้น" ? `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>` : `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${status}</span>`;
-          reqTb.innerHTML += `<tr class="border-b"><td class="p-2 text-xs">${dateLabel}</td><td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]}</td><td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> ดูไฟล์</a></td><td class="p-2 text-center">${statusBadge}</td></tr>`;
+          let dateLabel = r["Timestamp_Str"] || r["Timestamp"]; 
+          let status = r["สถานะ"] || "รอปริ้น";
+          let statusBadge = status === "รอปริ้น" 
+            ? `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>` 
+            : `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${status}</span>`;
+            
+          reqTb.innerHTML += `<tr class="border-b">
+            <td class="p-2 text-xs">${dateLabel}</td>
+            <td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]}</td>
+            <td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> ดูไฟล์</a></td>
+            <td class="p-2 text-center">${statusBadge}</td>
+          </tr>`;
         });
       }
     }
 
     // --- Admin Functions ---
-    function readFileAsDataURL(file) { return new Promise(function(resolve, reject) { const reader = new FileReader(); reader.onload = function(e) { resolve(e.target.result); }; reader.onerror = function(e) { reject(e); }; reader.readAsDataURL(file); }); }
+    function readFileAsDataURL(file) { 
+      return new Promise(function(resolve, reject) { 
+        const reader = new FileReader(); 
+        reader.onload = function(e) { resolve(e.target.result); }; 
+        reader.onerror = function(e) { reject(e); }; 
+        reader.readAsDataURL(file); 
+      }); 
+    }
 
     async function handleMultiUpload() {
-      const p = document.getElementById('uploadPeriod').value.trim(); if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรอบข้อมูล (เช่น มกราคม 2569) ก่อนทำการอัปโหลด', 'warning');
-      const filesToUpload = []; const floors = ['F1', 'F2', 'F3'];
-      floors.forEach(function(f) { const input = document.getElementById('uploadFile' + f); if (input && input.files.length > 0) filesToUpload.push({ floorKey: f, file: input.files[0] }); });
+      const p = document.getElementById('uploadPeriod').value.trim(); 
+      if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรอบข้อมูล (เช่น มกราคม 2569) ก่อนทำการอัปโหลด', 'warning');
+      
+      const filesToUpload = []; 
+      const floors = ['F1', 'F2', 'F3'];
+      
+      floors.forEach(function(f) { 
+        const input = document.getElementById('uploadFile' + f); 
+        if (input && input.files.length > 0) filesToUpload.push({ floorKey: f, file: input.files[0] }); 
+      });
+      
       if (filesToUpload.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์อย่างน้อย 1 ชั้น', 'warning');
+      
       showLoading("กำลังอ่านไฟล์และเตรียมอัปโหลด (ห้ามปิดหน้าต่าง)...");
       try {
         const fileDataArray = [];
-        for (let i = 0; i < filesToUpload.length; i++) { const item = filesToUpload[i]; const dataURI = await readFileAsDataURL(item.file); fileDataArray.push({ floorKey: item.floorKey, fileName: item.file.name, dataURI: dataURI }); }
+        for (let i = 0; i < filesToUpload.length; i++) { 
+          const item = filesToUpload[i]; 
+          const dataURI = await readFileAsDataURL(item.file); 
+          fileDataArray.push({ floorKey: item.floorKey, fileName: item.file.name, dataURI: dataURI }); 
+        }
+        
         showLoading("กำลังอัปโหลดขึ้นเซิร์ฟเวอร์และคำนวณสถิติ...");
         const res = await fetchAPI('uploadMultipleCsvsToDrive', { filesArray: fileDataArray, period: p });
-        if (res.success) { Swal.fire('สำเร็จ!', res.message, 'success').then(function() { window.location.reload(); }); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
-      } catch (err) { handleError(err); }
+        
+        if (res.success) { 
+          Swal.fire('สำเร็จ!', res.message, 'success').then(function() { window.location.reload(); }); 
+        } else { 
+          Swal.fire('ผิดพลาด', res.message, 'error'); 
+        } 
+      } catch (err) { 
+        handleError(err); 
+      }
     }
 
     function deleteUpload() {
-      const p = document.getElementById('delPeriodSel').value; const f = document.getElementById('delFloorSel').value;
+      const p = document.getElementById('delPeriodSel').value; 
+      const f = document.getElementById('delFloorSel').value;
       if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรอบข้อมูล', 'warning');
-      Swal.fire({ title: 'ยืนยันการลบข้อมูล?', html: "ลบข้อมูลรอบ <b>[" + p + "]</b> เครื่อง <b>[" + f + "]</b><br><br><span class='text-red-500'>การกระทำนี้ไม่สามารถกู้คืนได้!</span>", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบข้อมูล', cancelButtonText: 'ยกเลิก' }).then(async function(result) {
-        if (result.isConfirmed) { showLoading("กำลังลบและคำนวณใหม่..."); try { const res = await fetchAPI('deleteUploadData', { period: p, floor: f }); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } } catch(e) { handleError(e); } }
+      
+      Swal.fire({ 
+        title: 'ยืนยันการลบข้อมูล?', 
+        html: `ลบข้อมูลรอบ <b>[${p}]</b> เครื่อง <b>[${f}]</b><br><br><span class='text-red-500'>การกระทำนี้ไม่สามารถกู้คืนได้!</span>`, 
+        icon: 'warning', 
+        showCancelButton: true, 
+        confirmButtonColor: '#d33', 
+        confirmButtonText: 'ใช่, ลบข้อมูล', 
+        cancelButtonText: 'ยกเลิก' 
+      }).then(async function(result) {
+        if (result.isConfirmed) { 
+          showLoading("กำลังลบและคำนวณใหม่..."); 
+          try { 
+            const res = await fetchAPI('deleteUploadData', { period: p, floor: f }); 
+            if (res.success) { 
+              Swal.fire('สำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); 
+            } else { 
+              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            } 
+          } catch(e) { 
+            handleError(e); 
+          } 
+        }
       });
     }
 
     function clearDatabaseUI() {
-      Swal.fire({ title: '⚠️ พื้นที่อันตราย!', text: "คุณแน่ใจหรือไม่ที่จะล้างฐานข้อมูลสถิติทั้งหมด? พิมพ์ 'ยืนยัน' เพื่อดำเนินการต่อ", input: 'text', icon: 'error', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ล้างฐานข้อมูล', cancelButtonText: 'ยกเลิก', preConfirm: function(inputValue) { if (inputValue !== 'ยืนยัน') Swal.showValidationMessage("คุณพิมพ์คำยืนยันไม่ถูกต้อง"); } }).then(async function(result) {
-        if (result.isConfirmed) { showLoading("กำลังล้างฐานข้อมูล..."); try { const res = await fetchAPI('clearDatabase'); if(res.success) Swal.fire('ล้างข้อมูลสำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); else Swal.fire('เกิดข้อผิดพลาด', res.message, 'error'); } catch(e) { handleError(e); } }
+      Swal.fire({ 
+        title: '⚠️ พื้นที่อันตราย!', 
+        text: "คุณแน่ใจหรือไม่ที่จะล้างฐานข้อมูลสถิติทั้งหมด? พิมพ์ 'ยืนยัน' เพื่อดำเนินการต่อ", 
+        input: 'text', 
+        icon: 'error', 
+        showCancelButton: true, 
+        confirmButtonColor: '#d33', 
+        confirmButtonText: 'ล้างฐานข้อมูล', 
+        cancelButtonText: 'ยกเลิก', 
+        preConfirm: function(inputValue) { 
+          if (inputValue !== 'ยืนยัน') Swal.showValidationMessage("คุณพิมพ์คำยืนยันไม่ถูกต้อง"); 
+        } 
+      }).then(async function(result) {
+        if (result.isConfirmed) { 
+          showLoading("กำลังล้างฐานข้อมูล..."); 
+          try { 
+            const res = await fetchAPI('clearDatabase'); 
+            if(res.success) {
+              Swal.fire('ล้างข้อมูลสำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); 
+            } else {
+              Swal.fire('เกิดข้อผิดพลาด', res.message, 'error'); 
+            }
+          } catch(e) { 
+            handleError(e); 
+          } 
+        }
       });
     }
 
     function updatePrintStatus(tsStr) {
-      Swal.fire({ title: 'ยืนยันการอนุมัติ?', text: "คุณต้องการเปลี่ยนสถานะคำขอนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่", icon: 'question', showCancelButton: true, confirmButtonColor: '#10b981', confirmButtonText: 'ใช่, อนุมัติเลย', cancelButtonText: 'ยกเลิก' }).then(async function(result) {
-        if(result.isConfirmed) { showLoading("กำลังอัปเดตสถานะ..."); try { const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "เสร็จสิ้น" }); if(res.success) { Swal.fire('สำเร็จ!', res.message, 'success'); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } } catch(e) { handleError(e); } }
+      Swal.fire({ 
+        title: 'ยืนยันการอนุมัติ?', 
+        text: "คุณต้องการเปลี่ยนสถานะคำขอนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่", 
+        icon: 'question', 
+        showCancelButton: true, 
+        confirmButtonColor: '#10b981', 
+        confirmButtonText: 'ใช่, อนุมัติเลย', 
+        cancelButtonText: 'ยกเลิก' 
+      }).then(async function(result) {
+        if(result.isConfirmed) { 
+          showLoading("กำลังอัปเดตสถานะ..."); 
+          try { 
+            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "เสร็จสิ้น" }); 
+            if(res.success) { 
+              Swal.fire('สำเร็จ!', res.message, 'success'); 
+              loadMainData(); 
+            } else { 
+              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            } 
+          } catch(e) { 
+            handleError(e); 
+          } 
+        }
       });
     }
 
@@ -847,52 +1356,116 @@
       document.getElementById('setTgToken').value = globalData.settings.telegram_bot_token || "";
       document.getElementById('setTgChatId').value = globalData.settings.telegram_chat_id || "";
       
-      let pr = globalData.printReqs || []; let prTb = document.getElementById('printReqBody'); prTb.innerHTML = '';
+      let pr = globalData.printReqs || []; 
+      let prTb = document.getElementById('printReqBody'); 
+      prTb.innerHTML = '';
+      
       pr.slice().reverse().forEach(function(r) { 
-        let dateLabel = r["Timestamp_Str"] || r["Timestamp"]; let status = r["สถานะ"] || "รอปริ้น";
-        let statusBadge = ""; let actionBtn = "";
-        if (status === "รอปริ้น") { statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs">รอปริ้น</span>`; actionBtn = `<button onclick="updatePrintStatus('${dateLabel}')" class="text-green-600 hover:underline mt-1 block w-full text-center text-xs"><i class="fas fa-check-circle"></i> อนุมัติ</button>`; } 
-        else { statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs">${status}</span>`; }
-        prTb.innerHTML += `<tr class="border-b"><td class="p-2 text-xs">${dateLabel}</td><td class="p-2">${r["ชื่อผู้ขอ"]}</td><td class="p-2 text-xs">${r["กลุ่มงาน"]}</td><td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]}</td><td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> โหลดไฟล์</a></td><td class="p-2 text-center">${statusBadge}${actionBtn}</td></tr>`; 
+        let dateLabel = r["Timestamp_Str"] || r["Timestamp"]; 
+        let status = r["สถานะ"] || "รอปริ้น";
+        let statusBadge = ""; 
+        let actionBtn = "";
+        
+        if (status === "รอปริ้น") { 
+          statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs">รอปริ้น</span>`; 
+          actionBtn = `<button onclick="updatePrintStatus('${dateLabel}')" class="text-green-600 hover:underline mt-1 block w-full text-center text-xs"><i class="fas fa-check-circle"></i> อนุมัติ</button>`; 
+        } else { 
+          statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs">${status}</span>`; 
+        }
+        
+        prTb.innerHTML += `<tr class="border-b">
+          <td class="p-2 text-xs">${dateLabel}</td>
+          <td class="p-2">${r["ชื่อผู้ขอ"]}</td>
+          <td class="p-2 text-xs">${r["กลุ่มงาน"]}</td>
+          <td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]}</td>
+          <td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> โหลดไฟล์</a></td>
+          <td class="p-2 text-center">${statusBadge}${actionBtn}</td>
+        </tr>`; 
       });
 
       try {
-        const res = await fetchAPI('getAdminData'); if(!res.success) throw new Error(res.message || "Failed to load admin data"); const data = res.data;
-        tempGroups = data.groups || []; renderGroupTable();
-        const tb = document.getElementById('userTableBody'); tb.innerHTML = "";
+        const res = await fetchAPI('getAdminData'); 
+        if(!res.success) throw new Error(res.message || "Failed to load admin data"); 
+        const data = res.data;
+        
+        tempGroups = data.groups || []; 
+        renderGroupTable();
+        const tb = document.getElementById('userTableBody'); 
+        tb.innerHTML = "";
         
         data.users.forEach(function(u) {
           let badge = '';
-          if (u.status === 'pending') badge = '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติ</span>'; else if (u.status === 'suspended') badge = '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; else { let roleName = ""; if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; else roleName = 'ผู้ใช้งาน'; badge = `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; }
+          if (u.status === 'pending') {
+            badge = '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติ</span>'; 
+          } else if (u.status === 'suspended') {
+            badge = '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; 
+          } else { 
+            let roleName = ""; 
+            if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; 
+            else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; 
+            else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; 
+            else roleName = 'ผู้ใช้งาน'; 
+            badge = `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; 
+          }
           
           let actionBtns = `<div class="flex justify-center space-x-3">`;
           actionBtns += `<button onclick="viewUserPin('${u.pin}', '${u.name}')" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
           actionBtns += `<button onclick="openEditUserModal('${u.mobile}', '${u.name}', '${u.group}', '${u.role}', '${u.status}', '${u.position}', '${u.printerUser}')" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>`;
 
-          if (u.status === 'pending') actionBtns += `<button onclick="actionUser('${u.mobile}', 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติ"><i class="fas fa-check-circle"></i></button>`;
-          if (u.status !== 'pending' && u.role !== 'admin') { if (u.status === 'suspended') actionBtns += `<button onclick="actionUser('${u.mobile}', 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; else actionBtns += `<button onclick="actionUser('${u.mobile}', 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; }
-          if (u.role !== 'admin') actionBtns += `<button onclick="actionUser('${u.mobile}', 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
+          if (u.status === 'pending') {
+            actionBtns += `<button onclick="actionUser('${u.mobile}', 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติ"><i class="fas fa-check-circle"></i></button>`;
+          }
+          if (u.status !== 'pending' && u.role !== 'admin') { 
+            if (u.status === 'suspended') {
+              actionBtns += `<button onclick="actionUser('${u.mobile}', 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
+            } else {
+              actionBtns += `<button onclick="actionUser('${u.mobile}', 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
+            }
+          }
+          if (u.role !== 'admin') {
+            actionBtns += `<button onclick="actionUser('${u.mobile}', 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
+          }
           actionBtns += `</div>`;
           
-          tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2"><b>${u.name}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${u.mobile}</span><br>${badge}</td><td class="p-2 align-middle">${actionBtns}</td></tr>`;
+          tb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+            <td class="p-2"><b>${u.name}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${u.mobile}</span><br>${badge}</td>
+            <td class="p-2 align-middle">${actionBtns}</td>
+          </tr>`;
         });
-      } catch(e) { handleError(e); }
+      } catch(e) { 
+        handleError(e); 
+      }
     }
 
-    function viewUserPin(pin, name) { Swal.fire({ title: `รหัส PIN ของ ${name}`, html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${pin}</span>`, icon: 'info' }); }
+    function viewUserPin(pin, name) { 
+      Swal.fire({ 
+        title: `รหัส PIN ของ ${name}`, 
+        html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${pin}</span>`, 
+        icon: 'info' 
+      }); 
+    }
 
     function openEditUserModal(mobile, name, group, role, status, position, printerUser) {
-      document.getElementById('editMobile').value = mobile; document.getElementById('editOriginalMobile').value = mobile;
-      document.getElementById('editName').value = name; document.getElementById('editRole').value = role || 'user';
+      document.getElementById('editMobile').value = mobile; 
+      document.getElementById('editOriginalMobile').value = mobile;
+      document.getElementById('editName').value = name; 
+      document.getElementById('editRole').value = role || 'user';
       document.getElementById('editStatus').value = status || 'approved'; 
-      document.getElementById('editPos').value = position || ''; document.getElementById('editPrintUser').value = printerUser || '';
+      document.getElementById('editPos').value = position || ''; 
+      document.getElementById('editPrintUser').value = printerUser || '';
       
-      const selGroup = document.getElementById('editGroup'); selGroup.innerHTML = '';
-      tempGroups.forEach(function(g) { let selected = (g.name === group) ? 'selected' : ''; selGroup.innerHTML += `<option value="${g.code}|${g.name}" ${selected}>${g.code} - ${g.name}</option>`; });
+      const selGroup = document.getElementById('editGroup'); 
+      selGroup.innerHTML = '';
+      tempGroups.forEach(function(g) { 
+        let selected = (g.name === group) ? 'selected' : ''; 
+        selGroup.innerHTML += `<option value="${g.code}|${g.name}" ${selected}>${g.code} - ${g.name}</option>`; 
+      });
       document.getElementById('adminEditUserModal').classList.remove('hidden');
     }
 
-    function closeEditUserModal() { document.getElementById('adminEditUserModal').classList.add('hidden'); }
+    function closeEditUserModal() { 
+      document.getElementById('adminEditUserModal').classList.add('hidden'); 
+    }
 
     async function submitEditUser() {
       const originalMobile = document.getElementById('editOriginalMobile').value;
@@ -909,11 +1482,22 @@
       };
       
       if (!updatedData.mobile || !updatedData.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
+      
       showLoading("กำลังบันทึกข้อมูล...");
-      try { const res = await fetchAPI('editUser', { mobile: originalMobile, updatedData: updatedData }); if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeEditUserModal(); loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } } catch(e) { handleError(e); }
+      try { 
+        const res = await fetchAPI('editUser', { mobile: originalMobile, updatedData: updatedData }); 
+        if(res.success) { 
+          Swal.fire('สำเร็จ', res.message, 'success'); 
+          closeEditUserModal(); 
+          loadAdminData(); 
+        } else { 
+          Swal.fire('ผิดพลาด', res.message, 'error'); 
+        } 
+      } catch(e) { 
+        handleError(e); 
+      }
     }
     
-    // 🌟 ระบบเซฟตั้งค่ารวม Telegram 🌟
     async function saveAdminSettings() {
       showLoading("กำลังบันทึก...");
       const b = document.getElementById('setBw').value; 
@@ -930,22 +1514,36 @@
         } else {
            Swal.fire('ผิดพลาด', res.message, 'error'); 
         }
-      } catch (err) { handleError(err); }
+      } catch (err) { 
+        handleError(err); 
+      }
     }
 
     function actionUser(mob, action) {
-      if (action === 'delete') { Swal.fire({ title: 'ยืนยันการลบผู้ใช้?', text: "การลบบัญชีผู้ใช้จะไม่สามารถกู้คืนได้", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบบัญชี', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('deleteUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
-      else if (action === 'suspend') { Swal.fire({ title: 'ระงับ/ปลดระงับบัญชีนี้?', text: "ผู้ใช้งานจะไม่สามารถล็อกอินเข้าสู่ระบบได้หากถูกระงับ", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f97316', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('suspendUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
-      else if (action === 'approve') { showLoading("กำลังดำเนินการ..."); fetchAPI('approveUser', { mobile: mob }).then(function() { loadAdminData(); hideLoading(); }).catch(handleError); }
+      if (action === 'delete') { 
+        Swal.fire({ title: 'ยืนยันการลบผู้ใช้?', text: "การลบบัญชีผู้ใช้จะไม่สามารถกู้คืนได้", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบบัญชี', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('deleteUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); 
+      } 
+      else if (action === 'suspend') { 
+        Swal.fire({ title: 'ระงับ/ปลดระงับบัญชีนี้?', text: "ผู้ใช้งานจะไม่สามารถล็อกอินเข้าสู่ระบบได้หากถูกระงับ", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f97316', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('suspendUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); 
+      } 
+      else if (action === 'approve') { 
+        showLoading("กำลังดำเนินการ..."); 
+        fetchAPI('approveUser', { mobile: mob }).then(function() { loadAdminData(); hideLoading(); }).catch(handleError); 
+      }
     }
 
     function openAdminCreateUserModal() {
-      const selGroup = document.getElementById('adminRegGroup'); selGroup.innerHTML = '';
-      tempGroups.forEach(function(g) { selGroup.innerHTML += `<option value="${g.code}|${g.name}">${g.code} - ${g.name}</option>`; });
+      const selGroup = document.getElementById('adminRegGroup'); 
+      selGroup.innerHTML = '';
+      tempGroups.forEach(function(g) { 
+        selGroup.innerHTML += `<option value="${g.code}|${g.name}">${g.code} - ${g.name}</option>`; 
+      });
       document.getElementById('adminCreateUserModal').classList.remove('hidden');
     }
 
-    function closeAdminCreateUserModal() { document.getElementById('adminCreateUserModal').classList.add('hidden'); }
+    function closeAdminCreateUserModal() { 
+      document.getElementById('adminCreateUserModal').classList.add('hidden'); 
+    }
 
     async function adminSubmitCreateUser() {
       const groupData = document.getElementById('adminRegGroup').value.split('|');
@@ -965,45 +1563,76 @@
         const res = await fetchAPI('adminCreateUser', data);
         if (res.success) {
           Swal.fire({ icon: 'success', title: 'สร้างบัญชีสำเร็จ', html: res.message, confirmButtonText: 'รับทราบ' });
-          closeAdminCreateUserModal(); document.getElementById('adminRegMobile').value = ''; document.getElementById('adminRegName').value = ''; document.getElementById('adminRegPrintUser').value = '';
+          closeAdminCreateUserModal(); 
+          document.getElementById('adminRegMobile').value = ''; 
+          document.getElementById('adminRegName').value = ''; 
+          document.getElementById('adminRegPrintUser').value = '';
           loadAdminData();
-        } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-      } catch(e) { handleError(e); }
+        } else { 
+          Swal.fire('ผิดพลาด', res.message, 'error'); 
+        }
+      } catch(e) { 
+        handleError(e); 
+      }
     }
 
     async function triggerEmail() {
-      const p = document.getElementById('emailPeriodSel').value; if (!p) return;
+      const p = document.getElementById('emailPeriodSel').value; 
+      if (!p) return;
       showLoading("กำลังส่งอีเมล..."); 
       try {
         const res = await fetchAPI('sendSummaryEmail', { period: p });
-        if(res.success) Swal.fire('สำเร็จ', res.message, 'success'); else Swal.fire('ผิดพลาด', res.message, 'error');
-      } catch(e) { handleError(e); }
+        if(res.success) Swal.fire('สำเร็จ', res.message, 'success'); 
+        else Swal.fire('ผิดพลาด', res.message, 'error');
+      } catch(e) { 
+        handleError(e); 
+      }
     }
 
     function renderGroupTable() {
-      let tb = document.getElementById('groupTableBody'); tb.innerHTML = '';
-      tempGroups.forEach(function(g, idx) { tb.innerHTML += `<tr class="border-b"><td class="p-1 w-1/4">${g.code}</td><td class="p-1 w-2/4">${g.name}</td><td class="p-1 text-center w-1/4"><button onclick="removeGroupRow(${idx})" class="text-red-500"><i class="fas fa-times"></i></button></td></tr>`; });
+      let tb = document.getElementById('groupTableBody'); 
+      tb.innerHTML = '';
+      tempGroups.forEach(function(g, idx) { 
+        tb.innerHTML += `<tr class="border-b"><td class="p-1 w-1/4">${g.code}</td><td class="p-1 w-2/4">${g.name}</td><td class="p-1 text-center w-1/4"><button onclick="removeGroupRow(${idx})" class="text-red-500"><i class="fas fa-times"></i></button></td></tr>`; 
+      });
     }
     
     function addGroupRow() {
-      let c = document.getElementById('newGrpCode').value.trim(); let n = document.getElementById('newGrpName').value.trim();
+      let c = document.getElementById('newGrpCode').value.trim(); 
+      let n = document.getElementById('newGrpName').value.trim();
       if (!c || !n) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลกลุ่มงานให้ครบ', 'warning');
-      tempGroups.push({code: c, name: n}); renderGroupTable(); document.getElementById('newGrpCode').value = ''; document.getElementById('newGrpName').value = '';
+      tempGroups.push({code: c, name: n}); 
+      renderGroupTable(); 
+      document.getElementById('newGrpCode').value = ''; 
+      document.getElementById('newGrpName').value = '';
     }
-    function removeGroupRow(idx) { tempGroups.splice(idx, 1); renderGroupTable(); }
+    
+    function removeGroupRow(idx) { 
+      tempGroups.splice(idx, 1); 
+      renderGroupTable(); 
+    }
     
     async function saveGroups() { 
       showLoading("กำลังบันทึกกลุ่ม..."); 
-      try { await fetchAPI('saveGroupConfig', { groups: tempGroups }); Swal.fire('สำเร็จ', 'บันทึกกลุ่มงานลงฐานข้อมูลเรียบร้อย', 'success'); } catch(e) { handleError(e); }
+      try { 
+        await fetchAPI('saveGroupConfig', { groups: tempGroups }); 
+        Swal.fire('สำเร็จ', 'บันทึกกลุ่มงานลงฐานข้อมูลเรียบร้อย', 'success'); 
+      } catch(e) { 
+        handleError(e); 
+      }
     }
 
     // --- Report ---
     function generateReport() {
-      const period = document.getElementById('repPeriod').value; const lvl = document.getElementById('repLevel').value; const format = document.getElementById('repFormat').value;
-      const cBw = parseFloat(globalData.settings.cost_bw) || 1; const cCol = parseFloat(globalData.settings.cost_color) || 5;
+      const period = document.getElementById('repPeriod').value; 
+      const lvl = document.getElementById('repLevel').value; 
+      const format = document.getElementById('repFormat').value;
+      const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
+      const cCol = parseFloat(globalData.settings.cost_color) || 5;
       
       let data = lvl === 'group' ? globalData.totals : globalData.staffs;
       let groupDict = getGroupDict();
+      
       if (period) data = data.filter(function(r) { return r["รอบข้อมูล"] === period; });
       data = data.filter(function(r) { return parseFloat(r["รวมทั้งหมด (Print+Copy)"]) > 0; });
       
@@ -1012,14 +1641,18 @@
         html += `<ul class="list-disc pl-6 space-y-2">`;
         if (lvl === 'group') {
           data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+            let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
+            let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
             html += `<li><strong>${name}</strong> : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น (สี: ${col}, ขาวดำ: ${bw}) - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
           });
         } else {
           data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+            let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
+            let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
             html += `<li><strong>${r["ชื่อ-สกุลบุคลากร"]}</strong> (${name.substring(3,15)}..) : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
           });
         }
@@ -1029,21 +1662,26 @@
         if (lvl === 'group') {
           html += `<th>กลุ่มงาน</th><th>Print/Copy สี (แผ่น)</th><th>Print/Copy ขาวดำ (แผ่น)</th><th>ยอดรวม</th><th>ค่าใช้จ่าย(฿)</th></tr></thead><tbody>`;
           data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+            let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
+            let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
             html += `<tr><td>${name}</td><td class="text-right">${col}</td><td class="text-right">${bw}</td><td class="text-right font-bold">${r["รวมทั้งหมด (Print+Copy)"]}</td><td class="text-right text-red-600">${((col*cCol)+(bw*cBw)).toLocaleString()}</td></tr>`; 
           });
         } else {
           html += `<th>Username</th><th>ชื่อ-สกุล</th><th>กลุ่มงาน</th><th>รวมทั้งหมด</th><th>ค่าใช้จ่าย(฿)</th></tr></thead><tbody>`;
           data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+            let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
+            let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
             html += `<tr><td>${r["Username ในเครื่อง"]}</td><td>${r["ชื่อ-สกุลบุคลากร"]}</td><td>${name.substring(3,15)}..</td><td class="text-right font-bold">${r["รวมทั้งหมด (Print+Copy)"]}</td><td class="text-right text-red-600">${((col*cCol)+(bw*cBw)).toLocaleString()}</td></tr>`; 
           });
         }
         html += `</tbody></table>`;
       }
-      document.getElementById('reportRenderArea').innerHTML = html; document.getElementById('reportPreviewContainer').classList.remove('hidden');
+      document.getElementById('reportRenderArea').innerHTML = html; 
+      document.getElementById('reportPreviewContainer').classList.remove('hidden');
     }
   </script>
 </body>
