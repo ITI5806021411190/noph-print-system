@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V15.1</title>
+  <title>Print & Copy Management V16.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -354,16 +354,8 @@
               <input type="text" id="setEmails" class="w-full border p-1 rounded">
             </div>
             
-            <hr class="my-2">
-            <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
-            <div>
-              <label class="text-sm text-gray-500">Bot Token</label>
-              <input type="text" id="setTgToken" class="w-full border p-1 rounded text-sm" placeholder="เช่น 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
-            </div>
-            <div>
-              <label class="text-sm text-gray-500">Chat ID ของกลุ่ม</label>
-              <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm" placeholder="เช่น -100123456789">
-            </div>
+            <input type="hidden" id="setTgToken">
+            <input type="hidden" id="setTgChatId">
             
             <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-bold mt-2 shadow">บันทึกการตั้งค่า</button>
             <hr>
@@ -426,7 +418,7 @@
                 <th class="p-2">กลุ่มงาน</th>
                 <th class="p-2 text-center">จำนวน(แผ่น)</th>
                 <th class="p-2 text-center">ไฟล์แนบ</th>
-                <th class="p-2 text-center">สถานะ</th>
+                <th class="p-2 text-center">สถานะและการจัดการ</th>
               </tr>
             </thead>
             <tbody id="printReqBody"></tbody>
@@ -842,7 +834,57 @@
       });
     }
 
-    // 🌟 ระบบส่งคำขอปริ้น ที่มีการแก้ไขบั๊กการแนบไฟล์เรียบร้อยแล้ว 🌟
+    // 🌟 ระบบ ลบ และ ยกเลิก คำขอปริ้น 🌟
+    function cancelPrintReq(tsStr) {
+      Swal.fire({
+        title: 'ยืนยันการยกเลิก?',
+        text: "คุณต้องการยกเลิกคำขอปริ้นนี้ใช่หรือไม่",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f59e0b',
+        confirmButtonText: 'ใช่, ยกเลิกคำขอ',
+        cancelButtonText: 'ปิดหน้าต่าง'
+      }).then(async function(result) {
+        if(result.isConfirmed) {
+          showLoading("กำลังอัปเดตสถานะ...");
+          try {
+            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "ยกเลิก" });
+            if(res.success) { 
+              Swal.fire('สำเร็จ!', res.message, 'success'); 
+              loadMainData(); 
+            } else { 
+              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            }
+          } catch(e) { handleError(e); }
+        }
+      });
+    }
+
+    function deletePrintReq(tsStr) {
+      Swal.fire({
+        title: 'ยืนยันการลบทิ้งถาวร?',
+        text: "คุณต้องการลบประวัติคำขอปริ้นนี้ใช่หรือไม่ (ข้อมูลจะถูกลบออกจากฐานข้อมูลและกู้คืนไม่ได้)",
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'ใช่, ลบทิ้งเลย',
+        cancelButtonText: 'ยกเลิก'
+      }).then(async function(result) {
+        if(result.isConfirmed) {
+          showLoading("กำลังลบประวัติคำขอ...");
+          try {
+            const res = await fetchAPI('deletePrintReq', { tsStr: tsStr });
+            if(res.success) { 
+              Swal.fire('สำเร็จ!', res.message, 'success'); 
+              loadMainData(); 
+            } else { 
+              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            }
+          } catch(e) { handleError(e); }
+        }
+      });
+    }
+
     async function submitPrintReq() {
       const pagesInput = document.getElementById('reqPages').value; 
       const fileInput = document.getElementById('reqFile');
@@ -853,7 +895,6 @@
       
       const file = fileInput.files[0];
       
-      // ป้องกันไฟล์ใหญ่เกินไปจนทำให้ระบบค้าง (จำกัดไว้ที่ 15MB)
       if (file.size > 15 * 1024 * 1024) {
         return Swal.fire('แจ้งเตือน', 'ขนาดไฟล์ใหญ่เกิน 15MB กรุณาบีบอัดไฟล์ก่อนส่ง', 'warning');
       }
@@ -1189,6 +1230,7 @@
         </tr>`; 
       });
 
+      // 🌟 อัปเดตตารางประวัติผู้ใช้ (เพิ่มปุ่มยกเลิกและลบ) 🌟
       let reqTb = document.getElementById('myPrintReqTableBody'); 
       reqTb.innerHTML = '';
       
@@ -1202,15 +1244,27 @@
         myReqs.slice().reverse().forEach(function(r) {
           let dateLabel = r["Timestamp_Str"] || r["Timestamp"]; 
           let status = r["สถานะ"] || "รอปริ้น";
-          let statusBadge = status === "รอปริ้น" 
-            ? `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>` 
-            : `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${status}</span>`;
+          
+          let statusBadge = "";
+          let actionBtns = `<div class="flex justify-center space-x-2 mt-1">`;
+          
+          if (status === "รอปริ้น") {
+            statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>`;
+            actionBtns += `<button onclick="cancelPrintReq('${dateLabel}')" class="text-orange-500 hover:text-orange-700" title="ยกเลิกคำขอ"><i class="fas fa-times-circle"></i></button>`;
+          } else if (status === "ยกเลิก") {
+            statusBadge = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-ban"></i> ยกเลิกแล้ว</span>`;
+          } else {
+            statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${status}</span>`;
+          }
+          
+          // ปุ่มลบมีให้ใช้ได้ตลอดเวลา
+          actionBtns += `<button onclick="deletePrintReq('${dateLabel}')" class="text-red-500 hover:text-red-700" title="ลบประวัติ"><i class="fas fa-trash"></i></button></div>`;
             
           reqTb.innerHTML += `<tr class="border-b">
             <td class="p-2 text-xs">${dateLabel}</td>
             <td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]}</td>
             <td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> ดูไฟล์</a></td>
-            <td class="p-2 text-center">${statusBadge}</td>
+            <td class="p-2 text-center">${statusBadge} ${actionBtns}</td>
           </tr>`;
         });
       }
@@ -1353,9 +1407,8 @@
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
       document.getElementById('setEmails').value = globalData.settings.notify_emails || "";
-      document.getElementById('setTgToken').value = globalData.settings.telegram_bot_token || "";
-      document.getElementById('setTgChatId').value = globalData.settings.telegram_chat_id || "";
       
+      // 🌟 อัปเดตตาราง Admin (เพิ่มปุ่มยกเลิกและลบ) 🌟
       let pr = globalData.printReqs || []; 
       let prTb = document.getElementById('printReqBody'); 
       prTb.innerHTML = '';
@@ -1364,14 +1417,19 @@
         let dateLabel = r["Timestamp_Str"] || r["Timestamp"]; 
         let status = r["สถานะ"] || "รอปริ้น";
         let statusBadge = ""; 
-        let actionBtn = "";
+        let actionBtn = `<div class="flex justify-center space-x-2 mt-1">`;
         
         if (status === "รอปริ้น") { 
           statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs">รอปริ้น</span>`; 
-          actionBtn = `<button onclick="updatePrintStatus('${dateLabel}')" class="text-green-600 hover:underline mt-1 block w-full text-center text-xs"><i class="fas fa-check-circle"></i> อนุมัติ</button>`; 
+          actionBtn += `<button onclick="updatePrintStatus('${dateLabel}')" class="text-green-600 hover:text-green-800" title="อนุมัติ"><i class="fas fa-check-circle"></i></button>`; 
+          actionBtn += `<button onclick="cancelPrintReq('${dateLabel}')" class="text-orange-500 hover:text-orange-700" title="ยกเลิก"><i class="fas fa-times-circle"></i></button>`; 
+        } else if (status === "ยกเลิก") {
+          statusBadge = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs">ยกเลิกแล้ว</span>`;
         } else { 
           statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs">${status}</span>`; 
         }
+        
+        actionBtn += `<button onclick="deletePrintReq('${dateLabel}')" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash"></i></button></div>`;
         
         prTb.innerHTML += `<tr class="border-b">
           <td class="p-2 text-xs">${dateLabel}</td>
@@ -1503,11 +1561,10 @@
       const b = document.getElementById('setBw').value; 
       const c = document.getElementById('setColor').value; 
       const e = document.getElementById('setEmails').value;
-      const tt = document.getElementById('setTgToken').value;
-      const tc = document.getElementById('setTgChatId').value;
       
       try { 
-        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e, tgToken: tt, tgChatId: tc }); 
+        // ไม่ต้องส่ง tgToken/tgChatId ไปเซฟแล้ว เพราะฝังในโค้ดแล้ว
+        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e }); 
         if (res.success) {
            Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success'); 
            loadMainData(); 
