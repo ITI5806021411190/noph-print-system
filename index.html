@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V18.1</title>
+  <title>Print & Copy Management V19.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -219,7 +219,7 @@
               <i class="fas fa-key mr-1"></i> ขอ PIN ใหม่
             </button>
             <button onclick="openMyProfileEdit()" class="w-1/2 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded text-sm font-medium shadow">
-              <i class="fas fa-user-edit mr-1"></i> แก้ไขข้อมูล
+              <i class="fas fa-user-edit mr-1"></i> แก้ไขข้อมูลส่วนตัว
             </button>
           </div>
           
@@ -366,12 +366,11 @@
             <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
             <div>
               <label class="text-sm text-gray-500">Bot Token</label>
-              <input type="text" id="setTgToken" class="w-full border p-1 rounded text-sm" placeholder="เช่น 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
+              <input type="text" id="setTgToken" class="w-full border p-1 rounded text-sm" placeholder="เช่น 123456:ABC-DEF1234ghIkl...">
             </div>
             <div>
               <label class="text-sm text-gray-500">Chat ID ของกลุ่ม</label>
               <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm" placeholder="เช่น -100123456789">
-              <p class="text-xs text-red-500 mt-1">*อย่าลืมใส่ -100 นำหน้าตัวเลขสำหรับกลุ่มเสมอ</p>
             </div>
             
             <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-bold mt-2 shadow">บันทึกการตั้งค่า</button>
@@ -570,6 +569,10 @@
         <p class="text-sm text-gray-500 mt-1">ข้อมูลจะถูกอัปเดตเมื่อ Admin อนุมัติ</p>
       </div>
       <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-bold">เบอร์มือถือ (ใช้สำหรับ Login)</label>
+          <input type="text" id="myEditMobile" class="w-full border rounded p-2" maxlength="10">
+        </div>
         <div>
           <label class="block text-sm font-bold">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
           <input type="text" id="myEditName" class="w-full border rounded p-2">
@@ -895,13 +898,13 @@
         }
       });
     }
-    
-    // 🌟 ระบบขอแก้ไขข้อมูล Profile สำหรับ User 🌟
+
     function openMyProfileEdit() {
       if(globalData.myProfile && globalData.myProfile.pendingEdit) {
          return Swal.fire('แจ้งเตือน', 'คุณมีคำขอแก้ไขข้อมูลที่รออนุมัติอยู่ กรุณารอ Admin ดำเนินการก่อน', 'info');
       }
       
+      document.getElementById('myEditMobile').value = globalData.myProfile.mobile || '';
       document.getElementById('myEditName').value = globalData.myProfile.name;
       document.getElementById('myEditPos').value = globalData.myProfile.position;
       document.getElementById('myEditEmail').value = globalData.myProfile.email || '';
@@ -923,6 +926,7 @@
     async function submitMyProfileEdit() {
       const groupData = document.getElementById('myEditGroup').value.split('|');
       const newData = {
+         mobile: document.getElementById('myEditMobile').value.trim(),
          name: document.getElementById('myEditName').value.trim(),
          position: document.getElementById('myEditPos').value.trim(),
          email: document.getElementById('myEditEmail').value.trim(),
@@ -930,13 +934,17 @@
          groupName: groupData[1]
       };
       
-      if(!newData.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อ-สกุล', 'warning');
+      if(!newData.name || !newData.mobile) return Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อและเบอร์มือถือ', 'warning');
       
       showLoading("กำลังส่งคำขอแก้ไข...");
       try {
          const res = await fetchAPI('requestProfileEdit', { mobile: currentUser.mobile, newData: newData });
          if(res.success) { 
-           Swal.fire('สำเร็จ', res.message, 'success'); 
+           Swal.fire({
+             title: 'สำเร็จ', 
+             text: "ระบบส่งคำขอให้ Admin อนุมัติแล้ว (หากคุณเปลี่ยนเบอร์มือถือ หลังจาก Admin อนุมัติ คุณจะต้อง Login ใหม่ด้วยเบอร์ใหม่)", 
+             icon: 'success'
+           });
            closeMyProfileEdit(); 
            loadMainData(); 
          } else { 
@@ -1062,13 +1070,21 @@
         
         globalData = res.data; 
         
-        // อัปเดตข้อมูลบนเครื่องให้ตรงกับฐานข้อมูลล่าสุดเสมอ
         if (res.data.myProfile && currentUser) {
            let st = JSON.parse(localStorage.getItem('printapp_user'));
            if (st) {
               st.name = res.data.myProfile.name;
               st.group = res.data.myProfile.groupName;
               st.role = res.data.myProfile.role;
+              
+              // หากในฐานข้อมูลมีการเปลี่ยนเบอร์ (ต่างจากที่ login ไว้ตอนแรก)
+              if (res.data.myProfile.mobile !== st.mobile) {
+                  localStorage.removeItem('printapp_user');
+                  Swal.fire('ข้อมูลบัญชีถูกเปลี่ยนแปลง', 'เบอร์มือถือของคุณถูกเปลี่ยน กรุณาเข้าสู่ระบบใหม่อีกครั้ง', 'warning')
+                  .then(() => { window.location.reload(); });
+                  return;
+              }
+              
               localStorage.setItem('printapp_user', JSON.stringify(st));
               currentUser = st;
               updateAuthUI();
@@ -1319,7 +1335,6 @@
 
       let groupDict = getGroupDict();
       
-      // โชว์/ซ่อน กล่องแจ้งเตือนสถานะ Edit
       if (globalData.myProfile && globalData.myProfile.pendingEdit) {
          document.getElementById('pendingEditWarning').classList.remove('hidden');
       } else {
@@ -1537,7 +1552,6 @@
       });
     }
 
-    // 🌟 ระบบดึงข้อมูล Admin (แอดปุ่มอนุมัติแก้ข้อมูล) 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
@@ -1581,7 +1595,7 @@
         const res = await fetchAPI('getAdminData'); 
         if(!res.success) throw new Error(res.message || "Failed to load admin data"); 
         
-        allUsersCache = res.data.users; // เก็บลงตัวแปรกลาง
+        allUsersCache = res.data.users;
         tempGroups = res.data.groups || []; 
         renderGroupTable();
         
@@ -1610,7 +1624,6 @@
           
           let actionBtns = `<div class="flex justify-center space-x-3">`;
           
-          // ปุ่มตรวจสอบคำขอแก้ไข (ถ้ามี)
           if(u.pendingEdit) {
              actionBtns += `<button onclick="reviewProfileEdit('${u.mobile}')" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
           }
@@ -1643,7 +1656,6 @@
       }
     }
     
-    // 🌟 ระบบรีวิวคำขอแก้ไขโดย Admin 🌟
     function reviewProfileEdit(mobile) {
        const u = allUsersCache.find(x => x.mobile === mobile);
        if(!u || !u.pendingEdit) return;
@@ -1654,8 +1666,9 @@
           title: 'ตรวจสอบคำขอแก้ไขข้อมูล',
           html: `
             <div class="text-left text-sm space-y-3 p-2 bg-gray-50 rounded border">
-              <p><b>ผู้ใช้:</b> ${u.mobile}</p>
+              <p><b>บัญชีผู้ใช้ (เบอร์เดิม):</b> ${u.mobile}</p>
               <hr>
+              <p><b>เบอร์มือถือใหม่:</b> <br> <span class="text-gray-500 line-through">${u.mobile}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.mobile}</b></p>
               <p><b>ชื่อ-สกุล:</b> <br> <span class="text-gray-500 line-through">${u.name}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.name}</b></p>
               <p><b>ตำแหน่ง:</b> <br> <span class="text-gray-500 line-through">${u.position || '-'}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.position}</b></p>
               <p><b>กลุ่มงาน:</b> <br> <span class="text-gray-500 line-through">${u.group}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.groupName}</b></p>
