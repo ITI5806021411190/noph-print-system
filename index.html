@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V17.0</title>
+  <title>Print & Copy Management V18.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -214,10 +214,17 @@
             <p class="text-3xl font-bold">฿<span id="myCost">0</span></p>
           </div>
           <hr class="my-4">
-          <div class="text-center">
-            <button onclick="requestNewPinUI()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-medium shadow">
-              <i class="fas fa-key mr-1"></i> ขอรหัส PIN ใหม่ (ลิมิต 3 ครั้ง/เดือน)
+          <div class="flex space-x-2">
+            <button onclick="requestNewPinUI()" class="w-1/2 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded text-sm font-medium shadow">
+              <i class="fas fa-key mr-1"></i> ขอ PIN ใหม่
             </button>
+            <button onclick="openMyProfileEdit()" class="w-1/2 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded text-sm font-medium shadow">
+              <i class="fas fa-user-edit mr-1"></i> แก้ไขข้อมูล
+            </button>
+          </div>
+          
+          <div id="pendingEditWarning" class="hidden mt-3 p-2 bg-orange-50 border border-orange-200 rounded text-center">
+            <p class="text-xs text-orange-600 font-bold"><i class="fas fa-clock"></i> คำขอแก้ไขข้อมูลของคุณกำลังรอ Admin อนุมัติ</p>
           </div>
         </div>
 
@@ -535,14 +542,15 @@
             <label class="block text-sm">กลุ่มงาน</label>
             <select id="regGroup" class="w-full border rounded p-2"></select>
           </div>
-          
           <div>
             <label class="block text-sm">อีเมลส่วนตัว (สำหรับรับการแจ้งเตือน)</label>
             <input type="email" id="regEmail" class="w-full border rounded p-2" placeholder="เช่น youremail@gmail.com">
           </div>
           
-          <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mt-2">
-            <p class="text-xs text-blue-800"><i class="fas fa-info-circle"></i> รหัส PIN 6 หลักที่ระบบสร้างให้ จะถูกนำไปใช้เป็น <strong>"รหัสสำหรับกดเครื่องปริ้นเตอร์"</strong> ในทุกๆ ชั้นอัตโนมัติ</p>
+          <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mt-2 rounded">
+            <p class="text-xs text-blue-800 font-bold mb-1"><i class="fab fa-telegram"></i> กลุ่มแจ้งเตือน Telegram</p>
+            <p class="text-xs text-blue-700 mb-1">เพื่อรับการแจ้งเตือนเมื่อคำขอปริ้นสีเสร็จสิ้น</p>
+            <a href="https://t.me/+db3Y5bychng1OGJl" target="_blank" class="text-xs bg-blue-600 text-white py-1 px-3 rounded inline-block hover:bg-blue-700 transition">👉 คลิกร่วมกลุ่มที่นี่ 👈</a>
           </div>
 
           <button onclick="doRegister()" class="w-full bg-green-600 text-white font-bold py-3 rounded mt-4 hover:bg-green-700 shadow">ลงทะเบียน & รับรหัส PIN</button>
@@ -550,6 +558,35 @@
         <div class="text-center mt-4">
           <a href="#" onclick="toggleAuth('log')" class="text-gray-500 text-sm hover:underline"><i class="fas fa-arrow-left"></i> กลับไปหน้าเข้าสู่ระบบ</a>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="myEditProfileModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
+      <button onclick="closeMyProfileEdit()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
+      <div class="text-center mb-6">
+        <h2 class="text-xl font-bold text-blue-600"><i class="fas fa-user-edit"></i> แก้ไขข้อมูลส่วนตัว</h2>
+        <p class="text-sm text-gray-500 mt-1">ข้อมูลจะถูกอัปเดตเมื่อ Admin อนุมัติ</p>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-bold">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
+          <input type="text" id="myEditName" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-bold">ตำแหน่ง</label>
+          <input type="text" id="myEditPos" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-bold">กลุ่มงานปัจจุบัน</label>
+          <select id="myEditGroup" class="w-full border rounded p-2"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-bold">อีเมลส่วนตัว</label>
+          <input type="email" id="myEditEmail" class="w-full border rounded p-2">
+        </div>
+        <button onclick="submitMyProfileEdit()" class="w-full bg-blue-600 text-white font-bold py-3 rounded mt-4 hover:bg-blue-700 shadow">ส่งคำขอแก้ไขข้อมูล</button>
       </div>
     </div>
   </div>
@@ -588,12 +625,10 @@
           <label class="block text-sm">กลุ่มงาน</label>
           <select id="adminRegGroup" class="w-full border rounded p-2"></select>
         </div>
-        
         <div>
           <label class="block text-sm">อีเมล</label>
           <input type="email" id="adminRegEmail" class="w-full border rounded p-2" placeholder="อีเมลส่วนตัวของผู้ใช้">
         </div>
-        
         <div>
           <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
           <input type="text" id="adminRegPrintUser" class="w-full border rounded p-2" placeholder="เว้นว่างไว้ถ้าต้องการให้ระบบสุ่ม PIN ให้">
@@ -607,7 +642,7 @@
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
       <button onclick="closeEditUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
       <div class="text-center mb-6">
-        <h2 class="text-xl font-bold text-blue-600">แก้ไขข้อมูลผู้ใช้งาน</h2>
+        <h2 class="text-xl font-bold text-blue-600">แก้ไขข้อมูลผู้ใช้งาน (Admin)</h2>
       </div>
       <div class="space-y-3">
         <input type="hidden" id="editOriginalMobile">
@@ -645,12 +680,10 @@
           <label class="block text-sm">กลุ่มงาน</label>
           <select id="editGroup" class="w-full border rounded p-2"></select>
         </div>
-        
         <div>
           <label class="block text-sm">อีเมล</label>
           <input type="email" id="editEmail" class="w-full border rounded p-2">
         </div>
-        
         <div>
           <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
           <input type="text" id="editPrintUser" class="w-full border rounded p-2">
@@ -668,6 +701,7 @@
     let dashSortCol = 'total'; 
     let dashSortAsc = false;
     let currentDashData = []; 
+    let allUsersCache = []; 
 
     window.onload = function() {
       fetchAPI('getGroupOptions').then(function(res) {
@@ -787,7 +821,6 @@
       }
     }
 
-    // 🌟 อัปเดต ส่ง Email เข้าไปในหน้าสมัครด้วย 🌟
     async function doRegister() {
       const groupData = document.getElementById('regGroup').value.split('|');
       const data = { 
@@ -861,6 +894,57 @@
           }
         }
       });
+    }
+    
+    // 🌟 ระบบขอแก้ไขข้อมูล Profile สำหรับ User 🌟
+    function openMyProfileEdit() {
+      if(globalData.myProfile && globalData.myProfile.pendingEdit) {
+         return Swal.fire('แจ้งเตือน', 'คุณมีคำขอแก้ไขข้อมูลที่รออนุมัติอยู่ กรุณารอ Admin ดำเนินการก่อน', 'info');
+      }
+      
+      document.getElementById('myEditName').value = globalData.myProfile.name;
+      document.getElementById('myEditPos').value = globalData.myProfile.position;
+      document.getElementById('myEditEmail').value = globalData.myProfile.email || '';
+      
+      const sel = document.getElementById('myEditGroup'); 
+      sel.innerHTML = '';
+      globalData.groups.forEach(g => {
+         let selected = (g.name === globalData.myProfile.groupName) ? 'selected' : '';
+         sel.innerHTML += `<option value="${g.code}|${g.name}" ${selected}>${g.code} - ${g.name}</option>`;
+      });
+      
+      document.getElementById('myEditProfileModal').classList.remove('hidden');
+    }
+    
+    function closeMyProfileEdit() { 
+      document.getElementById('myEditProfileModal').classList.add('hidden'); 
+    }
+    
+    async function submitMyProfileEdit() {
+      const groupData = document.getElementById('myEditGroup').value.split('|');
+      const newData = {
+         name: document.getElementById('myEditName').value.trim(),
+         position: document.getElementById('myEditPos').value.trim(),
+         email: document.getElementById('myEditEmail').value.trim(),
+         groupCode: groupData[0],
+         groupName: groupData[1]
+      };
+      
+      if(!newData.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อ-สกุล', 'warning');
+      
+      showLoading("กำลังส่งคำขอแก้ไข...");
+      try {
+         const res = await fetchAPI('requestProfileEdit', { mobile: currentUser.mobile, newData: newData });
+         if(res.success) { 
+           Swal.fire('สำเร็จ', res.message, 'success'); 
+           closeMyProfileEdit(); 
+           loadMainData(); 
+         } else { 
+           Swal.fire('ผิดพลาด', res.message, 'error'); 
+         }
+      } catch(e) { 
+        handleError(e); 
+      }
     }
 
     function cancelPrintReq(tsStr) {
@@ -968,13 +1052,29 @@
     async function loadMainData() {
       showLoading("กำลังโหลดข้อมูล...");
       try {
-        const res = await fetchAPI('getDashboardData');
+        const fetchPayload = { mobile: currentUser ? currentUser.mobile : "" };
+        const res = await fetchAPI('getDashboardData', fetchPayload);
+        
         if (!res.success || !res.data) { 
           hideLoading(); 
           return Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลจากระบบได้', 'error'); 
         }
         
         globalData = res.data; 
+        
+        // อัปเดตข้อมูลบนเครื่องให้ตรงกับฐานข้อมูลล่าสุดเสมอ
+        if (res.data.myProfile && currentUser) {
+           let st = JSON.parse(localStorage.getItem('printapp_user'));
+           if (st) {
+              st.name = res.data.myProfile.name;
+              st.group = res.data.myProfile.groupName;
+              st.role = res.data.myProfile.role;
+              localStorage.setItem('printapp_user', JSON.stringify(st));
+              currentUser = st;
+              updateAuthUI();
+           }
+        }
+        
         populateFilters();
         
         if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'assistant')) {
@@ -1218,6 +1318,14 @@
       }
 
       let groupDict = getGroupDict();
+      
+      // โชว์/ซ่อน กล่องแจ้งเตือนสถานะ Edit
+      if (globalData.myProfile && globalData.myProfile.pendingEdit) {
+         document.getElementById('pendingEditWarning').classList.remove('hidden');
+      } else {
+         document.getElementById('pendingEditWarning').classList.add('hidden');
+      }
+
       let me = staffs.find(function(r) { 
         return r["ชื่อ-สกุลบุคลากร"] === currentUser.name || r["Username ในเครื่อง"] === currentUser.printerUser; 
       });
@@ -1429,12 +1537,11 @@
       });
     }
 
+    // 🌟 ระบบดึงข้อมูล Admin (แอดปุ่มอนุมัติแก้ข้อมูล) 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
       document.getElementById('setEmails').value = globalData.settings.notify_emails || "";
-      
-      // ดึง Telegram มาแสดง
       document.getElementById('setTgToken').value = globalData.settings.telegram_bot_token || "";
       document.getElementById('setTgChatId').value = globalData.settings.telegram_chat_id || "";
       
@@ -1473,36 +1580,46 @@
       try {
         const res = await fetchAPI('getAdminData'); 
         if(!res.success) throw new Error(res.message || "Failed to load admin data"); 
-        const data = res.data;
         
-        tempGroups = data.groups || []; 
+        allUsersCache = res.data.users; // เก็บลงตัวแปรกลาง
+        tempGroups = res.data.groups || []; 
         renderGroupTable();
+        
         const tb = document.getElementById('userTableBody'); 
         tb.innerHTML = "";
         
-        data.users.forEach(function(u) {
+        allUsersCache.forEach(function(u) {
           let badge = '';
+          
+          if (u.pendingEdit) {
+            badge += '<span class="px-2 bg-purple-200 text-purple-800 rounded text-xs inline-block mb-1 ml-1"><i class="fas fa-edit"></i> ขอแก้ไข</span>';
+          }
+          
           if (u.status === 'pending') {
-            badge = '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติ</span>'; 
+            badge += '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติปริ้น</span>'; 
           } else if (u.status === 'suspended') {
-            badge = '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; 
+            badge += '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; 
           } else { 
             let roleName = ""; 
             if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; 
             else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; 
             else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; 
             else roleName = 'ผู้ใช้งาน'; 
-            badge = `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; 
+            badge += `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; 
           }
           
           let actionBtns = `<div class="flex justify-center space-x-3">`;
-          actionBtns += `<button onclick="viewUserPin('${u.pin}', '${u.name}')" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
           
-          // 🌟 ส่ง Email เข้าไปในหน้าต่าง Edit ด้วย 🌟
-          actionBtns += `<button onclick="openEditUserModal('${u.mobile}', '${u.name}', '${u.group}', '${u.role}', '${u.status}', '${u.position}', '${u.printerUser}', '${u.email || ''}')" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>`;
+          // ปุ่มตรวจสอบคำขอแก้ไข (ถ้ามี)
+          if(u.pendingEdit) {
+             actionBtns += `<button onclick="reviewProfileEdit('${u.mobile}')" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
+          }
+          
+          actionBtns += `<button onclick="viewUserPin('${u.pin}', '${u.name}')" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
+          actionBtns += `<button onclick="openEditUserModal('${u.mobile}', '${u.name}', '${u.group}', '${u.role}', '${u.status}', '${u.position}', '${u.printerUser}', '${u.email || ''}')" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
 
           if (u.status === 'pending') {
-            actionBtns += `<button onclick="actionUser('${u.mobile}', 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติ"><i class="fas fa-check-circle"></i></button>`;
+            actionBtns += `<button onclick="actionUser('${u.mobile}', 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
           }
           if (u.status !== 'pending' && u.role !== 'admin') { 
             if (u.status === 'suspended') {
@@ -1524,6 +1641,54 @@
       } catch(e) { 
         handleError(e); 
       }
+    }
+    
+    // 🌟 ระบบรีวิวคำขอแก้ไขโดย Admin 🌟
+    function reviewProfileEdit(mobile) {
+       const u = allUsersCache.find(x => x.mobile === mobile);
+       if(!u || !u.pendingEdit) return;
+       
+       const newData = JSON.parse(u.pendingEdit);
+       
+       Swal.fire({
+          title: 'ตรวจสอบคำขอแก้ไขข้อมูล',
+          html: `
+            <div class="text-left text-sm space-y-3 p-2 bg-gray-50 rounded border">
+              <p><b>ผู้ใช้:</b> ${u.mobile}</p>
+              <hr>
+              <p><b>ชื่อ-สกุล:</b> <br> <span class="text-gray-500 line-through">${u.name}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.name}</b></p>
+              <p><b>ตำแหน่ง:</b> <br> <span class="text-gray-500 line-through">${u.position || '-'}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.position}</b></p>
+              <p><b>กลุ่มงาน:</b> <br> <span class="text-gray-500 line-through">${u.group}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.groupName}</b></p>
+              <p><b>อีเมล:</b> <br> <span class="text-gray-500 line-through">${u.email || '-'}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.email || '-'}</b></p>
+            </div>
+          `,
+          showDenyButton: true,
+          showCancelButton: true,
+          confirmButtonText: '<i class="fas fa-check"></i> อนุมัติการแก้ไข',
+          denyButtonText: '<i class="fas fa-times"></i> ปฏิเสธ',
+          cancelButtonText: 'ปิดหน้าต่าง',
+          confirmButtonColor: '#10b981',
+          denyButtonColor: '#ef4444'
+       }).then(async (result) => {
+          if(result.isConfirmed) {
+             await processProfileEdit(mobile, 'approve');
+          } else if (result.isDenied) {
+             await processProfileEdit(mobile, 'reject');
+          }
+       });
+    }
+    
+    async function processProfileEdit(mobile, decision) {
+       showLoading("กำลังดำเนินการ...");
+       try {
+          const res = await fetchAPI('approveProfileEdit', { mobile: mobile, decision: decision });
+          if(res.success) { 
+             Swal.fire('สำเร็จ', res.message, 'success'); 
+             loadAdminData(); 
+          } else { 
+             Swal.fire('ผิดพลาด', res.message, 'error'); 
+          }
+       } catch(e) { handleError(e); }
     }
 
     function viewUserPin(pin, name) { 
@@ -1594,11 +1759,11 @@
       const b = document.getElementById('setBw').value; 
       const c = document.getElementById('setColor').value; 
       const e = document.getElementById('setEmails').value;
-      const tgToken = document.getElementById('setTgToken').value;
-      const tgChatId = document.getElementById('setTgChatId').value;
+      const tt = document.getElementById('setTgToken').value;
+      const tc = document.getElementById('setTgChatId').value;
       
       try { 
-        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e, tgToken: tgToken, tgChatId: tgChatId }); 
+        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e, tgToken: tt, tgChatId: tc }); 
         if (res.success) {
            Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success'); 
            loadMainData(); 
