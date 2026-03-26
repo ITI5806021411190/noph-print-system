@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V20.0</title>
+  <title>Print & Copy Management V20.2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -276,7 +276,7 @@
               <tr>
                 <th class="p-2 text-left">วันที่ส่งคำขอ</th>
                 <th class="p-2 text-center">จำนวน (แผ่น)</th>
-                <th class="p-2 text-center">ไฟล์ที่ส่ง</th>
+                <th class="p-2 text-left">ไฟล์ที่ส่ง</th>
                 <th class="p-2 text-center">สถานะการอนุมัติ</th>
               </tr>
             </thead>
@@ -451,11 +451,11 @@
           <table class="min-w-full text-sm">
             <thead class="bg-gray-100">
               <tr>
-                <th class="p-2">วันที่</th>
+                <th class="p-2">วันที่ส่งคำขอ</th>
                 <th class="p-2">ชื่อผู้ขอ</th>
                 <th class="p-2">กลุ่มงาน</th>
-                <th class="p-2 text-center">จำนวน(แผ่น)</th>
-                <th class="p-2 text-center">ไฟล์แนบ</th>
+                <th class="p-2 text-center">จำนวน (แผ่น)</th>
+                <th class="p-2 text-left">รายการไฟล์แนบ</th>
                 <th class="p-2 text-center">สถานะและการจัดการ</th>
               </tr>
             </thead>
@@ -977,10 +977,11 @@
       }
     }
 
+    // 🌟 ระบบจัดการคำขอปริ้นแบบเหมา (Batch) 🌟
     function cancelPrintReq(tsStr) {
       Swal.fire({
         title: 'ยืนยันการยกเลิก?',
-        text: "คุณต้องการยกเลิกคำขอปริ้นนี้ใช่หรือไม่",
+        text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#f59e0b',
@@ -1005,7 +1006,7 @@
     function deletePrintReq(tsStr) {
       Swal.fire({
         title: 'ยืนยันการลบทิ้งถาวร?',
-        text: "คุณต้องการลบประวัติคำขอปริ้นนี้ใช่หรือไม่ (ข้อมูลจะถูกลบออกจากฐานข้อมูลและกู้คืนไม่ได้)",
+        text: "คุณต้องการลบประวัติคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่ (ข้อมูลจะถูกลบออกจากฐานข้อมูลและกู้คืนไม่ได้)",
         icon: 'error',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -1027,7 +1028,6 @@
       });
     }
 
-    // 🌟 ระบบควบคุมการกด เพิ่ม/ลบ ไฟล์หลายไฟล์ 🌟
     function addFileRow() {
       const container = document.getElementById('printFilesContainer');
       const firstRow = container.querySelector('.file-row');
@@ -1068,7 +1068,6 @@
       let filesData = [];
       let totalAllSheets = 0;
 
-      // ลูปดึงค่าของทุกไฟล์ที่ผู้ใช้เพิ่มเข้ามา
       for(let r of rows) {
          const fileInput = r.querySelector('.req-file');
          const pagesRange = r.querySelector('.req-pages-range').value.trim();
@@ -1113,7 +1112,6 @@
         if(res.success) {
            Swal.fire('สำเร็จ!', res.message, 'success');
            
-           // รีเซ็ตฟอร์มกลับไปเหลือไฟล์เดียว
            const container = document.getElementById('printFilesContainer');
            const firstRow = container.querySelector('.file-row').cloneNode(true);
            firstRow.querySelector('.req-file').value = "";
@@ -1396,6 +1394,7 @@
       });
     }
 
+    // 🌟 อัปเดตตารางประวัติผู้ใช้แบบรวมไฟล์ (Group by Timestamp) 🌟
     function renderUserDash() {
       if (!currentUser || !globalData.staffs) return;
       
@@ -1456,20 +1455,41 @@
         </tr>`; 
       });
 
-      // 🌟 อัปเดตตารางให้แสดงคอลัมน์ "รายละเอียด" 🌟
       let reqTb = document.getElementById('myPrintReqTableBody'); 
       reqTb.innerHTML = '';
       
-      let myReqs = globalData.printReqs.filter(function(r) { 
+      let myReqsRaw = globalData.printReqs.filter(function(r) { 
         return String(r["เบอร์มือถือ"]).replace(/'/g, '').trim() === currentUser.mobile; 
       });
 
-      if (myReqs.length === 0) { 
+      if (myReqsRaw.length === 0) { 
         reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>'; 
       } else {
-        myReqs.slice().reverse().forEach(function(r) {
-          let dateLabel = r["Timestamp_Str"] || r["Timestamp"]; 
-          let status = r["สถานะ"] || "รอปริ้น";
+        // จับกลุ่มด้วย Timestamp เพื่อไม่ให้แสดงบรรทัดซ้ำในตาราง
+        let groupedMyReqs = {};
+        myReqsRaw.forEach(r => {
+           let ts = r["Timestamp_Str"] || r["Timestamp"];
+           if(!groupedMyReqs[ts]) {
+              groupedMyReqs[ts] = {
+                 ts: ts,
+                 status: r["สถานะ"],
+                 files: [],
+                 totalPages: 0
+              };
+           }
+           groupedMyReqs[ts].files.push({
+              url: r["ไฟล์แนบ"],
+              pages: r["จำนวนแผ่น"],
+              details: r["รายละเอียด"] || ""
+           });
+           groupedMyReqs[ts].totalPages += (parseFloat(r["จำนวนแผ่น"]) || 0);
+        });
+
+        let sortedMyReqs = Object.values(groupedMyReqs).reverse();
+
+        sortedMyReqs.forEach(function(r) {
+          let dateLabel = r.ts; 
+          let status = r.status || "รอปริ้น";
           
           let statusBadge = "";
           let actionBtns = `<div class="flex justify-center space-x-2 mt-1">`;
@@ -1485,10 +1505,12 @@
           
           actionBtns += `<button onclick="deletePrintReq('${dateLabel}')" class="text-red-500 hover:text-red-700" title="ลบประวัติ"><i class="fas fa-trash"></i></button></div>`;
             
+          let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> โหลดไฟล์ที่ ${i+1}</a>`).join('');
+
           reqTb.innerHTML += `<tr class="border-b">
             <td class="p-2 text-xs">${dateLabel}</td>
-            <td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]} แผ่น<br><span class="text-xs text-gray-500 font-normal">${r["รายละเอียด"] || ""}</span></td>
-            <td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> ดูไฟล์</a></td>
+            <td class="p-2 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
+            <td class="p-2 text-left">${filesHtml}</td>
             <td class="p-2 text-center">${statusBadge} ${actionBtns}</td>
           </tr>`;
         });
@@ -1604,7 +1626,7 @@
     function updatePrintStatus(tsStr) {
       Swal.fire({ 
         title: 'ยืนยันการอนุมัติ?', 
-        text: "คุณต้องการเปลี่ยนสถานะคำขอนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่", 
+        text: "คุณต้องการเปลี่ยนสถานะคำขอทั้งหมดในรอบนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่", 
         icon: 'question', 
         showCancelButton: true, 
         confirmButtonColor: '#10b981', 
@@ -1628,6 +1650,7 @@
       });
     }
 
+    // 🌟 อัปเดตตารางแอดมิน จัดกลุ่มไฟล์แนบรวมเป็น Batch 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
@@ -1639,9 +1662,32 @@
       let prTb = document.getElementById('printReqBody'); 
       prTb.innerHTML = '';
       
-      pr.slice().reverse().forEach(function(r) { 
-        let dateLabel = r["Timestamp_Str"] || r["Timestamp"]; 
-        let status = r["สถานะ"] || "รอปริ้น";
+      let groupedAdminReqs = {};
+      pr.forEach(r => {
+         let ts = r["Timestamp_Str"] || r["Timestamp"];
+         if(!groupedAdminReqs[ts]) {
+            groupedAdminReqs[ts] = {
+               ts: ts,
+               name: r["ชื่อผู้ขอ"],
+               group: r["กลุ่มงาน"],
+               status: r["สถานะ"],
+               files: [],
+               totalPages: 0
+            };
+         }
+         groupedAdminReqs[ts].files.push({
+            url: r["ไฟล์แนบ"],
+            pages: r["จำนวนแผ่น"],
+            details: r["รายละเอียด"] || ""
+         });
+         groupedAdminReqs[ts].totalPages += (parseFloat(r["จำนวนแผ่น"]) || 0);
+      });
+
+      let sortedAdminReqs = Object.values(groupedAdminReqs).reverse();
+
+      sortedAdminReqs.forEach(function(r) { 
+        let dateLabel = r.ts; 
+        let status = r.status || "รอปริ้น";
         let statusBadge = ""; 
         let actionBtn = `<div class="flex justify-center space-x-2 mt-1">`;
         
@@ -1657,13 +1703,14 @@
         
         actionBtn += `<button onclick="deletePrintReq('${dateLabel}')" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash"></i></button></div>`;
         
-        // 🌟 แสดงรายละเอียดในหน้าแอดมินด้วย 🌟
+        let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${f.pages} แผ่น)</span></a>`).join('');
+
         prTb.innerHTML += `<tr class="border-b">
           <td class="p-2 text-xs">${dateLabel}</td>
-          <td class="p-2">${r["ชื่อผู้ขอ"]}</td>
-          <td class="p-2 text-xs">${r["กลุ่มงาน"]}</td>
-          <td class="p-2 text-center font-bold">${r["จำนวนแผ่น"]} แผ่น<br><span class="text-xs text-gray-500 font-normal">${r["รายละเอียด"] || ""}</span></td>
-          <td class="p-2 text-center"><a href="${r["ไฟล์แนบ"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-download"></i> โหลดไฟล์</a></td>
+          <td class="p-2">${r.name}</td>
+          <td class="p-2 text-xs">${r.group}</td>
+          <td class="p-2 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
+          <td class="p-2 text-left">${filesHtml}</td>
           <td class="p-2 text-center">${statusBadge}${actionBtn}</td>
         </tr>`; 
       });
