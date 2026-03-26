@@ -574,6 +574,15 @@
             <a href="https://t.me/+db3Y5bychng1OGJl" target="_blank" class="text-xs bg-blue-600 text-white py-1 px-3 rounded inline-block hover:bg-blue-700 transition">👉 คลิกร่วมกลุ่มที่นี่ 👈</a>
           </div>
 
+          <div class="flex items-start mt-4">
+            <div class="flex items-center h-5">
+              <input id="pdpaConsent" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300">
+            </div>
+            <label for="pdpaConsent" class="ml-2 text-sm font-medium text-gray-900">
+              ข้าพเจ้ายินยอมให้ประมวลผลข้อมูลส่วนบุคคลตาม <a href="https://nayok.moph.go.th/web/wp-content/uploads/2026/02/17-%E0%B8%84%E0%B8%B3%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%81%E0%B8%B2%E0%B8%A8%E0%B8%84%E0%B8%B8%E0%B9%89%E0%B8%A1%E0%B8%84%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B8%82%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B8%B9%E0%B8%A5%E0%B8%AA%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B8%9A%E0%B8%B8%E0%B8%84%E0%B8%84%E0%B8%A5.pdf" target="_blank" class="text-blue-600 hover:underline">นโยบายการคุ้มครองข้อมูลส่วนบุคคล (PDPA)</a> ของสำนักงานฯ
+            </label>
+          </div>
+
           <button onclick="doRegister()" class="w-full bg-green-600 text-white font-bold py-3 rounded mt-4 hover:bg-green-700 shadow">ลงทะเบียน & รับรหัส PIN</button>
         </div>
         <div class="text-center mt-4">
@@ -847,6 +856,11 @@
     }
 
     async function doRegister() {
+      const pdpaBox = document.getElementById('pdpaConsent');
+      if (!pdpaBox.checked) {
+        return Swal.fire('แจ้งเตือน', 'กรุณากดยอมรับ นโยบายการคุ้มครองข้อมูลส่วนบุคคล (PDPA) เพื่อทำรายการต่อ', 'warning');
+      }
+
       const groupData = document.getElementById('regGroup').value.split('|');
       const data = { 
         mobile: document.getElementById('regMobile').value.trim(), 
@@ -977,7 +991,6 @@
       }
     }
 
-    // 🌟 ระบบจัดการคำขอปริ้นแบบเหมา (Batch) 🌟
     function cancelPrintReq(tsStr) {
       Swal.fire({
         title: 'ยืนยันการยกเลิก?',
@@ -1394,7 +1407,6 @@
       });
     }
 
-    // 🌟 อัปเดตตารางประวัติผู้ใช้แบบรวมไฟล์ (Group by Timestamp) 🌟
     function renderUserDash() {
       if (!currentUser || !globalData.staffs) return;
       
@@ -1465,7 +1477,6 @@
       if (myReqsRaw.length === 0) { 
         reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>'; 
       } else {
-        // จับกลุ่มด้วย Timestamp เพื่อไม่ให้แสดงบรรทัดซ้ำในตาราง
         let groupedMyReqs = {};
         myReqsRaw.forEach(r => {
            let ts = r["Timestamp_Str"] || r["Timestamp"];
@@ -1650,7 +1661,6 @@
       });
     }
 
-    // 🌟 อัปเดตตารางแอดมิน จัดกลุ่มไฟล์แนบรวมเป็น Batch 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
