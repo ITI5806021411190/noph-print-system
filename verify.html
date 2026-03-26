@@ -11,7 +11,7 @@
   
   <script>
     // ==========================================
-    // 🔗 ตั้งค่า API URL ตรงนี้! (นำลิงก์ Web App อันเดิมมาใส่)
+    // 🔗 ตั้งค่า API URL ตรงนี้!
     // ==========================================
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw5hSujh_9nqPeRT5mmNy7rD4aPYblEB-eUYnxWfhOrhZXEthhiFrUNL1660ISAm6-OOQ/exec";
     
@@ -63,8 +63,6 @@
           document.getElementById('formName').value = res.data.name;
           document.getElementById('formPosition').value = res.data.position || '';
           document.getElementById('formMobile').value = res.data.mobile || '';
-          
-          // 🌟 ดึงข้อมูลอีเมลเดิมมาแสดง (ถ้ามี) 🌟
           document.getElementById('formEmail').value = res.data.email || '';
           
           const selGroup = document.getElementById('formGroup');
@@ -90,7 +88,7 @@
         name: document.getElementById('formName').value.trim(),
         position: document.getElementById('formPosition').value.trim(),
         mobile: document.getElementById('formMobile').value.trim(),
-        email: document.getElementById('formEmail').value.trim(), // 🌟 ส่งอีเมลไปบันทึก 🌟
+        email: document.getElementById('formEmail').value.trim(),
         groupCode: groupData[0],
         groupName: groupData[1]
       };
@@ -191,6 +189,12 @@
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">อีเมลส่วนตัว (สำหรับรับการแจ้งเตือน)</label>
         <input type="email" id="formEmail" class="w-full border rounded-lg p-3 focus:ring focus:ring-blue-200 outline-none" placeholder="เช่น youremail@gmail.com">
+      </div>
+
+      <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mt-2 rounded">
+        <p class="text-xs text-blue-800 font-bold mb-1"><i class="fab fa-telegram"></i> กลุ่มแจ้งเตือน Telegram</p>
+        <p class="text-xs text-blue-700 mb-1">เพื่อรับการแจ้งเตือนเมื่อคำขอปริ้นสีเสร็จสิ้น</p>
+        <a href="https://t.me/+db3Y5bychng1OGJl" target="_blank" class="text-xs bg-blue-600 text-white py-1 px-3 rounded inline-block hover:bg-blue-700 transition">👉 คลิกร่วมกลุ่มที่นี่ 👈</a>
       </div>
 
       <div class="pt-4 flex space-x-3">
