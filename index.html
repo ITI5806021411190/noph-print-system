@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V23.0</title>
+  <title>Print & Copy Management V23.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -40,7 +40,7 @@
       }
     }
 
-    // 🌟 Helper Function: จัดการอักขระพิเศษ ป้องกันการเคาะบรรทัดใน CSV ทำให้เว็บพัง 🌟
+    // 🌟 Helper Function: จัดการอักขระพิเศษ
     function esc(str) {
       if(str == null) return '';
       return String(str)
@@ -128,9 +128,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm text-gray-600 mb-1">รอบข้อมูล (เดือน/ปี)</label>
-            <select id="periodFilter" onchange="renderDashboard()" class="w-full border-gray-300 rounded border p-2 focus:ring focus:ring-blue-200">
-              <option value="all">ดูข้อมูลรวมทุกรอบ</option>
-            </select>
+            <select id="periodFilter" onchange="renderDashboard()" class="w-full border-gray-300 rounded border p-2 focus:ring focus:ring-blue-200"></select>
           </div>
           <div>
             <label class="block text-sm text-gray-600 mb-1">ชั้นของเครื่องปริ้น</label>
@@ -143,9 +141,7 @@
           </div>
           <div>
             <label class="block text-sm text-gray-600 mb-1">กลุ่มงาน</label>
-            <select id="groupFilter" onchange="renderDashboard()" class="w-full border-gray-300 rounded border p-2 focus:ring focus:ring-blue-200">
-              <option value="all">รวมทุกกลุ่มงาน</option>
-            </select>
+            <select id="groupFilter" onchange="renderDashboard()" class="w-full border-gray-300 rounded border p-2 focus:ring focus:ring-blue-200"></select>
           </div>
         </div>
       </div>
@@ -246,7 +242,6 @@
               <i class="fas fa-user-edit mr-1"></i> แก้ไขข้อมูลส่วนตัว
             </button>
           </div>
-          
           <div id="pendingEditWarning" class="hidden mt-3 p-2 bg-orange-50 border border-orange-200 rounded text-center">
             <p class="text-xs text-orange-600 font-bold"><i class="fas fa-clock"></i> คำขอแก้ไขข้อมูลของคุณกำลังรอ Admin อนุมัติ</p>
           </div>
@@ -254,7 +249,6 @@
 
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-lg font-bold text-green-600 mb-4"><i class="fas fa-print"></i> ส่งคำขอปริ้นสี (Color Print Request)</h3>
-          
           <div class="mb-4">
             <label class="block text-sm font-bold text-blue-700 mb-1">หมายเหตุถึง Admin (ระบุหรือไม่ก็ได้)</label>
             <input type="text" id="reqRemark" class="w-full border-2 border-blue-200 p-2 rounded text-sm bg-blue-50 focus:outline-none focus:border-blue-400" placeholder="เช่น ขอปริ้นด่วนครับ, เย็บมุมซ้ายบนให้ด้วย">
@@ -284,11 +278,9 @@
                </div>
             </div>
           </div>
-          
           <button type="button" onclick="addFileRow()" class="mt-3 w-full bg-blue-50 text-blue-700 py-2 rounded text-sm font-semibold hover:bg-blue-100 border border-blue-300 border-dashed transition">
             <i class="fas fa-plus-circle mr-1"></i> เพิ่มไฟล์สำหรับปริ้น
           </button>
-          
           <hr class="my-4">
           <button onclick="submitPrintReq()" class="w-full bg-green-600 text-white py-3 rounded font-bold hover:bg-green-700 shadow-md transition">
             <i class="fas fa-paper-plane mr-2"></i> ส่งคำขอทั้งหมดให้ Admin
@@ -365,10 +357,7 @@
 
     <div id="view-chat" class="view-section hidden">
       <h2 class="text-2xl font-semibold mb-6 text-pink-600"><i class="fas fa-comments mr-2"></i> ระบบสนทนา / ติดต่อ Admin</h2>
-      
-      <div id="chatUserView" class="hidden max-w-2xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[600px] border border-pink-100">
-      </div>
-      
+      <div id="chatUserView" class="hidden max-w-2xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[600px] border border-pink-100"></div>
       <div id="chatAdminView" class="hidden grid grid-cols-1 md:grid-cols-3 gap-0 bg-white rounded-lg shadow-lg h-[650px] overflow-hidden border border-pink-100">
         <div class="border-r border-gray-200 overflow-y-auto bg-gray-50 flex flex-col" id="chatAdminUserList"></div>
         <div class="md:col-span-2 flex flex-col bg-white" id="chatAdminBox"></div>
@@ -452,9 +441,7 @@
               <label class="text-sm">อีเมลสรุปรายงานประจำเดือน</label>
               <input type="text" id="setEmails" class="w-full border p-1 rounded">
             </div>
-            
             <hr class="my-2">
-            
             <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
             <div>
               <label class="text-sm text-gray-500">Bot Token</label>
@@ -465,7 +452,6 @@
               <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm">
               <p class="text-xs text-red-500 mt-1">*อย่าลืมใส่ -100 นำหน้าตัวเลขสำหรับกลุ่มเสมอ</p>
             </div>
-            
             <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-bold mt-2 shadow">บันทึกการตั้งค่า</button>
             <hr>
             <div>
@@ -520,7 +506,7 @@
         <h3 class="text-lg font-bold text-red-600 mb-4"><i class="fas fa-exclamation-triangle"></i> พื้นที่อันตราย (Danger Zone)</h3>
         <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งาน คำขอปริ้น และประวัติการแชททั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
         <button onclick="clearDatabaseUI()" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 shadow">
-          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติและประวัติทั้งหมด
+          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติทั้งหมด
         </button>
       </div>
 
@@ -640,142 +626,8 @@
     </div>
   </div>
 
-  <div id="myEditProfileModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
-      <button onclick="closeMyProfileEdit()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
-      <div class="text-center mb-6">
-        <h2 class="text-xl font-bold text-blue-600"><i class="fas fa-user-edit"></i> แก้ไขข้อมูลส่วนตัว</h2>
-        <p class="text-sm text-gray-500 mt-1">ข้อมูลจะถูกอัปเดตเมื่อ Admin อนุมัติ</p>
-      </div>
-      <div class="space-y-3">
-        <div>
-          <label class="block text-sm font-bold text-blue-700">เบอร์มือถือ (ใช้สำหรับ Login)</label>
-          <input type="text" id="myEditMobile" class="w-full border-2 border-blue-200 rounded p-2 focus:ring focus:ring-blue-100 outline-none" maxlength="10">
-        </div>
-        <div>
-          <label class="block text-sm font-bold">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
-          <input type="text" id="myEditName" class="w-full border rounded p-2">
-        </div>
-        <div>
-          <label class="block text-sm font-bold">ตำแหน่ง</label>
-          <input type="text" id="myEditPos" class="w-full border rounded p-2">
-        </div>
-        <div>
-          <label class="block text-sm font-bold">กลุ่มงานปัจจุบัน</label>
-          <select id="myEditGroup" class="w-full border rounded p-2"></select>
-        </div>
-        <div>
-          <label class="block text-sm font-bold">อีเมลส่วนตัว</label>
-          <input type="email" id="myEditEmail" class="w-full border rounded p-2">
-        </div>
-        <button onclick="submitMyProfileEdit()" class="w-full bg-blue-600 text-white font-bold py-3 rounded mt-4 hover:bg-blue-700 shadow">ส่งคำขอแก้ไขข้อมูล</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="adminCreateUserModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
-      <button onclick="closeAdminCreateUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
-      <div class="text-center mb-6">
-        <h2 class="text-xl font-bold text-green-600">สร้างบัญชีผู้ใช้งานใหม่</h2>
-        <p class="text-sm text-gray-500">สำหรับ Admin</p>
-      </div>
-      <div class="space-y-3">
-        <div>
-          <label class="block text-sm font-bold">สิทธิ์การใช้งาน (Role)</label>
-          <select id="adminRegRole" class="w-full border-2 border-blue-400 rounded p-2 bg-blue-50">
-            <option value="user">ผู้ใช้งาน (User)</option>
-            <option value="assistant">ผู้ช่วยผู้ดูแลระบบ (Assistant Admin)</option>
-            <option value="admin">ผู้ดูแลระบบสูงสุด (Super Admin)</option>
-            <option value="observer">ผู้สังเกตการณ์ (Observer)</option>
-          </select>
-        </div>
-        <hr>
-        <div>
-          <label class="block text-sm">เบอร์มือถือ</label>
-          <input type="text" id="adminRegMobile" class="w-full border rounded p-2">
-        </div>
-        <div>
-          <label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
-          <input type="text" id="adminRegName" class="w-full border rounded p-2">
-        </div>
-        <div>
-          <label class="block text-sm">ตำแหน่ง</label>
-          <input type="text" id="adminRegPos" class="w-full border rounded p-2">
-        </div>
-        <div>
-          <label class="block text-sm">กลุ่มงาน</label>
-          <select id="adminRegGroup" class="w-full border rounded p-2"></select>
-        </div>
-        <div>
-          <label class="block text-sm">อีเมล</label>
-          <input type="email" id="adminRegEmail" class="w-full border rounded p-2" placeholder="อีเมลส่วนตัวของผู้ใช้">
-        </div>
-        <div>
-          <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
-          <input type="text" id="adminRegPrintUser" class="w-full border rounded p-2" placeholder="เว้นว่างไว้ถ้าต้องการให้ระบบสุ่ม PIN ให้">
-        </div>
-        <button onclick="adminSubmitCreateUser()" class="w-full bg-green-600 text-white font-bold py-3 rounded mt-4 hover:bg-green-700 shadow">ยืนยันการสร้างบัญชี</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="adminEditUserModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
-      <button onclick="closeEditUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
-      <div class="text-center mb-6">
-        <h2 class="text-xl font-bold text-blue-600">แก้ไขข้อมูลผู้ใช้งาน (Admin)</h2>
-      </div>
-      <div class="space-y-3">
-        <input type="hidden" id="editOriginalMobile">
-        <div>
-          <label class="block text-sm font-bold">สิทธิ์การใช้งาน</label>
-          <select id="editRole" class="w-full border rounded p-2 bg-blue-50">
-            <option value="user">ผู้ใช้งาน (User)</option>
-            <option value="assistant">ผู้ช่วยผู้ดูแลระบบ (Assistant Admin)</option>
-            <option value="admin">ผู้ดูแลระบบสูงสุด (Super Admin)</option>
-            <option value="observer">ผู้สังเกตการณ์ (Observer)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-bold">สถานะบัญชี</label>
-          <select id="editStatus" class="w-full border rounded p-2 bg-yellow-50">
-            <option value="approved">ใช้งานปกติ (Approved)</option>
-            <option value="suspended">ระงับการใช้งาน (Suspended)</option>
-            <option value="pending">รออนุมัติ (Pending)</option>
-          </select>
-        </div>
-        <hr>
-        <div>
-          <label class="block text-sm font-bold text-blue-700">เบอร์มือถือ</label>
-          <input type="text" id="editMobile" class="w-full border-2 border-blue-200 rounded p-2 outline-none focus:ring focus:ring-blue-100">
-        </div>
-        <div>
-          <label class="block text-sm">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
-          <input type="text" id="editName" class="w-full border rounded p-2">
-        </div>
-        <div>
-          <label class="block text-sm">ตำแหน่ง</label>
-          <input type="text" id="editPos" class="w-full border rounded p-2">
-        </div>
-        <div>
-          <label class="block text-sm">กลุ่มงาน</label>
-          <select id="editGroup" class="w-full border rounded p-2"></select>
-        </div>
-        <div>
-          <label class="block text-sm">อีเมล</label>
-          <input type="email" id="editEmail" class="w-full border rounded p-2">
-        </div>
-        <div>
-          <label class="block text-sm">รหัสในเครื่องปริ้น (ถ้ามี 6 หลัก)</label>
-          <input type="text" id="editPrintUser" class="w-full border rounded p-2">
-        </div>
-        <button onclick="submitEditUser()" class="w-full bg-blue-600 text-white font-bold py-3 rounded mt-4 hover:bg-blue-700 shadow">บันทึกการแก้ไข</button>
-      </div>
-    </div>
-  </div>
-
   <script>
+    // ส่วนนี้คือการประกาศตัวแปรและการตั้งค่าต่างๆ ครับ
     let globalData = {}; 
     let chartInstances = {}; 
     let currentUser = null; 
@@ -811,8 +663,14 @@
       console.error(err); 
       Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message }); 
     }
-    function showLoading(txt) { Swal.fire({ title: txt, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); }
-    function hideLoading() { Swal.close(); }
+    
+    function showLoading(txt) { 
+      Swal.fire({ title: txt, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
+    }
+    
+    function hideLoading() { 
+      Swal.close(); 
+    }
 
     function updateAuthUI() {
       const stored = localStorage.getItem('printapp_user');
@@ -852,8 +710,15 @@
       }
     }
 
-    function openAuth(type) { document.getElementById('authContainer').classList.remove('hidden'); toggleAuth(type); }
-    function closeAuth() { document.getElementById('authContainer').classList.add('hidden'); }
+    function openAuth(type) { 
+      document.getElementById('authContainer').classList.remove('hidden'); 
+      toggleAuth(type); 
+    }
+    
+    function closeAuth() { 
+      document.getElementById('authContainer').classList.add('hidden'); 
+    }
+    
     function toggleAuth(type) {
       if (type === 'reg') { 
         document.getElementById('loginForm').classList.add('hidden'); document.getElementById('regForm').classList.remove('hidden'); 
@@ -863,16 +728,21 @@
     }
 
     async function doLogin() {
-      const m = document.getElementById('logMobile').value.trim(); const p = document.getElementById('logPin').value.trim();
+      const m = document.getElementById('logMobile').value.trim(); 
+      const p = document.getElementById('logPin').value.trim();
       if (!m || !p) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
       showLoading("กำลังเข้าสู่ระบบ...");
       try {
         const res = await fetchAPI('loginUser', { mobile: m, pin: p });
         if (res.success) { 
-          localStorage.setItem('printapp_user', JSON.stringify(res.user)); updateAuthUI(); closeAuth(); 
+          localStorage.setItem('printapp_user', JSON.stringify(res.user)); 
+          updateAuthUI(); 
+          closeAuth(); 
           Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false });
           loadMainData(); 
-        } else { Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: res.message }); }
+        } else { 
+          Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: res.message }); 
+        }
       } catch (e) { handleError(e); }
     }
 
@@ -882,8 +752,11 @@
 
       const groupData = document.getElementById('regGroup').value.split('|');
       const data = { 
-        mobile: document.getElementById('regMobile').value.trim(), name: document.getElementById('regName').value.trim(), 
-        position: document.getElementById('regPos').value.trim(), groupCode: groupData[0], groupName: groupData[1],
+        mobile: document.getElementById('regMobile').value.trim(), 
+        name: document.getElementById('regName').value.trim(), 
+        position: document.getElementById('regPos').value.trim(), 
+        groupCode: groupData[0], 
+        groupName: groupData[1],
         email: document.getElementById('regEmail').value.trim()
       };
       if (!data.mobile || !data.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
@@ -897,14 +770,18 @@
       } catch (e) { handleError(e); }
     }
 
-    function logout() { localStorage.removeItem('printapp_user'); window.location.reload(); }
+    function logout() { 
+      localStorage.removeItem('printapp_user'); 
+      window.location.reload(); 
+    }
 
     function requestNewPinUI() {
       Swal.fire({ title: 'ยืนยันการขอรหัส PIN ใหม่', text: "คุณสามารถขอ PIN ใหม่ได้สูงสุด 3 ครั้งต่อเดือน", icon: 'warning', showCancelButton: true, confirmButtonColor: '#eab308', confirmButtonText: 'ยืนยันการขอรหัส', cancelButtonText: 'ยกเลิก' }).then(async function(result) {
         if (result.isConfirmed) {
           showLoading("กำลังสร้างรหัสใหม่...");
           try {
-             const res = await fetchAPI('requestNewPin', { mobile: currentUser.mobile }); hideLoading(); 
+             const res = await fetchAPI('requestNewPin', { mobile: currentUser.mobile }); 
+             hideLoading(); 
              if(res.success) { Swal.fire({ icon: 'success', title: 'สำเร็จ', html: res.message + "<br><br><b>รหัส PIN ใหม่ของคุณคือ: <span class='text-2xl text-blue-600'>" + res.pin + "</span></b>", confirmButtonText: 'รับทราบและออกจากระบบ' }).then(function() { logout(); }); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
           } catch(e) { handleError(e); }
         }
@@ -917,7 +794,8 @@
       document.getElementById('myEditName').value = globalData.myProfile.name;
       document.getElementById('myEditPos').value = globalData.myProfile.position;
       document.getElementById('myEditEmail').value = globalData.myProfile.email || '';
-      const sel = document.getElementById('myEditGroup'); sel.innerHTML = '';
+      const sel = document.getElementById('myEditGroup'); 
+      sel.innerHTML = '';
       globalData.groups.forEach(g => {
          let selected = (g.name === globalData.myProfile.groupName) ? 'selected' : '';
          sel.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}" ${selected}>${esc(g.code)} - ${esc(g.name)}</option>`;
@@ -938,118 +816,6 @@
       } catch(e) { handleError(e); }
     }
 
-    // 🌟 ฟังก์ชันจัดการคำขอ (Batch) 🌟
-    function cancelPrintReq(tsStr) {
-      Swal.fire({ title: 'ยืนยันการยกเลิก?', text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f59e0b', confirmButtonText: 'ใช่, ยกเลิกคำขอ', cancelButtonText: 'ปิดหน้าต่าง' }).then(async function(result) {
-        if(result.isConfirmed) {
-          showLoading("กำลังอัปเดตสถานะ...");
-          try {
-            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "ยกเลิก" });
-            if(res.success) { Swal.fire('สำเร็จ!', res.message, 'success'); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-          } catch(e) { handleError(e); }
-        }
-      });
-    }
-
-    function deletePrintReq(tsStr) {
-      Swal.fire({ title: 'ยืนยันการลบทิ้งถาวร?', text: "คุณต้องการลบประวัติคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่ (ข้อมูลจะถูกลบออกจากฐานข้อมูลและกู้คืนไม่ได้)", icon: 'error', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้งเลย', cancelButtonText: 'ยกเลิก' }).then(async function(result) {
-        if(result.isConfirmed) {
-          showLoading("กำลังลบประวัติคำขอ...");
-          try {
-            const res = await fetchAPI('deletePrintReq', { tsStr: tsStr });
-            if(res.success) { Swal.fire('สำเร็จ!', res.message, 'success'); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-          } catch(e) { handleError(e); }
-        }
-      });
-    }
-
-    function updatePrintStatus(tsStr) {
-      Swal.fire({ title: 'ยืนยันการอนุมัติ?', text: "คุณต้องการเปลี่ยนสถานะคำขอทั้งหมดในรอบนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่", icon: 'question', showCancelButton: true, confirmButtonColor: '#10b981', confirmButtonText: 'ใช่, อนุมัติเลย', cancelButtonText: 'ยกเลิก' }).then(async function(result) {
-        if(result.isConfirmed) { 
-          showLoading("กำลังอัปเดตสถานะ..."); 
-          try { 
-            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "เสร็จสิ้น" }); 
-            if(res.success) { Swal.fire('สำเร็จ!', res.message, 'success'); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
-          } catch(e) { handleError(e); } 
-        }
-      });
-    }
-
-    function addFileRow() {
-      const container = document.getElementById('printFilesContainer'); const firstRow = container.querySelector('.file-row'); const newRow = firstRow.cloneNode(true);
-      newRow.querySelector('.req-file').value = ""; newRow.querySelector('.req-pages-range').value = ""; newRow.querySelector('.req-copies').value = "1"; newRow.querySelector('.req-total-sheets').value = "";
-      newRow.querySelector('.remove-btn').classList.remove('hidden'); container.appendChild(newRow); updateRemoveButtons();
-    }
-    
-    function removeFileRow(btn) {
-      const container = document.getElementById('printFilesContainer'); if (container.querySelectorAll('.file-row').length > 1) { btn.closest('.file-row').remove(); } updateRemoveButtons();
-    }
-    
-    function updateRemoveButtons() {
-      const rows = document.querySelectorAll('.file-row'); rows.forEach((r, idx) => { if (rows.length === 1) { r.querySelector('.remove-btn').classList.add('hidden'); } else { r.querySelector('.remove-btn').classList.remove('hidden'); } });
-    }
-
-    async function submitPrintReq() {
-      const rows = document.querySelectorAll('.file-row'); const remarkInput = document.getElementById('reqRemark').value.trim(); let filesData = []; let totalAllSheets = 0;
-      for(let r of rows) {
-         const fileInput = r.querySelector('.req-file'); const pagesRange = r.querySelector('.req-pages-range').value.trim(); const copies = r.querySelector('.req-copies').value; const totalSheets = parseInt(r.querySelector('.req-total-sheets').value);
-         if (fileInput.files.length === 0 || !totalSheets || totalSheets <= 0) return Swal.fire('แจ้งเตือน', 'กรุณาแนบไฟล์และระบุจำนวนแผ่นรวมให้ครบทุกรายการ', 'warning');
-         const file = fileInput.files[0];
-         if (file.size > 15 * 1024 * 1024) return Swal.fire('แจ้งเตือน', `ไฟล์ ${file.name} มีขนาดใหญ่เกิน 15MB`, 'warning');
-         const dataURI = await readFileAsDataURL(file);
-         filesData.push({ fileName: file.name, mimeType: file.type, fileDataURI: dataURI, pageRange: pagesRange || 'ทั้งหมด', copies: copies || 1, sheets: totalSheets });
-         totalAllSheets += totalSheets;
-      }
-      showLoading("กำลังอัปโหลดไฟล์ส่งคำขอ...");
-      try {
-        const reqData = { mobile: currentUser.mobile, name: currentUser.name, group: currentUser.group, files: filesData, totalAllSheets: totalAllSheets, remark: remarkInput };
-        const res = await fetchAPI('submitPrintRequest', reqData);
-        hideLoading();
-        if(res.success) {
-           Swal.fire('สำเร็จ!', res.message, 'success');
-           document.getElementById('reqRemark').value = ""; 
-           const container = document.getElementById('printFilesContainer'); const firstRow = container.querySelector('.file-row').cloneNode(true);
-           firstRow.querySelector('.req-file').value = ""; firstRow.querySelector('.req-pages-range').value = ""; firstRow.querySelector('.req-copies').value = "1"; firstRow.querySelector('.req-total-sheets').value = ""; firstRow.querySelector('.remove-btn').classList.add('hidden'); container.innerHTML = ''; container.appendChild(firstRow);
-           loadMainData();
-        } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-      } catch(err) { handleError(err); }
-    }
-
-    async function loadMainData() {
-      showLoading("กำลังโหลดข้อมูล...");
-      try {
-        const fetchPayload = { mobile: currentUser ? currentUser.mobile : "" };
-        const res = await fetchAPI('getDashboardData', fetchPayload);
-        
-        if (!res.success || !res.data) { 
-          hideLoading(); return Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลจากระบบได้', 'error'); 
-        }
-        globalData = res.data; 
-        
-        if (res.data.myProfile && currentUser) {
-           let st = JSON.parse(localStorage.getItem('printapp_user'));
-           if (st) {
-              st.name = res.data.myProfile.name;
-              st.group = res.data.myProfile.groupName;
-              st.role = res.data.myProfile.role;
-              if (res.data.myProfile.mobile !== st.mobile) {
-                  localStorage.removeItem('printapp_user');
-                  Swal.fire('ข้อมูลบัญชีถูกเปลี่ยนแปลง', 'เบอร์มือถือของคุณถูกเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบใหม่อีกครั้งด้วยเบอร์ใหม่', 'warning').then(() => { window.location.reload(); });
-                  return;
-              }
-              localStorage.setItem('printapp_user', JSON.stringify(st));
-              currentUser = st; updateAuthUI();
-           }
-        }
-        
-        populateFilters();
-        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'assistant')) loadAdminData();
-        
-        switchView(currentActiveView); 
-        hideLoading();
-      } catch(e) { handleError(e); }
-    }
-
     function switchView(view) {
       currentActiveView = view;
       var views = ['dashboard', 'user', 'requests', 'chat', 'upload', 'admin', 'report'];
@@ -1064,7 +830,392 @@
       else if (view === 'user') renderUserDash();
       else if (view === 'chat') renderChatTab(); 
     }
+    // 🌟 ฟังก์ชันจัดการคำขอ (Batch) 🌟
+    function cancelPrintReq(tsStr) {
+      Swal.fire({
+        title: 'ยืนยันการยกเลิก?',
+        text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f59e0b',
+        confirmButtonText: 'ใช่, ยกเลิกคำขอ',
+        cancelButtonText: 'ปิดหน้าต่าง'
+      }).then(async function(result) {
+        if(result.isConfirmed) {
+          showLoading("กำลังอัปเดตสถานะ...");
+          try {
+            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "ยกเลิก" });
+            if(res.success) {
+              Swal.fire('สำเร็จ!', res.message, 'success');
+              loadMainData();
+            } else {
+              Swal.fire('ผิดพลาด', res.message, 'error');
+            }
+          } catch(e) {
+            handleError(e);
+          }
+        }
+      });
+    }
 
+    function deletePrintReq(tsStr) {
+      Swal.fire({
+        title: 'ยืนยันการลบทิ้งถาวร?',
+        text: "คุณต้องการลบประวัติคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่ (ข้อมูลจะถูกลบออกจากฐานข้อมูลและกู้คืนไม่ได้)",
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'ใช่, ลบทิ้งเลย',
+        cancelButtonText: 'ยกเลิก'
+      }).then(async function(result) {
+        if(result.isConfirmed) {
+          showLoading("กำลังลบประวัติคำขอ...");
+          try {
+            const res = await fetchAPI('deletePrintReq', { tsStr: tsStr });
+            if(res.success) {
+              Swal.fire('สำเร็จ!', res.message, 'success');
+              loadMainData();
+            } else {
+              Swal.fire('ผิดพลาด', res.message, 'error');
+            }
+          } catch(e) {
+            handleError(e);
+          }
+        }
+      });
+    }
+
+    function updatePrintStatus(tsStr) {
+      Swal.fire({
+        title: 'ยืนยันการอนุมัติ?',
+        text: "คุณต้องการเปลี่ยนสถานะคำขอทั้งหมดในรอบนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        confirmButtonText: 'ใช่, อนุมัติเลย',
+        cancelButtonText: 'ยกเลิก'
+      }).then(async function(result) {
+        if(result.isConfirmed) { 
+          showLoading("กำลังอัปเดตสถานะ..."); 
+          try { 
+            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "เสร็จสิ้น" }); 
+            if(res.success) {
+              Swal.fire('สำเร็จ!', res.message, 'success');
+              loadMainData();
+            } else {
+              Swal.fire('ผิดพลาด', res.message, 'error');
+            } 
+          } catch(e) {
+            handleError(e);
+          } 
+        }
+      });
+    }
+
+    function addFileRow() {
+      const container = document.getElementById('printFilesContainer');
+      const firstRow = container.querySelector('.file-row');
+      const newRow = firstRow.cloneNode(true);
+      
+      newRow.querySelector('.req-file').value = "";
+      newRow.querySelector('.req-pages-range').value = "";
+      newRow.querySelector('.req-copies').value = "1";
+      newRow.querySelector('.req-total-sheets').value = "";
+      
+      newRow.querySelector('.remove-btn').classList.remove('hidden');
+      container.appendChild(newRow);
+      
+      updateRemoveButtons();
+    }
+    
+    function removeFileRow(btn) {
+      const container = document.getElementById('printFilesContainer');
+      if (container.querySelectorAll('.file-row').length > 1) {
+        btn.closest('.file-row').remove();
+      }
+      updateRemoveButtons();
+    }
+    
+    function updateRemoveButtons() {
+      const rows = document.querySelectorAll('.file-row');
+      rows.forEach(function(r, idx) {
+        if (rows.length === 1) {
+          r.querySelector('.remove-btn').classList.add('hidden');
+        } else {
+          r.querySelector('.remove-btn').classList.remove('hidden');
+        }
+      });
+    }
+
+    // 🌟 Helper Function: สำหรับแปลงไฟล์ก่อนอัปโหลด (ที่หายไปใน Error)
+    function readFileAsDataURL(file) { 
+      return new Promise(function(resolve, reject) { 
+        const reader = new FileReader(); 
+        reader.onload = function(e) { resolve(e.target.result); }; 
+        reader.onerror = function(e) { reject(e); }; 
+        reader.readAsDataURL(file); 
+      }); 
+    }
+
+    async function submitPrintReq() {
+      const rows = document.querySelectorAll('.file-row');
+      const remarkInput = document.getElementById('reqRemark').value.trim();
+      let filesData = [];
+      let totalAllSheets = 0;
+
+      for(let r of rows) {
+         const fileInput = r.querySelector('.req-file');
+         const pagesRange = r.querySelector('.req-pages-range').value.trim();
+         const copies = r.querySelector('.req-copies').value;
+         const totalSheets = parseInt(r.querySelector('.req-total-sheets').value);
+
+         if (fileInput.files.length === 0 || !totalSheets || totalSheets <= 0) {
+            return Swal.fire('แจ้งเตือน', 'กรุณาแนบไฟล์และระบุจำนวนแผ่นรวมให้ครบทุกรายการ', 'warning');
+         }
+         
+         const file = fileInput.files[0];
+         if (file.size > 15 * 1024 * 1024) {
+            return Swal.fire('แจ้งเตือน', `ไฟล์ ${file.name} มีขนาดใหญ่เกิน 15MB`, 'warning');
+         }
+
+         const dataURI = await readFileAsDataURL(file);
+         filesData.push({
+            fileName: file.name,
+            mimeType: file.type,
+            fileDataURI: dataURI,
+            pageRange: pagesRange || 'ทั้งหมด',
+            copies: copies || 1,
+            sheets: totalSheets
+         });
+         
+         totalAllSheets += totalSheets;
+      }
+
+      showLoading("กำลังอัปโหลดไฟล์ส่งคำขอ...");
+      try {
+        const reqData = {
+           mobile: currentUser.mobile,
+           name: currentUser.name,
+           group: currentUser.group,
+           files: filesData,
+           totalAllSheets: totalAllSheets,
+           remark: remarkInput
+        };
+        
+        const res = await fetchAPI('submitPrintRequest', reqData);
+        hideLoading();
+        
+        if(res.success) {
+           Swal.fire('สำเร็จ!', res.message, 'success');
+           
+           document.getElementById('reqRemark').value = ""; 
+           
+           const container = document.getElementById('printFilesContainer');
+           const firstRow = container.querySelector('.file-row').cloneNode(true);
+           firstRow.querySelector('.req-file').value = "";
+           firstRow.querySelector('.req-pages-range').value = "";
+           firstRow.querySelector('.req-copies').value = "1";
+           firstRow.querySelector('.req-total-sheets').value = "";
+           firstRow.querySelector('.remove-btn').classList.add('hidden');
+           
+           container.innerHTML = '';
+           container.appendChild(firstRow);
+           
+           loadMainData();
+        } else {
+           Swal.fire('ผิดพลาด', res.message, 'error');
+        }
+      } catch(err) {
+        handleError(err);
+      }
+    }
+
+    async function loadMainData() {
+      showLoading("กำลังโหลดข้อมูล...");
+      try {
+        const fetchPayload = { mobile: currentUser ? currentUser.mobile : "" };
+        const res = await fetchAPI('getDashboardData', fetchPayload);
+        
+        if (!res.success || !res.data) { 
+          hideLoading();
+          return Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลจากระบบได้', 'error'); 
+        }
+        globalData = res.data; 
+        
+        if (res.data.myProfile && currentUser) {
+           let st = JSON.parse(localStorage.getItem('printapp_user'));
+           if (st) {
+              st.name = res.data.myProfile.name;
+              st.group = res.data.myProfile.groupName;
+              st.role = res.data.myProfile.role;
+              
+              if (res.data.myProfile.mobile !== st.mobile) {
+                  localStorage.removeItem('printapp_user');
+                  Swal.fire('ข้อมูลบัญชีถูกเปลี่ยนแปลง', 'เบอร์มือถือของคุณถูกเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบใหม่อีกครั้งด้วยเบอร์ใหม่', 'warning').then(() => { window.location.reload(); });
+                  return;
+              }
+              
+              localStorage.setItem('printapp_user', JSON.stringify(st));
+              currentUser = st;
+              updateAuthUI();
+           }
+        }
+        
+        populateFilters();
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'assistant')) {
+           loadAdminData();
+        }
+        
+        switchView(currentActiveView); 
+        hideLoading();
+      } catch(e) {
+        handleError(e);
+      }
+    }
+
+    function switchView(view) {
+      currentActiveView = view;
+      var views = ['dashboard', 'user', 'requests', 'chat', 'upload', 'admin', 'report'];
+      views.forEach(function(v) { 
+        document.getElementById('view-' + v)?.classList.add('hidden'); 
+        document.getElementById('nav-' + v)?.classList.remove('nav-active'); 
+      });
+      document.getElementById('view-' + view)?.classList.remove('hidden'); 
+      document.getElementById('nav-' + view)?.classList.add('nav-active');
+      
+      if (view === 'dashboard') {
+         renderDashboard(); 
+      } else if (view === 'user') {
+         renderUserDash();
+      } else if (view === 'chat') {
+         renderChatTab(); 
+      }
+    }
+
+    // 🌟 ฟังก์ชัน User Dash (ที่หายไปใน Error) 🌟
+    function renderUserDash() {
+      if (!currentUser || !globalData.staffs) return;
+      
+      const period = document.getElementById('periodFilter').value; 
+      const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
+      const cCol = parseFloat(globalData.settings.cost_color) || 5;
+      
+      let staffs = globalData.staffs;
+      if (period !== "all") {
+         staffs = staffs.filter(function(r) { return r["รอบข้อมูล"] === period; });
+      }
+
+      let groupDict = getGroupDict();
+      
+      if (globalData.myProfile && globalData.myProfile.pendingEdit) {
+         document.getElementById('pendingEditWarning').classList.remove('hidden');
+      } else {
+         document.getElementById('pendingEditWarning').classList.add('hidden');
+      }
+
+      let me = staffs.find(function(r) { 
+        return r["ชื่อ-สกุลบุคลากร"] === currentUser.name || r["Username ในเครื่อง"] === currentUser.printerUser; 
+      });
+      
+      if (me) {
+        document.getElementById('myPrint').innerText = parseFloat(me["รวม Print"] || 0).toLocaleString(); 
+        document.getElementById('myCopy').innerText = parseFloat(me["รวม Copy"] || 0).toLocaleString();
+        
+        let cost = (parseFloat(me["Print สี"] || 0) + parseFloat(me["Copy สี"] || 0)) * cCol + 
+                   (parseFloat(me["Print ขาวดำ"] || 0) + parseFloat(me["Copy ขาวดำ"] || 0)) * cBw; 
+        document.getElementById('myCost').innerText = cost.toLocaleString();
+      } else {
+        document.getElementById('myPrint').innerText = "0"; 
+        document.getElementById('myCopy').innerText = "0"; 
+        document.getElementById('myCost').innerText = "0";
+      }
+
+      document.getElementById('myGroupName').innerText = currentUser.group;
+      
+      let myGroup = staffs.filter(function(r) { 
+        let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+        let mappedName = groupDict[code] || String(r["ชื่อกลุ่ม"]); 
+        return mappedName === currentUser.group || String(r["ชื่อกลุ่ม"]) === currentUser.group; 
+      });
+      
+      let tb = document.getElementById('myGroupTable'); 
+      tb.innerHTML = '';
+      
+      myGroup.sort(function(a,b) { 
+        return (parseFloat(b["รวมทั้งหมด (Print+Copy)"]) || 0) - (parseFloat(a["รวมทั้งหมด (Print+Copy)"]) || 0); 
+      }).forEach(function(r) { 
+        let nameLabel = r["ชื่อ-สกุลบุคลากร"] || r["Username ในเครื่อง"]; 
+        tb.innerHTML += `<tr class="border-b">
+          <td class="p-2">${esc(nameLabel)}</td>
+          <td class="p-2 text-right">${r["รวม Print"]}</td>
+          <td class="p-2 text-right">${r["รวม Copy"]}</td>
+          <td class="p-2 text-right font-bold text-blue-600">${r["รวมทั้งหมด (Print+Copy)"]}</td>
+        </tr>`; 
+      });
+
+      let reqTb = document.getElementById('myPrintReqTableBody'); 
+      reqTb.innerHTML = '';
+      
+      let myReqsRaw = globalData.printReqs.filter(function(r) { 
+        return String(r["เบอร์มือถือ"]).replace(/'/g, '').trim() === currentUser.mobile; 
+      });
+
+      if (myReqsRaw.length === 0) { 
+        reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>'; 
+      } else {
+        let groupedMyReqs = {};
+        myReqsRaw.forEach(function(r) {
+           let ts = r["Timestamp_Str"] || r["Timestamp"];
+           if(!groupedMyReqs[ts]) {
+              groupedMyReqs[ts] = {
+                 ts: ts,
+                 status: r["สถานะ"],
+                 remark: r["หมายเหตุ"] || "-",
+                 files: [],
+                 totalPages: 0
+              };
+           }
+           groupedMyReqs[ts].files.push({
+              url: r["ไฟล์แนบ"],
+              pages: r["จำนวนแผ่น"],
+              details: r["รายละเอียด"] || ""
+           });
+           groupedMyReqs[ts].totalPages += (parseFloat(r["จำนวนแผ่น"]) || 0);
+        });
+
+        let sortedMyReqs = Object.values(groupedMyReqs).reverse();
+
+        sortedMyReqs.forEach(function(r) {
+          let dateLabel = r.ts; 
+          let status = r.status || "รอปริ้น";
+          
+          let statusBadge = "";
+          let actionBtns = `<div class="flex justify-center space-x-2 mt-1">`;
+          
+          if (status === "รอปริ้น") {
+            statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>`;
+            actionBtns += `<button data-ts="${esc(dateLabel)}" onclick="cancelPrintReq(this.dataset.ts)" class="text-orange-500 hover:text-orange-700" title="ยกเลิกคำขอ"><i class="fas fa-times-circle"></i></button>`;
+          } else if (status === "ยกเลิก") {
+            statusBadge = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-ban"></i> ยกเลิกแล้ว</span>`;
+          } else {
+            statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${esc(status)}</span>`;
+          }
+          
+          actionBtns += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบประวัติ"><i class="fas fa-trash"></i></button></div>`;
+            
+          let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> โหลดไฟล์ที่ ${i+1}</a>`).join('');
+          
+          reqTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+            <td class="p-2 text-xs">${esc(dateLabel)}</td>
+            <td class="p-2 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
+            <td class="p-2 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td>
+            <td class="p-2 text-center">${statusBadge} ${actionBtns}</td>
+          </tr>`;
+        });
+      }
+    }
+
+    // 🌟 ระบบจัดการแท็บแชทแยกอิสระ 🌟
     function renderChatTab() {
       const chats = globalData.chats || [];
       if(currentUser.role === 'admin' || currentUser.role === 'assistant') {
@@ -1085,9 +1236,11 @@
        const userListDiv = document.getElementById('chatAdminUserList');
        const rooms = {};
        
-       chats.forEach(c => {
+       chats.forEach(function(c) {
           let rid = String(c.Room_ID).replace(/'/g, '').trim(); 
-          if(!rooms[rid]) rooms[rid] = { roomId: rid, msgs: [], lastTime: '' };
+          if(!rooms[rid]) {
+             rooms[rid] = { roomId: rid, msgs: [], lastTime: '' };
+          }
           rooms[rid].msgs.push(c);
           rooms[rid].lastTime = c.Chat_Time_Str || c.Chat_Time;
        });
@@ -1095,9 +1248,11 @@
        let listHtml = '<div class="bg-gray-200 p-3 font-bold border-b text-sm sticky top-0"><i class="fas fa-address-book"></i> รายการสนทนา</div>';
        const sortedRooms = Object.values(rooms).sort((a,b) => new Date(b.lastTime) - new Date(a.lastTime));
 
-       if(sortedRooms.length === 0) listHtml += '<div class="p-4 text-center text-gray-500 text-xs">ยังไม่มีข้อความ</div>';
+       if(sortedRooms.length === 0) {
+          listHtml += '<div class="p-4 text-center text-gray-500 text-xs">ยังไม่มีข้อความ</div>';
+       }
 
-       sortedRooms.forEach(r => {
+       sortedRooms.forEach(function(r) {
           const lastMsg = r.msgs[r.msgs.length-1];
           const activeClass = (currentActiveChatRoom === r.roomId) ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-white hover:bg-gray-100 border-l-4 border-transparent';
           listHtml += `
@@ -1117,7 +1272,8 @@
     }
 
     function openAdminChatRoom(roomId) {
-       currentActiveChatRoom = roomId; renderChatTab();
+       currentActiveChatRoom = roomId; 
+       renderChatTab();
     }
 
     function renderChatBox(containerId, roomId, chats) {
@@ -1133,9 +1289,11 @@
          <div id="chatMessagesArea" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50 chat-scroll">
        `;
 
-       if(roomChats.length === 0) html += '<div class="text-center text-sm text-gray-400 mt-10 bg-white py-4 rounded-lg border border-dashed border-gray-300">เริ่มพิมพ์ข้อความเพื่อติดต่อสนทนาได้เลยครับ 👋</div>';
+       if(roomChats.length === 0) {
+          html += '<div class="text-center text-sm text-gray-400 mt-10 bg-white py-4 rounded-lg border border-dashed border-gray-300">เริ่มพิมพ์ข้อความเพื่อติดต่อสนทนาได้เลยครับ 👋</div>';
+       }
 
-       roomChats.forEach(c => {
+       roomChats.forEach(function(c) {
           const isMe = c.Sender_Name === currentUser.name;
           const timeStr = c.Chat_Time_Str || c.Chat_Time;
           const roleBadge = (c.Sender_Role === 'admin' || c.Sender_Role === 'assistant') ? '<span class="text-[9px] bg-yellow-300 text-yellow-800 px-1.5 rounded-full ml-1 font-bold">Admin</span>' : '';
@@ -1178,22 +1336,46 @@
          </div>
        `;
        container.innerHTML = html;
-       setTimeout(() => { const msgArea = container.querySelector('#chatMessagesArea'); if(msgArea) msgArea.scrollTop = msgArea.scrollHeight; }, 100);
+       setTimeout(function() { 
+          const msgArea = container.querySelector('#chatMessagesArea'); 
+          if(msgArea) msgArea.scrollTop = msgArea.scrollHeight; 
+       }, 100);
     }
 
     async function submitChatMsg() {
-       const input = document.getElementById('chatInputMain'); if(!input) return;
-       const msg = input.value.trim(); if(!msg || !currentActiveChatRoom) return;
+       const input = document.getElementById('chatInputMain'); 
+       if(!input) return;
+       
+       const msg = input.value.trim(); 
+       if(!msg || !currentActiveChatRoom) return;
        input.value = '';
 
        if(!globalData.chats) globalData.chats = [];
-       globalData.chats.push({ Room_ID: currentActiveChatRoom, Chat_Time_Str: "กำลังส่ง...", Sender_Name: currentUser.name, Sender_Role: currentUser.role, Message: msg });
+       globalData.chats.push({ 
+          Room_ID: currentActiveChatRoom, 
+          Chat_Time_Str: "กำลังส่ง...", 
+          Sender_Name: currentUser.name, 
+          Sender_Role: currentUser.role, 
+          Message: msg 
+       });
        renderChatTab();
 
        try {
-          const res = await fetchAPI('sendChatMessage', { roomId: currentActiveChatRoom, senderName: currentUser.name, senderRole: currentUser.role, message: msg });
-          if(res.success) { loadMainData(); } else { Swal.fire('Error', res.message, 'error'); }
-       } catch(e) { console.error(e); }
+          const res = await fetchAPI('sendChatMessage', { 
+             roomId: currentActiveChatRoom, 
+             senderName: currentUser.name, 
+             senderRole: currentUser.role, 
+             message: msg 
+          });
+          
+          if(res.success) { 
+             loadMainData(); 
+          } else { 
+             Swal.fire('Error', res.message, 'error'); 
+          }
+       } catch(e) { 
+          console.error(e); 
+       }
     }
 
     async function editChatMsg(roomId, timeStr) {
@@ -1201,34 +1383,73 @@
        if(!chatMsg) return;
        
        const { value: newMsg } = await Swal.fire({
-          title: 'แก้ไขข้อความ', input: 'text', inputValue: chatMsg.Message.replace(' (แก้ไขแล้ว)', ''),
-          showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก'
+          title: 'แก้ไขข้อความ', 
+          input: 'text', 
+          inputValue: chatMsg.Message.replace(' (แก้ไขแล้ว)', ''),
+          showCancelButton: true, 
+          confirmButtonText: 'บันทึก', 
+          cancelButtonText: 'ยกเลิก'
        });
        
        if (newMsg && newMsg.trim() !== "") {
           showLoading("กำลังแก้ไข...");
           try {
-             const res = await fetchAPI('editChatMessage', { roomId: roomId, chatTimeStr: timeStr, senderName: currentUser.name, newMessage: newMsg.trim() });
-             if(res.success) { loadMainData(); } else { Swal.fire('Error', res.message, 'error'); }
-          } catch(e) { handleError(e); }
+             const res = await fetchAPI('editChatMessage', { 
+                roomId: roomId, 
+                chatTimeStr: timeStr, 
+                senderName: currentUser.name, 
+                newMessage: newMsg.trim() 
+             });
+             
+             if(res.success) { 
+                loadMainData(); 
+             } else { 
+                Swal.fire('Error', res.message, 'error'); 
+             }
+          } catch(e) { 
+             handleError(e); 
+          }
        }
     }
 
     function deleteChatMsg(roomId, timeStr) {
-       Swal.fire({ title: 'ลบข้อความนี้?', text: "ข้อความจะถูกลบทิ้งอย่างถาวร", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก' }).then(async res => {
+       Swal.fire({ 
+          title: 'ลบข้อความนี้?', 
+          text: "ข้อความจะถูกลบทิ้งอย่างถาวร", 
+          icon: 'warning', 
+          showCancelButton: true, 
+          confirmButtonColor: '#d33', 
+          confirmButtonText: 'ลบ', 
+          cancelButtonText: 'ยกเลิก' 
+       }).then(async function(res) {
           if (res.isConfirmed) {
              showLoading("กำลังลบ...");
              try {
-                const apiRes = await fetchAPI('deleteChatMessage', { roomId: roomId, chatTimeStr: timeStr, senderName: currentUser.name });
-                if(apiRes.success) { loadMainData(); } else { Swal.fire('Error', apiRes.message, 'error'); }
-             } catch(e) { handleError(e); }
+                const apiRes = await fetchAPI('deleteChatMessage', { 
+                   roomId: roomId, 
+                   chatTimeStr: timeStr, 
+                   senderName: currentUser.name 
+                });
+                
+                if(apiRes.success) { 
+                   loadMainData(); 
+                } else { 
+                   Swal.fire('Error', apiRes.message, 'error'); 
+                }
+             } catch(e) { 
+                handleError(e); 
+             }
           }
        });
     }
 
     function getGroupDict() {
       let dict = {};
-      if (globalData && globalData.groups) { globalData.groups.forEach(function(g) { dict[String(g.code).padStart(2, '0')] = g.name; }); }
+      if (globalData && globalData.groups) { 
+         globalData.groups.forEach(function(g) { 
+            dict[String(g.code).padStart(2, '0')] = g.name; 
+         }); 
+      }
       return dict;
     }
 
@@ -1236,67 +1457,289 @@
       if (!globalData || !globalData.totals) return;
       const periods = [...new Set(globalData.totals.map(function(r) { return r["รอบข้อมูล"]; }))].filter(Boolean).sort().reverse();
       const groups = globalData.groups || [];
-      const pf = document.getElementById('periodFilter'); const rf = document.getElementById('repPeriod'); const ef = document.getElementById('emailPeriodSel'); const df = document.getElementById('delPeriodSel'); const gf = document.getElementById('groupFilter');
-      let opts = '<option value="all">ดูข้อมูลรวมทุกรอบ</option>'; let repOpts = '';
-      periods.forEach(function(p) { let t = `<option value="${esc(p)}">${esc(p)}</option>`; opts += t; repOpts += t; });
-      if (pf) pf.innerHTML = opts; if (rf) rf.innerHTML = repOpts; if (ef) ef.innerHTML = repOpts; if (df) df.innerHTML = repOpts;
-      if (periods.length > 0) { if (pf) pf.value = periods[0]; if (rf) rf.value = periods[0]; if (ef) ef.value = periods[0]; if (df) df.value = periods[0]; }
+      
+      const pf = document.getElementById('periodFilter'); 
+      const rf = document.getElementById('repPeriod'); 
+      const ef = document.getElementById('emailPeriodSel'); 
+      const df = document.getElementById('delPeriodSel'); 
+      const gf = document.getElementById('groupFilter');
+      
+      let opts = '<option value="all">ดูข้อมูลรวมทุกรอบ</option>'; 
+      let repOpts = '';
+      
+      periods.forEach(function(p) { 
+         let t = `<option value="${esc(p)}">${esc(p)}</option>`; 
+         opts += t; 
+         repOpts += t; 
+      });
+      
+      if (pf) pf.innerHTML = opts; 
+      if (rf) rf.innerHTML = repOpts; 
+      if (ef) ef.innerHTML = repOpts; 
+      if (df) df.innerHTML = repOpts;
+      
+      if (periods.length > 0) { 
+         if (pf) pf.value = periods[0]; 
+         if (rf) rf.value = periods[0]; 
+         if (ef) ef.value = periods[0]; 
+         if (df) df.value = periods[0]; 
+      }
+      
       if (gf) {
         let grpOpts = '<option value="all">รวมทุกกลุ่มงาน</option>';
-        groups.forEach(function(g) { let codePad = String(g.code).padStart(2, '0'); grpOpts += `<option value="${esc(codePad)}">${esc(codePad)} - ${esc(g.name)}</option>`; });
+        groups.forEach(function(g) { 
+           let codePad = String(g.code).padStart(2, '0'); 
+           grpOpts += `<option value="${esc(codePad)}">${esc(codePad)} - ${esc(g.name)}</option>`; 
+        });
         gf.innerHTML = grpOpts;
       }
     }
 
     function renderDashboard() {
       if (!globalData || !globalData.stacks) return;
-      const period = document.getElementById('periodFilter').value; const floorStr = document.getElementById('floorFilter').value; const groupCode = document.getElementById('groupFilter').value;
-      const cBw = parseFloat(globalData.settings.cost_bw) || 1; const cCol = parseFloat(globalData.settings.cost_color) || 5;
+      
+      const period = document.getElementById('periodFilter').value; 
+      const floorStr = document.getElementById('floorFilter').value; 
+      const groupCode = document.getElementById('groupFilter').value;
+      const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
+      const cCol = parseFloat(globalData.settings.cost_color) || 5;
       
       let stacks = globalData.stacks;
-      if (period !== "all") stacks = stacks.filter(function(r) { return r["รอบข้อมูล"] === period; }); 
-      if (floorStr !== "all") { let floorLabel = "ชั้น " + floorStr.replace('F', ''); stacks = stacks.filter(function(r) { return r["ชั้น"] === floorLabel; }); }
-      if (groupCode !== "all") stacks = stacks.filter(function(r) { return String(r["รหัสกลุ่ม"]).padStart(2, '0') === groupCode; }); 
+      if (period !== "all") {
+         stacks = stacks.filter(function(r) { return r["รอบข้อมูล"] === period; }); 
+      }
+      if (floorStr !== "all") { 
+         let floorLabel = "ชั้น " + floorStr.replace('F', ''); 
+         stacks = stacks.filter(function(r) { return r["ชั้น"] === floorLabel; }); 
+      }
+      if (groupCode !== "all") {
+         stacks = stacks.filter(function(r) { return String(r["รหัสกลุ่ม"]).padStart(2, '0') === groupCode; }); 
+      }
 
-      let groupDict = getGroupDict(); let groupMap = {}; let tU = 0, tP = 0, tC = 0, tCol = 0, tBw = 0, tCost = 0; let f1 = 0, f2 = 0, f3 = 0; 
+      let groupDict = getGroupDict(); 
+      let groupMap = {}; 
+      let tU = 0, tP = 0, tC = 0, tCol = 0, tBw = 0, tCost = 0; 
+      let f1 = 0, f2 = 0, f3 = 0; 
       
       stacks.forEach(function(r) {
-        let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-        if(!groupMap[code]) groupMap[code] = { code: code, name: name, pc:0, pbw:0, cc:0, cbw:0, totalP:0, totalC:0, total:0 };
+        let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+        let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
         
-        let pc = parseFloat(r["Print สี"]) || 0; let pbw = parseFloat(r["Print ขาวดำ"]) || 0; let cc = parseFloat(r["Copy สี"]) || 0; let cbw = parseFloat(r["Copy ขาวดำ"]) || 0; let total = parseFloat(r["รวมทั้งหมด (Print+Copy)"]) || 0;
-        groupMap[code].pc += pc; groupMap[code].pbw += pbw; groupMap[code].cc += cc; groupMap[code].cbw += cbw; groupMap[code].totalP += (pc + pbw); groupMap[code].totalC += (cc + cbw); groupMap[code].total += total;
-        tP += (pc + pbw); tC += (cc + cbw); tCol += (pc + cc); tBw += (pbw + cbw); tU += total; tCost += ((pc + cc) * cCol) + ((pbw + cbw) * cBw);
-        if (r["ชั้น"] === "ชั้น 1") f1 += total; else if (r["ชั้น"] === "ชั้น 2") f2 += total; else if (r["ชั้น"] === "ชั้น 3") f3 += total; 
+        if(!groupMap[code]) {
+           groupMap[code] = { code: code, name: name, pc:0, pbw:0, cc:0, cbw:0, totalP:0, totalC:0, total:0 };
+        }
+        
+        let pc = parseFloat(r["Print สี"]) || 0; 
+        let pbw = parseFloat(r["Print ขาวดำ"]) || 0; 
+        let cc = parseFloat(r["Copy สี"]) || 0; 
+        let cbw = parseFloat(r["Copy ขาวดำ"]) || 0; 
+        let total = parseFloat(r["รวมทั้งหมด (Print+Copy)"]) || 0;
+        
+        groupMap[code].pc += pc; 
+        groupMap[code].pbw += pbw; 
+        groupMap[code].cc += cc; 
+        groupMap[code].cbw += cbw; 
+        groupMap[code].totalP += (pc + pbw); 
+        groupMap[code].totalC += (cc + cbw); 
+        groupMap[code].total += total;
+        
+        tP += (pc + pbw); 
+        tC += (cc + cbw); 
+        tCol += (pc + cc); 
+        tBw += (pbw + cbw); 
+        tU += total; 
+        tCost += ((pc + cc) * cCol) + ((pbw + cbw) * cBw);
+        
+        if (r["ชั้น"] === "ชั้น 1") f1 += total; 
+        else if (r["ชั้น"] === "ชั้น 2") f2 += total; 
+        else if (r["ชั้น"] === "ชั้น 3") f3 += total; 
       });
 
       currentDashData = Object.values(groupMap);
-      document.getElementById('sumTotal').innerText = tU.toLocaleString(); document.getElementById('sumPrint').innerText = tP.toLocaleString(); document.getElementById('sumCopy').innerText = tC.toLocaleString(); document.getElementById('sumColor').innerText = tCol.toLocaleString(); document.getElementById('sumBW').innerText = tBw.toLocaleString(); document.getElementById('sumCost').innerText = tCost.toLocaleString();
+      document.getElementById('sumTotal').innerText = tU.toLocaleString(); 
+      document.getElementById('sumPrint').innerText = tP.toLocaleString(); 
+      document.getElementById('sumCopy').innerText = tC.toLocaleString(); 
+      document.getElementById('sumColor').innerText = tCol.toLocaleString(); 
+      document.getElementById('sumBW').innerText = tBw.toLocaleString(); 
+      document.getElementById('sumCost').innerText = tCost.toLocaleString();
 
       let sortedForChart = [...currentDashData].sort(function(a,b) { return b.total - a.total; }).slice(0, 10);
+      
       if (chartInstances.bar) chartInstances.bar.destroy();
       const barCtx = document.getElementById('barChart');
-      if (barCtx) { chartInstances.bar = new Chart(barCtx, { type: 'bar', data: { labels: sortedForChart.map(function(r) { return esc(r.name).substring(3, 18) + "..."; }), datasets: [ { label: 'Print', data: sortedForChart.map(function(r) { return r.totalP; }), backgroundColor: '#10b981' }, { label: 'Copy', data: sortedForChart.map(function(r) { return r.totalC; }), backgroundColor: '#8b5cf6' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } } }); }
+      if (barCtx) { 
+         chartInstances.bar = new Chart(barCtx, { 
+            type: 'bar', 
+            data: { 
+               labels: sortedForChart.map(function(r) { return esc(r.name).substring(3, 18) + "..."; }), 
+               datasets: [ 
+                  { label: 'Print', data: sortedForChart.map(function(r) { return r.totalP; }), backgroundColor: '#10b981' }, 
+                  { label: 'Copy', data: sortedForChart.map(function(r) { return r.totalC; }), backgroundColor: '#8b5cf6' } 
+               ] 
+            }, 
+            options: { 
+               responsive: true, 
+               maintainAspectRatio: false, 
+               scales: { x: { stacked: true }, y: { stacked: true } } 
+            } 
+         }); 
+      }
+      
       if (chartInstances.pie) chartInstances.pie.destroy();
       const pieCtx = document.getElementById('pieChart');
-      if (pieCtx) { chartInstances.pie = new Chart(pieCtx, { type: 'doughnut', data: { labels: ['ชั้น 1','ชั้น 2','ชั้น 3'], datasets: [{ data: [f1,f2,f3], backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] }, options: { responsive: true, maintainAspectRatio: false } }); }
+      if (pieCtx) { 
+         chartInstances.pie = new Chart(pieCtx, { 
+            type: 'doughnut', 
+            data: { 
+               labels: ['ชั้น 1','ชั้น 2','ชั้น 3'], 
+               datasets: [{ data: [f1,f2,f3], backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] 
+            }, 
+            options: { responsive: true, maintainAspectRatio: false } 
+         }); 
+      }
+      
       renderDashTable();
     }
 
     function sortDashTable(col) {
-      if (dashSortCol === col) dashSortAsc = !dashSortAsc; else { dashSortCol = col; dashSortAsc = false; } renderDashTable();
+      if (dashSortCol === col) {
+         dashSortAsc = !dashSortAsc; 
+      } else { 
+         dashSortCol = col; 
+         dashSortAsc = false; 
+      } 
+      renderDashTable();
     }
 
     function renderDashTable() {
-      document.querySelectorAll('#view-dashboard .sortable i').forEach(function(icon) { icon.className = 'fas fa-sort ml-1 text-gray-400'; });
-      currentDashData.sort(function(a, b) { let valA = a[dashSortCol]; let valB = b[dashSortCol]; if (typeof valA === 'string') return dashSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA); else return dashSortAsc ? valA - valB : valB - valA; });
-      let tb = document.getElementById('dashTableBody'); tb.innerHTML = '';
+      document.querySelectorAll('#view-dashboard .sortable i').forEach(function(icon) { 
+         icon.className = 'fas fa-sort ml-1 text-gray-400'; 
+      });
+      
+      currentDashData.sort(function(a, b) { 
+         let valA = a[dashSortCol]; 
+         let valB = b[dashSortCol]; 
+         if (typeof valA === 'string') {
+            return dashSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA); 
+         } else {
+            return dashSortAsc ? valA - valB : valB - valA; 
+         }
+      });
+      
+      let tb = document.getElementById('dashTableBody'); 
+      tb.innerHTML = '';
+      
       currentDashData.forEach(function(r) { 
-        tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-gray-600">${esc(r.code)}</td><td class="p-3 font-medium">${esc(r.name)}</td><td class="p-3 text-right">${r.pc.toLocaleString()}</td><td class="p-3 text-right">${r.pbw.toLocaleString()}</td><td class="p-3 text-right">${r.cc.toLocaleString()}</td><td class="p-3 text-right">${r.cbw.toLocaleString()}</td><td class="p-3 text-right font-bold text-blue-600">${r.total.toLocaleString()}</td></tr>`; 
+        tb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+           <td class="p-3 text-gray-600">${esc(r.code)}</td>
+           <td class="p-3 font-medium">${esc(r.name)}</td>
+           <td class="p-3 text-right">${r.pc.toLocaleString()}</td>
+           <td class="p-3 text-right">${r.pbw.toLocaleString()}</td>
+           <td class="p-3 text-right">${r.cc.toLocaleString()}</td>
+           <td class="p-3 text-right">${r.cbw.toLocaleString()}</td>
+           <td class="p-3 text-right font-bold text-blue-600">${r.total.toLocaleString()}</td>
+        </tr>`; 
       });
     }
 
     // 🌟 ระบบจัดการแอดมิน (ป้องกัน Error เด็ดขาดด้วย dataset) 🌟
+    // ฟังก์ชันนี้หายไปใน Error ล่าสุด ผมใส่กลับมาให้สมบูรณ์แล้วครับ
+    async function handleMultiUpload() {
+      const p = document.getElementById('uploadPeriod').value.trim(); 
+      if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรอบข้อมูล (เช่น มกราคม 2569) ก่อนทำการอัปโหลด', 'warning');
+      
+      const filesToUpload = []; 
+      const floors = ['F1', 'F2', 'F3'];
+      
+      floors.forEach(function(f) { 
+        const input = document.getElementById('uploadFile' + f); 
+        if (input && input.files.length > 0) filesToUpload.push({ floorKey: f, file: input.files[0] }); 
+      });
+      
+      if (filesToUpload.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์อย่างน้อย 1 ชั้น', 'warning');
+      
+      showLoading("กำลังอ่านไฟล์และเตรียมอัปโหลด (ห้ามปิดหน้าต่าง)...");
+      try {
+        const fileDataArray = [];
+        for (let i = 0; i < filesToUpload.length; i++) { 
+          const item = filesToUpload[i]; 
+          const dataURI = await readFileAsDataURL(item.file); 
+          fileDataArray.push({ floorKey: item.floorKey, fileName: item.file.name, dataURI: dataURI }); 
+        }
+        
+        showLoading("กำลังอัปโหลดขึ้นเซิร์ฟเวอร์และคำนวณสถิติ...");
+        const res = await fetchAPI('uploadMultipleCsvsToDrive', { filesArray: fileDataArray, period: p });
+        
+        if (res.success) { 
+          Swal.fire('สำเร็จ!', res.message, 'success').then(function() { window.location.reload(); }); 
+        } else { 
+          Swal.fire('ผิดพลาด', res.message, 'error'); 
+        } 
+      } catch (err) { 
+        handleError(err); 
+      }
+    }
+
+    function deleteUpload() {
+      const p = document.getElementById('delPeriodSel').value; 
+      const f = document.getElementById('delFloorSel').value;
+      if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรอบข้อมูล', 'warning');
+      
+      Swal.fire({ 
+        title: 'ยืนยันการลบข้อมูล?', 
+        html: `ลบข้อมูลรอบ <b>[${esc(p)}]</b> เครื่อง <b>[${esc(f)}]</b><br><br><span class='text-red-500'>การกระทำนี้ไม่สามารถกู้คืนได้!</span>`, 
+        icon: 'warning', 
+        showCancelButton: true, 
+        confirmButtonColor: '#d33', 
+        confirmButtonText: 'ใช่, ลบข้อมูล', 
+        cancelButtonText: 'ยกเลิก' 
+      }).then(async function(result) {
+        if (result.isConfirmed) { 
+          showLoading("กำลังลบและคำนวณใหม่..."); 
+          try { 
+            const res = await fetchAPI('deleteUploadData', { period: p, floor: f }); 
+            if (res.success) { 
+              Swal.fire('สำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); 
+            } else { 
+              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            } 
+          } catch(e) { 
+            handleError(e); 
+          } 
+        }
+      });
+    }
+
+    function clearDatabaseUI() {
+      Swal.fire({ 
+        title: '⚠️ พื้นที่อันตราย!', 
+        text: "คุณแน่ใจหรือไม่ที่จะล้างฐานข้อมูลสถิติทั้งหมด? พิมพ์ 'ยืนยัน' เพื่อดำเนินการต่อ", 
+        input: 'text', 
+        icon: 'error', 
+        showCancelButton: true, 
+        confirmButtonColor: '#d33', 
+        confirmButtonText: 'ล้างฐานข้อมูล', 
+        cancelButtonText: 'ยกเลิก', 
+        preConfirm: function(inputValue) { 
+          if (inputValue !== 'ยืนยัน') Swal.showValidationMessage("คุณพิมพ์คำยืนยันไม่ถูกต้อง"); 
+        } 
+      }).then(async function(result) {
+        if (result.isConfirmed) { 
+          showLoading("กำลังล้างฐานข้อมูล..."); 
+          try { 
+            const res = await fetchAPI('clearDatabase'); 
+            if(res.success) {
+              Swal.fire('ล้างข้อมูลสำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); 
+            } else {
+              Swal.fire('เกิดข้อผิดพลาด', res.message, 'error'); 
+            }
+          } catch(e) { 
+            handleError(e); 
+          } 
+        }
+      });
+    }
+
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
@@ -1310,7 +1753,7 @@
       if(prTb) {
          prTb.innerHTML = '';
          let groupedAdminReqs = {};
-         pr.forEach(r => {
+         pr.forEach(function(r) {
             let ts = r["Timestamp_Str"] || r["Timestamp"];
             if(!groupedAdminReqs[ts]) {
                groupedAdminReqs[ts] = { ts: ts, name: r["ชื่อผู้ขอ"], group: r["กลุ่มงาน"], status: r["สถานะ"], remark: r["หมายเหตุ"] || "-", files: [], totalPages: 0 };
@@ -1322,7 +1765,11 @@
          let sortedAdminReqs = Object.values(groupedAdminReqs).reverse();
 
          sortedAdminReqs.forEach(function(r) { 
-           let dateLabel = r.ts; let status = r.status || "รอปริ้น"; let statusBadge = ""; let actionBtn = `<div class="flex justify-center space-x-2 mt-1">`;
+           let dateLabel = r.ts; 
+           let status = r.status || "รอปริ้น"; 
+           let statusBadge = ""; 
+           let actionBtn = `<div class="flex justify-center space-x-2 mt-1">`;
+           
            if (status === "รอปริ้น") { 
              statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs">รอปริ้น</span>`; 
              actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="updatePrintStatus(this.dataset.ts)" class="text-green-600 hover:text-green-800" title="อนุมัติ"><i class="fas fa-check-circle text-lg"></i></button>`; 
@@ -1334,9 +1781,17 @@
            }
            
            actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>`;
-           let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${f.pages} แผ่น)</span></a>`).join('');
+           
+           let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${esc(f.pages)} แผ่น)</span></a>`).join('');
 
-           prTb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-xs">${esc(dateLabel)}</td><td class="p-3 font-bold">${esc(r.name)}</td><td class="p-3 text-xs">${esc(r.group)}</td><td class="p-3 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td><td class="p-3 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td><td class="p-3 text-center">${statusBadge}${actionBtn}</td></tr>`; 
+           prTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+              <td class="p-3 text-xs">${esc(dateLabel)}</td>
+              <td class="p-3 font-bold">${esc(r.name)}</td>
+              <td class="p-3 text-xs">${esc(r.group)}</td>
+              <td class="p-3 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
+              <td class="p-3 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td>
+              <td class="p-3 text-center">${statusBadge}${actionBtn}</td>
+           </tr>`; 
          });
       }
 
@@ -1357,28 +1812,48 @@
           if (u.status === 'pending') badge += '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติปริ้น</span>'; 
           else if (u.status === 'suspended') badge += '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; 
           else { 
-            let roleName = ""; if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; else roleName = 'ผู้ใช้งาน'; 
+            let roleName = ""; 
+            if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; 
+            else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; 
+            else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; 
+            else roleName = 'ผู้ใช้งาน'; 
             badge += `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; 
           }
           
           let actionBtns = `<div class="flex justify-center space-x-3">`;
           
-          if(u.pendingEdit) actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
+          // 🌟 ส่งตัวแปรผ่าน dataset ป้องกัน Syntax Error ล้านเปอร์เซ็นต์ 🌟
+          if(u.pendingEdit) {
+             actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
+          }
           
           actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="viewUserPin(this.dataset.mobile)" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
           actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="openEditUserModal(this.dataset.mobile)" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
 
-          if (u.status === 'pending') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
-          if (u.status !== 'pending' && u.role !== 'admin') { 
-            if (u.status === 'suspended') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
-            else actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
+          if (u.status === 'pending') {
+             actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
           }
-          if (u.role !== 'admin') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
+          
+          if (u.status !== 'pending' && u.role !== 'admin') { 
+            if (u.status === 'suspended') {
+               actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
+            } else {
+               actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
+            }
+          }
+          if (u.role !== 'admin') {
+             actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
+          }
           actionBtns += `</div>`;
           
-          tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2"><b>${esc(u.name)}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${esc(u.mobile)}</span><br>${badge}</td><td class="p-2 align-middle">${actionBtns}</td></tr>`;
+          tb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+             <td class="p-2"><b>${esc(u.name)}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${esc(u.mobile)}</span><br>${badge}</td>
+             <td class="p-2 align-middle">${actionBtns}</td>
+          </tr>`;
         });
-      } catch(e) { handleError(e); }
+      } catch(e) { 
+         handleError(e); 
+      }
     }
 
     function reviewProfileEdit(mobile) {
@@ -1388,11 +1863,28 @@
        
        Swal.fire({
           title: 'ตรวจสอบคำขอแก้ไขข้อมูล',
-          html: `<div class="text-left text-sm space-y-3 p-2 bg-gray-50 rounded border"><p><b>บัญชีผู้ใช้ (เบอร์เดิม):</b> ${esc(u.mobile)}</p><hr><p><b>เบอร์มือถือใหม่:</b> <br> <span class="text-gray-500 line-through">${esc(u.mobile)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.mobile)}</b></p><p><b>ชื่อ-สกุล:</b> <br> <span class="text-gray-500 line-through">${esc(u.name)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.name)}</b></p><p><b>ตำแหน่ง:</b> <br> <span class="text-gray-500 line-through">${esc(u.position || '-')}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.position)}</b></p><p><b>กลุ่มงาน:</b> <br> <span class="text-gray-500 line-through">${esc(u.group)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.groupName)}</b></p><p><b>อีเมล:</b> <br> <span class="text-gray-500 line-through">${esc(u.email || '-')}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.email || '-')}</b></p></div>`,
-          showDenyButton: true, showCancelButton: true, confirmButtonText: '<i class="fas fa-check"></i> อนุมัติการแก้ไข', denyButtonText: '<i class="fas fa-times"></i> ปฏิเสธ', cancelButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#10b981', denyButtonColor: '#ef4444'
-       }).then(async (result) => {
-          if(result.isConfirmed) await processProfileEdit(mobile, 'approve');
-          else if (result.isDenied) await processProfileEdit(mobile, 'reject');
+          html: `<div class="text-left text-sm space-y-3 p-2 bg-gray-50 rounded border">
+                   <p><b>บัญชีผู้ใช้ (เบอร์เดิม):</b> ${esc(u.mobile)}</p>
+                   <hr>
+                   <p><b>เบอร์มือถือใหม่:</b> <br> <span class="text-gray-500 line-through">${esc(u.mobile)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.mobile)}</b></p>
+                   <p><b>ชื่อ-สกุล:</b> <br> <span class="text-gray-500 line-through">${esc(u.name)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.name)}</b></p>
+                   <p><b>ตำแหน่ง:</b> <br> <span class="text-gray-500 line-through">${esc(u.position || '-')}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.position)}</b></p>
+                   <p><b>กลุ่มงาน:</b> <br> <span class="text-gray-500 line-through">${esc(u.group)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.groupName)}</b></p>
+                   <p><b>อีเมล:</b> <br> <span class="text-gray-500 line-through">${esc(u.email || '-')}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.email || '-')}</b></p>
+                 </div>`,
+          showDenyButton: true, 
+          showCancelButton: true, 
+          confirmButtonText: '<i class="fas fa-check"></i> อนุมัติการแก้ไข', 
+          denyButtonText: '<i class="fas fa-times"></i> ปฏิเสธ', 
+          cancelButtonText: 'ปิดหน้าต่าง', 
+          confirmButtonColor: '#10b981', 
+          denyButtonColor: '#ef4444'
+       }).then(async function(result) {
+          if(result.isConfirmed) {
+             await processProfileEdit(mobile, 'approve');
+          } else if (result.isDenied) {
+             await processProfileEdit(mobile, 'reject');
+          }
        });
     }
     
@@ -1400,14 +1892,25 @@
        showLoading("กำลังดำเนินการ...");
        try {
           const res = await fetchAPI('approveProfileEdit', { mobile: mobile, decision: decision });
-          if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-       } catch(e) { handleError(e); }
+          if(res.success) { 
+             Swal.fire('สำเร็จ', res.message, 'success'); 
+             loadAdminData(); 
+          } else { 
+             Swal.fire('ผิดพลาด', res.message, 'error'); 
+          }
+       } catch(e) { 
+          handleError(e); 
+       }
     }
 
     function viewUserPin(mobile) { 
       const u = allUsersCache.find(x => x.mobile === mobile);
       if(!u) return;
-      Swal.fire({ title: `รหัส PIN ของ ${esc(u.name)}`, html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${esc(u.pin)}</span>`, icon: 'info' }); 
+      Swal.fire({ 
+         title: `รหัส PIN ของ ${esc(u.name)}`, 
+         html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${esc(u.pin)}</span>`, 
+         icon: 'info' 
+      }); 
     }
 
     function openEditUserModal(mobile) {
@@ -1423,7 +1926,8 @@
       document.getElementById('editPrintUser').value = u.printerUser || ''; 
       document.getElementById('editEmail').value = u.email || '';
       
-      const selGroup = document.getElementById('editGroup'); selGroup.innerHTML = '';
+      const selGroup = document.getElementById('editGroup'); 
+      selGroup.innerHTML = '';
       tempGroups.forEach(function(g) { 
         let selected = (g.name === u.group) ? 'selected' : ''; 
         selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}" ${selected}>${esc(g.code)} - ${esc(g.name)}</option>`; 
@@ -1431,81 +1935,230 @@
       document.getElementById('adminEditUserModal').classList.remove('hidden');
     }
 
-    function closeEditUserModal() { document.getElementById('adminEditUserModal').classList.add('hidden'); }
+    function closeEditUserModal() { 
+       document.getElementById('adminEditUserModal').classList.add('hidden'); 
+    }
 
     async function submitEditUser() {
-      const originalMobile = document.getElementById('editOriginalMobile').value; const groupData = document.getElementById('editGroup').value.split('|');
-      const updatedData = { mobile: document.getElementById('editMobile').value.trim(), name: document.getElementById('editName').value.trim(), role: document.getElementById('editRole').value, status: document.getElementById('editStatus').value, position: document.getElementById('editPos').value.trim(), groupCode: groupData[0], groupName: groupData[1], printerUser: document.getElementById('editPrintUser').value.trim(), email: document.getElementById('editEmail').value.trim() };
-      if (!updatedData.mobile || !updatedData.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
+      const originalMobile = document.getElementById('editOriginalMobile').value; 
+      const groupData = document.getElementById('editGroup').value.split('|');
+      
+      const updatedData = { 
+         mobile: document.getElementById('editMobile').value.trim(), 
+         name: document.getElementById('editName').value.trim(), 
+         role: document.getElementById('editRole').value, 
+         status: document.getElementById('editStatus').value, 
+         position: document.getElementById('editPos').value.trim(), 
+         groupCode: groupData[0], 
+         groupName: groupData[1], 
+         printerUser: document.getElementById('editPrintUser').value.trim(), 
+         email: document.getElementById('editEmail').value.trim() 
+      };
+      
+      if (!updatedData.mobile || !updatedData.name) {
+         return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
+      }
       showLoading("กำลังบันทึกข้อมูล...");
       try { 
         const res = await fetchAPI('editUser', { mobile: originalMobile, updatedData: updatedData }); 
-        if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeEditUserModal(); loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
-      } catch(e) { handleError(e); }
+        if(res.success) { 
+           Swal.fire('สำเร็จ', res.message, 'success'); 
+           closeEditUserModal(); 
+           loadAdminData(); 
+        } else { 
+           Swal.fire('ผิดพลาด', res.message, 'error'); 
+        } 
+      } catch(e) { 
+         handleError(e); 
+      }
     }
     
     async function saveAdminSettings() {
       showLoading("กำลังบันทึก...");
-      const b = document.getElementById('setBw').value; const c = document.getElementById('setColor').value; const e = document.getElementById('setEmails').value; const tt = document.getElementById('setTgToken').value; const tc = document.getElementById('setTgChatId').value;
+      const b = document.getElementById('setBw').value; 
+      const c = document.getElementById('setColor').value; 
+      const e = document.getElementById('setEmails').value; 
+      const tt = document.getElementById('setTgToken').value; 
+      const tc = document.getElementById('setTgChatId').value;
+      
       try { 
         const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e, tgToken: tt, tgChatId: tc }); 
-        if (res.success) { Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success'); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-      } catch (err) { handleError(err); }
+        if (res.success) { 
+           Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success'); 
+           loadMainData(); 
+        } else { 
+           Swal.fire('ผิดพลาด', res.message, 'error'); 
+        }
+      } catch (err) { 
+         handleError(err); 
+      }
     }
 
     function actionUser(mob, action) {
-      if (action === 'delete') { Swal.fire({ title: 'ยืนยันการลบผู้ใช้?', text: "การลบบัญชีผู้ใช้จะไม่สามารถกู้คืนได้", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบบัญชี', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('deleteUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
-      else if (action === 'suspend') { Swal.fire({ title: 'ระงับ/ปลดระงับบัญชีนี้?', text: "ผู้ใช้งานจะไม่สามารถล็อกอินเข้าสู่ระบบได้หากถูกระงับ", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f97316', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('suspendUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
-      else if (action === 'approve') { showLoading("กำลังดำเนินการ..."); fetchAPI('approveUser', { mobile: mob }).then(function() { loadAdminData(); hideLoading(); }).catch(handleError); }
+      if (action === 'delete') { 
+         Swal.fire({ 
+            title: 'ยืนยันการลบผู้ใช้?', 
+            text: "การลบบัญชีผู้ใช้จะไม่สามารถกู้คืนได้", 
+            icon: 'warning', 
+            showCancelButton: true, 
+            confirmButtonColor: '#d33', 
+            confirmButtonText: 'ลบบัญชี', 
+            cancelButtonText: 'ยกเลิก' 
+         }).then(async function(result) { 
+            if(result.isConfirmed) { 
+               showLoading("กำลังดำเนินการ..."); 
+               try { 
+                  await fetchAPI('deleteUser', { mobile: mob }); 
+                  loadAdminData(); 
+                  hideLoading(); 
+               } catch(e) { 
+                  handleError(e); 
+               } 
+            } 
+         }); 
+      } else if (action === 'suspend') { 
+         Swal.fire({ 
+            title: 'ระงับ/ปลดระงับบัญชีนี้?', 
+            text: "ผู้ใช้งานจะไม่สามารถล็อกอินเข้าสู่ระบบได้หากถูกระงับ", 
+            icon: 'warning', 
+            showCancelButton: true, 
+            confirmButtonColor: '#f97316', 
+            confirmButtonText: 'ยืนยัน', 
+            cancelButtonText: 'ยกเลิก' 
+         }).then(async function(result) { 
+            if(result.isConfirmed) { 
+               showLoading("กำลังดำเนินการ..."); 
+               try { 
+                  await fetchAPI('suspendUser', { mobile: mob }); 
+                  loadAdminData(); 
+                  hideLoading(); 
+               } catch(e) { 
+                  handleError(e); 
+               } 
+            } 
+         }); 
+      } else if (action === 'approve') { 
+         showLoading("กำลังดำเนินการ..."); 
+         fetchAPI('approveUser', { mobile: mob }).then(function() { 
+            loadAdminData(); 
+            hideLoading(); 
+         }).catch(handleError); 
+      }
     }
 
     function openAdminCreateUserModal() {
-      const selGroup = document.getElementById('adminRegGroup'); selGroup.innerHTML = '';
-      tempGroups.forEach(function(g) { selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}">${esc(g.code)} - ${esc(g.name)}</option>`; });
+      const selGroup = document.getElementById('adminRegGroup'); 
+      selGroup.innerHTML = '';
+      tempGroups.forEach(function(g) { 
+         selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}">${esc(g.code)} - ${esc(g.name)}</option>`; 
+      });
       document.getElementById('adminCreateUserModal').classList.remove('hidden');
     }
 
-    function closeAdminCreateUserModal() { document.getElementById('adminCreateUserModal').classList.add('hidden'); }
+    function closeAdminCreateUserModal() { 
+       document.getElementById('adminCreateUserModal').classList.add('hidden'); 
+    }
 
     async function adminSubmitCreateUser() {
       const groupData = document.getElementById('adminRegGroup').value.split('|');
-      const data = { mobile: document.getElementById('adminRegMobile').value.trim(), name: document.getElementById('adminRegName').value.trim(), position: document.getElementById('adminRegPos').value.trim(), groupCode: groupData[0], groupName: groupData[1], printerUser: document.getElementById('adminRegPrintUser').value.trim(), role: document.getElementById('adminRegRole').value, email: document.getElementById('adminRegEmail').value.trim() };
-      if (!data.mobile || !data.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
+      const data = { 
+         mobile: document.getElementById('adminRegMobile').value.trim(), 
+         name: document.getElementById('adminRegName').value.trim(), 
+         position: document.getElementById('adminRegPos').value.trim(), 
+         groupCode: groupData[0], 
+         groupName: groupData[1], 
+         printerUser: document.getElementById('adminRegPrintUser').value.trim(), 
+         role: document.getElementById('adminRegRole').value, 
+         email: document.getElementById('adminRegEmail').value.trim() 
+      };
+      
+      if (!data.mobile || !data.name) {
+         return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
+      }
+      
       showLoading("กำลังสร้างบัญชี...");
       try {
         const res = await fetchAPI('adminCreateUser', data);
-        if (res.success) { Swal.fire({ icon: 'success', title: 'สร้างบัญชีสำเร็จ', html: res.message, confirmButtonText: 'รับทราบ' }); closeAdminCreateUserModal(); document.getElementById('adminRegMobile').value = ''; document.getElementById('adminRegName').value = ''; document.getElementById('adminRegPrintUser').value = ''; document.getElementById('adminRegEmail').value = ''; loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-      } catch(e) { handleError(e); }
+        if (res.success) { 
+           Swal.fire({ icon: 'success', title: 'สร้างบัญชีสำเร็จ', html: res.message, confirmButtonText: 'รับทราบ' }); 
+           closeAdminCreateUserModal(); 
+           document.getElementById('adminRegMobile').value = ''; 
+           document.getElementById('adminRegName').value = ''; 
+           document.getElementById('adminRegPrintUser').value = ''; 
+           document.getElementById('adminRegEmail').value = ''; 
+           loadAdminData(); 
+        } else { 
+           Swal.fire('ผิดพลาด', res.message, 'error'); 
+        }
+      } catch(e) { 
+         handleError(e); 
+      }
     }
 
     async function triggerEmail() {
-      const p = document.getElementById('emailPeriodSel').value; if (!p) return;
+      const p = document.getElementById('emailPeriodSel').value; 
+      if (!p) return;
       showLoading("กำลังส่งอีเมล..."); 
-      try { const res = await fetchAPI('sendSummaryEmail', { period: p }); if(res.success) Swal.fire('สำเร็จ', res.message, 'success'); else Swal.fire('ผิดพลาด', res.message, 'error'); } catch(e) { handleError(e); }
+      try { 
+         const res = await fetchAPI('sendSummaryEmail', { period: p }); 
+         if(res.success) {
+            Swal.fire('สำเร็จ', res.message, 'success'); 
+         } else {
+            Swal.fire('ผิดพลาด', res.message, 'error'); 
+         }
+      } catch(e) { 
+         handleError(e); 
+      }
     }
 
     function renderGroupTable() {
-      let tb = document.getElementById('groupTableBody'); tb.innerHTML = '';
-      tempGroups.forEach(function(g, idx) { tb.innerHTML += `<tr class="border-b"><td class="p-1 w-1/4">${esc(g.code)}</td><td class="p-1 w-2/4">${esc(g.name)}</td><td class="p-1 text-center w-1/4"><button onclick="removeGroupRow(${idx})" class="text-red-500"><i class="fas fa-times"></i></button></td></tr>`; });
+      let tb = document.getElementById('groupTableBody'); 
+      tb.innerHTML = '';
+      tempGroups.forEach(function(g, idx) { 
+         tb.innerHTML += `<tr class="border-b"><td class="p-1 w-1/4">${esc(g.code)}</td><td class="p-1 w-2/4">${esc(g.name)}</td><td class="p-1 text-center w-1/4"><button onclick="removeGroupRow(${idx})" class="text-red-500"><i class="fas fa-times"></i></button></td></tr>`; 
+      });
     }
     
     function addGroupRow() {
-      let c = document.getElementById('newGrpCode').value.trim(); let n = document.getElementById('newGrpName').value.trim();
+      let c = document.getElementById('newGrpCode').value.trim(); 
+      let n = document.getElementById('newGrpName').value.trim();
+      
       if (!c || !n) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลกลุ่มงานให้ครบ', 'warning');
-      tempGroups.push({code: c, name: n}); renderGroupTable(); document.getElementById('newGrpCode').value = ''; document.getElementById('newGrpName').value = '';
+      
+      tempGroups.push({code: c, name: n}); 
+      renderGroupTable(); 
+      document.getElementById('newGrpCode').value = ''; 
+      document.getElementById('newGrpName').value = '';
     }
     
-    function removeGroupRow(idx) { tempGroups.splice(idx, 1); renderGroupTable(); }
+    function removeGroupRow(idx) { 
+       tempGroups.splice(idx, 1); 
+       renderGroupTable(); 
+    }
     
     async function saveGroups() { 
-      showLoading("กำลังบันทึกกลุ่ม..."); try { await fetchAPI('saveGroupConfig', { groups: tempGroups }); Swal.fire('สำเร็จ', 'บันทึกกลุ่มงานลงฐานข้อมูลเรียบร้อย', 'success'); } catch(e) { handleError(e); }
+      showLoading("กำลังบันทึกกลุ่ม..."); 
+      try { 
+         await fetchAPI('saveGroupConfig', { groups: tempGroups }); 
+         Swal.fire('สำเร็จ', 'บันทึกกลุ่มงานลงฐานข้อมูลเรียบร้อย', 'success'); 
+      } catch(e) { 
+         handleError(e); 
+      }
     }
 
     function generateReport() {
-      const period = document.getElementById('repPeriod').value; const lvl = document.getElementById('repLevel').value; const format = document.getElementById('repFormat').value;
-      const cBw = parseFloat(globalData.settings.cost_bw) || 1; const cCol = parseFloat(globalData.settings.cost_color) || 5;
-      let data = lvl === 'group' ? globalData.totals : globalData.staffs; let groupDict = getGroupDict();
-      if (period) data = data.filter(function(r) { return r["รอบข้อมูล"] === period; });
+      const period = document.getElementById('repPeriod').value; 
+      const lvl = document.getElementById('repLevel').value; 
+      const format = document.getElementById('repFormat').value;
+      const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
+      const cCol = parseFloat(globalData.settings.cost_color) || 5;
+      
+      let data = lvl === 'group' ? globalData.totals : globalData.staffs; 
+      let groupDict = getGroupDict();
+      
+      if (period) {
+         data = data.filter(function(r) { return r["รอบข้อมูล"] === period; });
+      }
       data = data.filter(function(r) { return parseFloat(r["รวมทั้งหมด (Print+Copy)"]) > 0; });
       
       let html = `<div class="text-center mb-6"><h1 class="text-2xl font-bold">รายงานสถิติ Print & Copy</h1><p>ประจำรอบ: ${esc(period)}</p></div>`;
@@ -1513,14 +2166,18 @@
         html += `<ul class="list-disc pl-6 space-y-2">`;
         if (lvl === 'group') {
           data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+            let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
+            let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
             html += `<li><strong>${esc(name)}</strong> : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น (สี: ${col}, ขาวดำ: ${bw}) - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
           });
         } else {
           data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+            let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
+            let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
             html += `<li><strong>${esc(r["ชื่อ-สกุลบุคลากร"])}</strong> (${esc(name).substring(3,15)}..) : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
           });
         }
@@ -1530,15 +2187,19 @@
         if (lvl === 'group') {
           html += `<th>กลุ่มงาน</th><th>Print/Copy สี (แผ่น)</th><th>Print/Copy ขาวดำ (แผ่น)</th><th>ยอดรวม</th><th>ค่าใช้จ่าย(฿)</th></tr></thead><tbody>`;
           data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+            let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
+            let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
             html += `<tr><td>${esc(name)}</td><td class="text-right">${col}</td><td class="text-right">${bw}</td><td class="text-right font-bold">${r["รวมทั้งหมด (Print+Copy)"]}</td><td class="text-right text-red-600">${((col*cCol)+(bw*cBw)).toLocaleString()}</td></tr>`; 
           });
         } else {
           html += `<th>Username</th><th>ชื่อ-สกุล</th><th>กลุ่มงาน</th><th>รวมทั้งหมด</th><th>ค่าใช้จ่าย(฿)</th></tr></thead><tbody>`;
           data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
+            let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
+            let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
             html += `<tr><td>${esc(r["Username ในเครื่อง"])}</td><td>${esc(r["ชื่อ-สกุลบุคลากร"])}</td><td>${esc(name).substring(3,15)}..</td><td class="text-right font-bold">${r["รวมทั้งหมด (Print+Copy)"]}</td><td class="text-right text-red-600">${((col*cCol)+(bw*cBw)).toLocaleString()}</td></tr>`; 
           });
         }
