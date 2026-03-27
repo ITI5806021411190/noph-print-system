@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V22.5</title>
+  <title>Print & Copy Management V23.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -518,9 +518,9 @@
 
       <div class="bg-white rounded-lg shadow p-6 border-red-600 border-t-4 mt-8 super-admin-only">
         <h3 class="text-lg font-bold text-red-600 mb-4"><i class="fas fa-exclamation-triangle"></i> พื้นที่อันตราย (Danger Zone)</h3>
-        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งานและประวัติคำขอทั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
+        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งาน คำขอปริ้น และประวัติการแชททั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
         <button onclick="clearDatabaseUI()" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 shadow">
-          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติทั้งหมด
+          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติและประวัติทั้งหมด
         </button>
       </div>
 
@@ -938,6 +938,7 @@
       } catch(e) { handleError(e); }
     }
 
+    // 🌟 ฟังก์ชันจัดการคำขอ (Batch) 🌟
     function cancelPrintReq(tsStr) {
       Swal.fire({ title: 'ยืนยันการยกเลิก?', text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f59e0b', confirmButtonText: 'ใช่, ยกเลิกคำขอ', cancelButtonText: 'ปิดหน้าต่าง' }).then(async function(result) {
         if(result.isConfirmed) {
@@ -1295,6 +1296,7 @@
       });
     }
 
+    // 🌟 ระบบจัดการแอดมิน (ป้องกัน Error เด็ดขาดด้วย dataset) 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
@@ -1332,7 +1334,7 @@
            }
            
            actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>`;
-           let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${esc(f.pages)} แผ่น)</span></a>`).join('');
+           let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${f.pages} แผ่น)</span></a>`).join('');
 
            prTb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-xs">${esc(dateLabel)}</td><td class="p-3 font-bold">${esc(r.name)}</td><td class="p-3 text-xs">${esc(r.group)}</td><td class="p-3 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td><td class="p-3 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td><td class="p-3 text-center">${statusBadge}${actionBtn}</td></tr>`; 
          });
