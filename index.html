@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V22.0</title>
+  <title>Print & Copy Management V22.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -241,6 +241,7 @@
 
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-lg font-bold text-green-600 mb-4"><i class="fas fa-print"></i> ส่งคำขอปริ้นสี (Color Print Request)</h3>
+          
           <div class="mb-4">
             <label class="block text-sm font-bold text-blue-700 mb-1">หมายเหตุถึง Admin (ระบุหรือไม่ก็ได้)</label>
             <input type="text" id="reqRemark" class="w-full border-2 border-blue-200 p-2 rounded text-sm bg-blue-50 focus:outline-none focus:border-blue-400" placeholder="เช่น ขอปริ้นด่วนครับ, เย็บมุมซ้ายบนให้ด้วย">
@@ -364,6 +365,7 @@
     <div id="view-upload" class="view-section hidden">
       <h2 class="text-2xl font-semibold mb-6">จัดการไฟล์และข้อมูล CSV</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-lg font-bold text-blue-600 mb-4"><i class="fas fa-upload"></i> นำเข้าข้อมูลใหม่</h3>
           <div class="space-y-4">
@@ -419,6 +421,7 @@
       <h2 class="text-2xl font-semibold mb-6">จัดการแอดมินและตั้งค่าระบบ</h2>
       
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
         <div class="bg-white rounded-lg shadow p-6 super-admin-only">
           <h3 class="text-lg font-bold mb-4 text-blue-600"><i class="fas fa-cog"></i> ตั้งค่าทั่วไป</h3>
           <div class="space-y-4">
@@ -620,6 +623,39 @@
     </div>
   </div>
 
+  <div id="myEditProfileModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
+      <button onclick="closeMyProfileEdit()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
+      <div class="text-center mb-6">
+        <h2 class="text-xl font-bold text-blue-600"><i class="fas fa-user-edit"></i> แก้ไขข้อมูลส่วนตัว</h2>
+        <p class="text-sm text-gray-500 mt-1">ข้อมูลจะถูกอัปเดตเมื่อ Admin อนุมัติ</p>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-bold text-blue-700">เบอร์มือถือ (ใช้สำหรับ Login)</label>
+          <input type="text" id="myEditMobile" class="w-full border-2 border-blue-200 rounded p-2 focus:ring focus:ring-blue-100 outline-none" maxlength="10">
+        </div>
+        <div>
+          <label class="block text-sm font-bold">ชื่อ-สกุล (คำนำหน้าด้วย)</label>
+          <input type="text" id="myEditName" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-bold">ตำแหน่ง</label>
+          <input type="text" id="myEditPos" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-bold">กลุ่มงานปัจจุบัน</label>
+          <select id="myEditGroup" class="w-full border rounded p-2"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-bold">อีเมลส่วนตัว</label>
+          <input type="email" id="myEditEmail" class="w-full border rounded p-2">
+        </div>
+        <button onclick="submitMyProfileEdit()" class="w-full bg-blue-600 text-white font-bold py-3 rounded mt-4 hover:bg-blue-700 shadow">ส่งคำขอแก้ไขข้อมูล</button>
+      </div>
+    </div>
+  </div>
+
   <div id="adminCreateUserModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
       <button onclick="closeAdminCreateUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
@@ -732,7 +768,7 @@
     let currentDashData = []; 
     let allUsersCache = []; 
     let currentActiveChatRoom = null; 
-    let currentActiveView = 'dashboard'; // 🌟 ตัวแปรล็อกหน้าต่างกันรวน 🌟
+    let currentActiveView = 'dashboard'; 
 
     window.onload = function() {
       fetchAPI('getGroupOptions').then(function(res) {
@@ -885,7 +921,7 @@
       } catch(e) { handleError(e); }
     }
 
-    // 🌟 ฟังก์ชันจัดการคำขอ (Batch) 🌟
+    // 🌟 ระบบจัดการคำขอ (ส่งเฉพาะ ID ผ่านปุ่ม) 🌟
     function cancelPrintReq(tsStr) {
       Swal.fire({ title: 'ยืนยันการยกเลิก?', text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f59e0b', confirmButtonText: 'ใช่, ยกเลิกคำขอ', cancelButtonText: 'ปิดหน้าต่าง' }).then(async function(result) {
         if(result.isConfirmed) {
@@ -992,7 +1028,6 @@
         populateFilters();
         if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'assistant')) loadAdminData();
         
-        // 🌟 รักษาสถานะแท็บที่เปิดอยู่ไว้ ไม่ให้เด้งกลับไปแดชบอร์ด 🌟
         switchView(currentActiveView); 
         hideLoading();
       } catch(e) { handleError(e); }
@@ -1013,7 +1048,7 @@
       else if (view === 'chat') renderChatTab(); 
     }
 
-    // 🌟 ระบบจัดการแท็บแชทแยกอิสระ (เพิ่มปุ่มแก้ไขลบ) 🌟
+    // 🌟 ระบบจัดการแท็บแชท 🌟
     function renderChatTab() {
       const chats = globalData.chats || [];
       if(currentUser.role === 'admin' || currentUser.role === 'assistant') {
@@ -1035,7 +1070,7 @@
        const rooms = {};
        
        chats.forEach(c => {
-          let rid = String(c.Req_ID || c.Room_ID).replace(/'/g, '').trim(); 
+          let rid = String(c.Room_ID).replace(/'/g, '').trim(); 
           if(!rooms[rid]) rooms[rid] = { roomId: rid, msgs: [], lastTime: '' };
           rooms[rid].msgs.push(c);
           rooms[rid].lastTime = c.Chat_Time_Str || c.Chat_Time;
@@ -1071,7 +1106,7 @@
 
     function renderChatBox(containerId, roomId, chats) {
        const container = document.getElementById(containerId);
-       const roomChats = chats.filter(c => String(c.Req_ID || c.Room_ID).replace(/'/g, '').trim() === roomId);
+       const roomChats = chats.filter(c => String(c.Room_ID).replace(/'/g, '').trim() === roomId);
        let headerText = currentUser.role === 'user' ? 'สนทนากับ Admin (สสจ.นย.)' : `สนทนากับผู้ใช้: ${roomId}`;
 
        let html = `
@@ -1145,18 +1180,13 @@
        } catch(e) { console.error(e); }
     }
 
-    // 🌟 ระบบแก้ไขและลบข้อความ 🌟
     async function editChatMsg(roomId, timeStr) {
-       const chatMsg = globalData.chats.find(c => String(c.Req_ID || c.Room_ID).replace(/'/g, '').trim() === roomId && (c.Chat_Time_Str || c.Chat_Time) === timeStr);
+       const chatMsg = globalData.chats.find(c => String(c.Room_ID).replace(/'/g, '').trim() === roomId && (c.Chat_Time_Str || c.Chat_Time) === timeStr);
        if(!chatMsg) return;
        
        const { value: newMsg } = await Swal.fire({
-          title: 'แก้ไขข้อความ',
-          input: 'text',
-          inputValue: chatMsg.Message.replace(' (แก้ไขแล้ว)', ''),
-          showCancelButton: true,
-          confirmButtonText: 'บันทึก',
-          cancelButtonText: 'ยกเลิก'
+          title: 'แก้ไขข้อความ', input: 'text', inputValue: chatMsg.Message.replace(' (แก้ไขแล้ว)', ''),
+          showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก'
        });
        
        if (newMsg && newMsg.trim() !== "") {
@@ -1250,7 +1280,7 @@
       });
     }
 
-    // 🌟 ระบบจัดการแอดมิน - ลบตารางซ้ำ ป้องกันบั๊กทับกัน 🌟
+    // 🌟 ระบบจัดการแอดมิน - ป้องกันบั๊กเอนเทอร์บรรทัดใน CSV 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
@@ -1259,7 +1289,7 @@
       document.getElementById('setTgChatId').value = globalData.settings.telegram_chat_id || "";
       
       let pr = globalData.printReqs || []; 
-      let prTb = document.getElementById('requestsPrintReqBody'); // ใช้ ID ของหน้าคำขอ
+      let prTb = document.getElementById('requestsPrintReqBody'); 
       
       if(prTb) {
          prTb.innerHTML = '';
@@ -1316,10 +1346,12 @@
           }
           
           let actionBtns = `<div class="flex justify-center space-x-3">`;
+          
+          // 🌟 เปลี่ยนการส่ง Parameter เป็นแค่รหัสเบอร์มือถือเท่านั้น ป้องกัน Error 🌟
           if(u.pendingEdit) actionBtns += `<button onclick="reviewProfileEdit('${u.mobile}')" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
           
-          actionBtns += `<button onclick="viewUserPin('${u.pin}', '${u.name}')" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
-          actionBtns += `<button onclick="openEditUserModal('${u.mobile}', '${u.name}', '${u.group}', '${u.role}', '${u.status}', '${u.position}', '${u.printerUser}', '${u.email || ''}')" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
+          actionBtns += `<button onclick="viewUserPin('${u.mobile}')" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
+          actionBtns += `<button onclick="openEditUserModal('${u.mobile}')" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
 
           if (u.status === 'pending') actionBtns += `<button onclick="actionUser('${u.mobile}', 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
           if (u.status !== 'pending' && u.role !== 'admin') { 
@@ -1357,12 +1389,31 @@
        } catch(e) { handleError(e); }
     }
 
-    function viewUserPin(pin, name) { Swal.fire({ title: `รหัส PIN ของ ${name}`, html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${pin}</span>`, icon: 'info' }); }
+    function viewUserPin(mobile) { 
+      const u = allUsersCache.find(x => x.mobile === mobile);
+      if(!u) return;
+      Swal.fire({ title: `รหัส PIN ของ ${u.name}`, html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${u.pin}</span>`, icon: 'info' }); 
+    }
 
-    function openEditUserModal(mobile, name, group, role, status, position, printerUser, email) {
-      document.getElementById('editMobile').value = mobile; document.getElementById('editOriginalMobile').value = mobile; document.getElementById('editName').value = name; document.getElementById('editRole').value = role || 'user'; document.getElementById('editStatus').value = status || 'approved'; document.getElementById('editPos').value = position || ''; document.getElementById('editPrintUser').value = printerUser || ''; document.getElementById('editEmail').value = email || '';
+    // 🌟 ดึงข้อมูลจาก Cache เพื่อหลีกเลี่ยง Syntax Error ใน HTML 🌟
+    function openEditUserModal(mobile) {
+      const u = allUsersCache.find(x => x.mobile === mobile);
+      if(!u) return;
+
+      document.getElementById('editMobile').value = u.mobile; 
+      document.getElementById('editOriginalMobile').value = u.mobile; 
+      document.getElementById('editName').value = u.name; 
+      document.getElementById('editRole').value = u.role || 'user'; 
+      document.getElementById('editStatus').value = u.status || 'approved'; 
+      document.getElementById('editPos').value = u.position || ''; 
+      document.getElementById('editPrintUser').value = u.printerUser || ''; 
+      document.getElementById('editEmail').value = u.email || '';
+      
       const selGroup = document.getElementById('editGroup'); selGroup.innerHTML = '';
-      tempGroups.forEach(function(g) { let selected = (g.name === group) ? 'selected' : ''; selGroup.innerHTML += `<option value="${g.code}|${g.name}" ${selected}>${g.code} - ${g.name}</option>`; });
+      tempGroups.forEach(function(g) { 
+        let selected = (g.name === u.group) ? 'selected' : ''; 
+        selGroup.innerHTML += `<option value="${g.code}|${g.name}" ${selected}>${g.code} - ${g.name}</option>`; 
+      });
       document.getElementById('adminEditUserModal').classList.remove('hidden');
     }
 
