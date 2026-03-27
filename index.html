@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V22.4</title>
+  <title>Print & Copy Management V22.5</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -345,7 +345,6 @@
             <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลล่าสุด
           </button>
         </div>
-        
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm border">
             <thead class="bg-gray-100 border-b-2 border-gray-300">
@@ -939,7 +938,6 @@
       } catch(e) { handleError(e); }
     }
 
-    // 🌟 ฟังก์ชันจัดการคำขอ (Batch) 🌟
     function cancelPrintReq(tsStr) {
       Swal.fire({ title: 'ยืนยันการยกเลิก?', text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f59e0b', confirmButtonText: 'ใช่, ยกเลิกคำขอ', cancelButtonText: 'ปิดหน้าต่าง' }).then(async function(result) {
         if(result.isConfirmed) {
@@ -1066,7 +1064,6 @@
       else if (view === 'chat') renderChatTab(); 
     }
 
-    // 🌟 ระบบจัดการแท็บแชท 🌟
     function renderChatTab() {
       const chats = globalData.chats || [];
       if(currentUser.role === 'admin' || currentUser.role === 'assistant') {
@@ -1278,7 +1275,7 @@
       let sortedForChart = [...currentDashData].sort(function(a,b) { return b.total - a.total; }).slice(0, 10);
       if (chartInstances.bar) chartInstances.bar.destroy();
       const barCtx = document.getElementById('barChart');
-      if (barCtx) { chartInstances.bar = new Chart(barCtx, { type: 'bar', data: { labels: sortedForChart.map(function(r) { return r.name.substring(3, 18) + "..."; }), datasets: [ { label: 'Print', data: sortedForChart.map(function(r) { return r.totalP; }), backgroundColor: '#10b981' }, { label: 'Copy', data: sortedForChart.map(function(r) { return r.totalC; }), backgroundColor: '#8b5cf6' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } } }); }
+      if (barCtx) { chartInstances.bar = new Chart(barCtx, { type: 'bar', data: { labels: sortedForChart.map(function(r) { return esc(r.name).substring(3, 18) + "..."; }), datasets: [ { label: 'Print', data: sortedForChart.map(function(r) { return r.totalP; }), backgroundColor: '#10b981' }, { label: 'Copy', data: sortedForChart.map(function(r) { return r.totalC; }), backgroundColor: '#8b5cf6' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } } }); }
       if (chartInstances.pie) chartInstances.pie.destroy();
       const pieCtx = document.getElementById('pieChart');
       if (pieCtx) { chartInstances.pie = new Chart(pieCtx, { type: 'doughnut', data: { labels: ['ชั้น 1','ชั้น 2','ชั้น 3'], datasets: [{ data: [f1,f2,f3], backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] }, options: { responsive: true, maintainAspectRatio: false } }); }
@@ -1298,8 +1295,7 @@
       });
     }
 
-    // 🌟 ระบบจัดการแอดมิน - แก้อาการบั๊กจากอักขระใน CSV 🌟
-    function loadAdminData() {
+    async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
       document.getElementById('setEmails').value = globalData.settings.notify_emails || "";
@@ -1336,46 +1332,51 @@
            }
            
            actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>`;
-           let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${f.pages} แผ่น)</span></a>`).join('');
+           let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${esc(f.pages)} แผ่น)</span></a>`).join('');
 
            prTb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-xs">${esc(dateLabel)}</td><td class="p-3 font-bold">${esc(r.name)}</td><td class="p-3 text-xs">${esc(r.group)}</td><td class="p-3 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td><td class="p-3 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td><td class="p-3 text-center">${statusBadge}${actionBtn}</td></tr>`; 
          });
       }
 
-      allUsersCache = globalData.users || []; 
-      tempGroups = globalData.groups || []; 
-      renderGroupTable();
-      
-      const tb = document.getElementById('userTableBody'); 
-      tb.innerHTML = "";
-      
-      allUsersCache.forEach(function(u) {
-        let badge = '';
-        if (u.pendingEdit) badge += '<span class="px-2 bg-purple-200 text-purple-800 rounded text-xs inline-block mb-1 ml-1"><i class="fas fa-edit"></i> ขอแก้ไข</span>';
-        if (u.status === 'pending') badge += '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติปริ้น</span>'; 
-        else if (u.status === 'suspended') badge += '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; 
-        else { 
-          let roleName = ""; if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; else roleName = 'ผู้ใช้งาน'; 
-          badge += `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; 
-        }
+      try {
+        const res = await fetchAPI('getAdminData'); 
+        if(!res.success) throw new Error(res.message || "Failed to load admin data"); 
         
-        let actionBtns = `<div class="flex justify-center space-x-3">`;
+        allUsersCache = res.data.users; 
+        tempGroups = res.data.groups || []; 
+        renderGroupTable();
         
-        if(u.pendingEdit) actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
+        const tb = document.getElementById('userTableBody'); 
+        tb.innerHTML = "";
         
-        actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="viewUserPin(this.dataset.mobile)" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
-        actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="openEditUserModal(this.dataset.mobile)" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
+        allUsersCache.forEach(function(u) {
+          let badge = '';
+          if (u.pendingEdit) badge += '<span class="px-2 bg-purple-200 text-purple-800 rounded text-xs inline-block mb-1 ml-1"><i class="fas fa-edit"></i> ขอแก้ไข</span>';
+          if (u.status === 'pending') badge += '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติปริ้น</span>'; 
+          else if (u.status === 'suspended') badge += '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; 
+          else { 
+            let roleName = ""; if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; else roleName = 'ผู้ใช้งาน'; 
+            badge += `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; 
+          }
+          
+          let actionBtns = `<div class="flex justify-center space-x-3">`;
+          
+          if(u.pendingEdit) actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
+          
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="viewUserPin(this.dataset.mobile)" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="openEditUserModal(this.dataset.mobile)" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
 
-        if (u.status === 'pending') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
-        if (u.status !== 'pending' && u.role !== 'admin') { 
-          if (u.status === 'suspended') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
-          else actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
-        }
-        if (u.role !== 'admin') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
-        actionBtns += `</div>`;
-        
-        tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2"><b>${esc(u.name)}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${esc(u.mobile)}</span><br>${badge}</td><td class="p-2 align-middle">${actionBtns}</td></tr>`;
-      });
+          if (u.status === 'pending') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
+          if (u.status !== 'pending' && u.role !== 'admin') { 
+            if (u.status === 'suspended') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
+            else actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
+          }
+          if (u.role !== 'admin') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
+          actionBtns += `</div>`;
+          
+          tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2"><b>${esc(u.name)}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${esc(u.mobile)}</span><br>${badge}</td><td class="p-2 align-middle">${actionBtns}</td></tr>`;
+        });
+      } catch(e) { handleError(e); }
     }
 
     function reviewProfileEdit(mobile) {
@@ -1397,7 +1398,7 @@
        showLoading("กำลังดำเนินการ...");
        try {
           const res = await fetchAPI('approveProfileEdit', { mobile: mobile, decision: decision });
-          if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+          if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
        } catch(e) { handleError(e); }
     }
 
@@ -1437,7 +1438,7 @@
       showLoading("กำลังบันทึกข้อมูล...");
       try { 
         const res = await fetchAPI('editUser', { mobile: originalMobile, updatedData: updatedData }); 
-        if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeEditUserModal(); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
+        if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeEditUserModal(); loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
       } catch(e) { handleError(e); }
     }
     
@@ -1451,9 +1452,9 @@
     }
 
     function actionUser(mob, action) {
-      if (action === 'delete') { Swal.fire({ title: 'ยืนยันการลบผู้ใช้?', text: "การลบบัญชีผู้ใช้จะไม่สามารถกู้คืนได้", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบบัญชี', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('deleteUser', { mobile: mob }); loadMainData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
-      else if (action === 'suspend') { Swal.fire({ title: 'ระงับ/ปลดระงับบัญชีนี้?', text: "ผู้ใช้งานจะไม่สามารถล็อกอินเข้าสู่ระบบได้หากถูกระงับ", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f97316', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('suspendUser', { mobile: mob }); loadMainData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
-      else if (action === 'approve') { showLoading("กำลังดำเนินการ..."); fetchAPI('approveUser', { mobile: mob }).then(function() { loadMainData(); hideLoading(); }).catch(handleError); }
+      if (action === 'delete') { Swal.fire({ title: 'ยืนยันการลบผู้ใช้?', text: "การลบบัญชีผู้ใช้จะไม่สามารถกู้คืนได้", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบบัญชี', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('deleteUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
+      else if (action === 'suspend') { Swal.fire({ title: 'ระงับ/ปลดระงับบัญชีนี้?', text: "ผู้ใช้งานจะไม่สามารถล็อกอินเข้าสู่ระบบได้หากถูกระงับ", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f97316', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('suspendUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
+      else if (action === 'approve') { showLoading("กำลังดำเนินการ..."); fetchAPI('approveUser', { mobile: mob }).then(function() { loadAdminData(); hideLoading(); }).catch(handleError); }
     }
 
     function openAdminCreateUserModal() {
@@ -1471,7 +1472,7 @@
       showLoading("กำลังสร้างบัญชี...");
       try {
         const res = await fetchAPI('adminCreateUser', data);
-        if (res.success) { Swal.fire({ icon: 'success', title: 'สร้างบัญชีสำเร็จ', html: res.message, confirmButtonText: 'รับทราบ' }); closeAdminCreateUserModal(); document.getElementById('adminRegMobile').value = ''; document.getElementById('adminRegName').value = ''; document.getElementById('adminRegPrintUser').value = ''; document.getElementById('adminRegEmail').value = ''; loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+        if (res.success) { Swal.fire({ icon: 'success', title: 'สร้างบัญชีสำเร็จ', html: res.message, confirmButtonText: 'รับทราบ' }); closeAdminCreateUserModal(); document.getElementById('adminRegMobile').value = ''; document.getElementById('adminRegName').value = ''; document.getElementById('adminRegPrintUser').value = ''; document.getElementById('adminRegEmail').value = ''; loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
       } catch(e) { handleError(e); }
     }
 
