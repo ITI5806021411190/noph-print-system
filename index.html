@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V23.2</title>
+  <title>Print & Copy Management V23.3</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -235,6 +235,9 @@
               แก้ไขข้อมูล
             </button>
           </div>
+          <div id="pendingEditWarning" class="hidden mt-3 p-2 bg-orange-50 border border-orange-200 rounded text-center">
+            <p class="text-xs text-orange-600 font-bold"><i class="fas fa-clock"></i> คำขอแก้ไขข้อมูลของคุณกำลังรอ Admin อนุมัติ</p>
+          </div>
         </div>
 
         <div class="bg-white rounded-lg shadow p-6">
@@ -429,11 +432,11 @@
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
       <button onclick="closeMyProfileEdit()" class="absolute top-4 right-4 text-gray-400 text-xl"><i class="fas fa-times"></i></button>
       <h2 class="text-xl font-bold text-center mb-4">แก้ไขข้อมูลส่วนตัว</h2>
-      <input type="text" id="myEditMobile" class="w-full border rounded p-2 mb-2">
-      <input type="text" id="myEditName" class="w-full border rounded p-2 mb-2">
-      <input type="text" id="myEditPos" class="w-full border rounded p-2 mb-2">
+      <input type="text" id="myEditMobile" class="w-full border rounded p-2 mb-2" placeholder="เบอร์มือถือ">
+      <input type="text" id="myEditName" class="w-full border rounded p-2 mb-2" placeholder="ชื่อ-สกุล">
+      <input type="text" id="myEditPos" class="w-full border rounded p-2 mb-2" placeholder="ตำแหน่ง">
       <select id="myEditGroup" class="w-full border rounded p-2 mb-2"></select>
-      <input type="email" id="myEditEmail" class="w-full border rounded p-2 mb-4">
+      <input type="email" id="myEditEmail" class="w-full border rounded p-2 mb-4" placeholder="อีเมล">
       <button onclick="submitMyProfileEdit()" class="w-full bg-blue-600 text-white font-bold py-2 rounded">ส่งคำขอแก้ไข</button>
     </div>
   </div>
@@ -466,16 +469,15 @@
       <select id="editStatus" class="w-full border rounded p-2 mb-2">
         <option value="approved">Approved</option><option value="suspended">Suspended</option><option value="pending">Pending</option>
       </select>
-      <input type="text" id="editMobile" class="w-full border rounded p-2 mb-2">
-      <input type="text" id="editName" class="w-full border rounded p-2 mb-2">
-      <input type="text" id="editPos" class="w-full border rounded p-2 mb-2">
+      <input type="text" id="editMobile" class="w-full border rounded p-2 mb-2" placeholder="เบอร์มือถือ">
+      <input type="text" id="editName" class="w-full border rounded p-2 mb-2" placeholder="ชื่อ-สกุล">
+      <input type="text" id="editPos" class="w-full border rounded p-2 mb-2" placeholder="ตำแหน่ง">
       <select id="editGroup" class="w-full border rounded p-2 mb-2"></select>
-      <input type="email" id="editEmail" class="w-full border rounded p-2 mb-2">
-      <input type="text" id="editPrintUser" class="w-full border rounded p-2 mb-4">
+      <input type="email" id="editEmail" class="w-full border rounded p-2 mb-2" placeholder="อีเมล">
+      <input type="text" id="editPrintUser" class="w-full border rounded p-2 mb-4" placeholder="รหัสเครื่องปริ้น">
       <button onclick="submitEditUser()" class="w-full bg-blue-600 text-white py-2 rounded">บันทึก</button>
     </div>
   </div>
-
   <script>
     let globalData = {}; 
     let chartInstances = {}; 
@@ -525,22 +527,37 @@
 
     function updateAuthUI() {
       const stored = localStorage.getItem('printapp_user');
-      document.getElementById('nav-user').classList.add('hidden'); 
-      document.getElementById('nav-upload').classList.add('hidden'); 
-      document.getElementById('nav-admin').classList.add('hidden');
-      document.getElementById('nav-requests').classList.add('hidden');
-      document.getElementById('nav-chat').classList.add('hidden');
+      
+      const navUser = document.getElementById('nav-user');
+      const navUpload = document.getElementById('nav-upload');
+      const navAdmin = document.getElementById('nav-admin');
+      const navRequests = document.getElementById('nav-requests');
+      const navChat = document.getElementById('nav-chat');
+      
+      if(navUser) navUser.classList.add('hidden'); 
+      if(navUpload) navUpload.classList.add('hidden'); 
+      if(navAdmin) navAdmin.classList.add('hidden');
+      if(navRequests) navRequests.classList.add('hidden');
+      if(navChat) navChat.classList.add('hidden');
       
       if (stored) {
         currentUser = JSON.parse(stored);
         let roleDisplay = '';
         if(currentUser.role === 'admin') roleDisplay = ' (Admin)'; 
         else if(currentUser.role === 'assistant') roleDisplay = ' (ผู้ช่วย Admin)'; 
+        else if(currentUser.role === 'observer') roleDisplay = ' (Observer)';
         
-        document.getElementById('userNameDisplay').innerText = currentUser.name + roleDisplay;
-        document.getElementById('userNameDisplay').classList.remove('hidden'); 
-        document.getElementById('navLogoutBtn').classList.remove('hidden'); 
-        document.getElementById('navLoginBtn').classList.add('hidden');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const navLogoutBtn = document.getElementById('navLogoutBtn');
+        const navLoginBtn = document.getElementById('navLoginBtn');
+        
+        if(userNameDisplay) {
+           userNameDisplay.innerText = currentUser.name + roleDisplay;
+           userNameDisplay.classList.remove('hidden'); 
+        }
+        if(navLogoutBtn) navLogoutBtn.classList.remove('hidden'); 
+        if(navLoginBtn) navLoginBtn.classList.add('hidden');
+        
         document.querySelectorAll('.auth-only').forEach(function(el) { el.classList.remove('hidden'); });
 
         if (currentUser.role === 'admin' || currentUser.role === 'assistant') {
@@ -553,29 +570,39 @@
         } 
       } else {
         currentUser = null;
-        document.getElementById('userNameDisplay').classList.add('hidden'); 
-        document.getElementById('navLogoutBtn').classList.add('hidden'); 
-        document.getElementById('navLoginBtn').classList.remove('hidden');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const navLogoutBtn = document.getElementById('navLogoutBtn');
+        const navLoginBtn = document.getElementById('navLoginBtn');
+        
+        if(userNameDisplay) userNameDisplay.classList.add('hidden'); 
+        if(navLogoutBtn) navLogoutBtn.classList.add('hidden'); 
+        if(navLoginBtn) navLoginBtn.classList.remove('hidden');
+        
         document.querySelectorAll('.auth-only').forEach(function(el) { el.classList.add('hidden'); });
       }
     }
 
     function openAuth(type) { 
-      document.getElementById('authContainer').classList.remove('hidden'); 
+      const authContainer = document.getElementById('authContainer');
+      if(authContainer) authContainer.classList.remove('hidden'); 
       toggleAuth(type); 
     }
     
     function closeAuth() { 
-      document.getElementById('authContainer').classList.add('hidden'); 
+      const authContainer = document.getElementById('authContainer');
+      if(authContainer) authContainer.classList.add('hidden'); 
     }
     
     function toggleAuth(type) {
+      const loginForm = document.getElementById('loginForm');
+      const regForm = document.getElementById('regForm');
+      
       if (type === 'reg') { 
-        document.getElementById('loginForm').classList.add('hidden'); 
-        document.getElementById('regForm').classList.remove('hidden'); 
+        if(loginForm) loginForm.classList.add('hidden'); 
+        if(regForm) regForm.classList.remove('hidden'); 
       } else { 
-        document.getElementById('regForm').classList.add('hidden'); 
-        document.getElementById('loginForm').classList.remove('hidden'); 
+        if(regForm) regForm.classList.add('hidden'); 
+        if(loginForm) loginForm.classList.remove('hidden'); 
       }
     }
 
@@ -623,7 +650,7 @@
           Swal.fire({ 
             icon: 'success', 
             title: 'ลงทะเบียนสำเร็จ!', 
-            html: `รอแอดมินอนุมัติ<br><br><b>รหัส PIN ของคุณคือ:<br><span class='text-4xl text-blue-600 tracking-widest mt-2 mb-2 inline-block'>${res.pin}</span></b>`, 
+            html: `ระบบได้ส่งคำขอให้แอดมินอนุมัติแล้ว<br><br><b>รหัส PIN ของคุณคือ:<br><span class='text-4xl text-blue-600 tracking-widest mt-2 mb-2 inline-block'>${res.pin}</span></b><br><span class='text-sm text-red-500'>* กรุณาจดจำรหัสนี้ให้ดี และรอรับการอนุมัติครับ *</span>`, 
             confirmButtonText: 'กลับสู่หน้าล็อกอิน' 
           }).then(function() { toggleAuth('log'); });
         } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
@@ -659,22 +686,32 @@
     function openMyProfileEdit() {
       if(globalData.myProfile && globalData.myProfile.pendingEdit) return Swal.fire('แจ้งเตือน', 'คุณมีคำขอแก้ไขที่รออนุมัติอยู่', 'info');
       
-      document.getElementById('myEditMobile').value = globalData.myProfile.mobile || '';
-      document.getElementById('myEditName').value = globalData.myProfile.name;
-      document.getElementById('myEditPos').value = globalData.myProfile.position;
-      document.getElementById('myEditEmail').value = globalData.myProfile.email || '';
-      
+      const mobileEl = document.getElementById('myEditMobile');
+      const nameEl = document.getElementById('myEditName');
+      const posEl = document.getElementById('myEditPos');
+      const emailEl = document.getElementById('myEditEmail');
       const sel = document.getElementById('myEditGroup'); 
-      sel.innerHTML = '';
-      globalData.groups.forEach(function(g) {
-         let selected = (g.name === globalData.myProfile.groupName) ? 'selected' : '';
-         sel.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}" ${selected}>${esc(g.code)} - ${esc(g.name)}</option>`;
-      });
-      document.getElementById('myEditProfileModal').classList.remove('hidden');
+      
+      if(mobileEl) mobileEl.value = globalData.myProfile.mobile || '';
+      if(nameEl) nameEl.value = globalData.myProfile.name;
+      if(posEl) posEl.value = globalData.myProfile.position;
+      if(emailEl) emailEl.value = globalData.myProfile.email || '';
+      
+      if(sel) {
+         sel.innerHTML = '';
+         globalData.groups.forEach(function(g) {
+            let selected = (g.name === globalData.myProfile.groupName) ? 'selected' : '';
+            sel.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}" ${selected}>${esc(g.code)} - ${esc(g.name)}</option>`;
+         });
+      }
+      
+      const modal = document.getElementById('myEditProfileModal');
+      if(modal) modal.classList.remove('hidden');
     }
     
     function closeMyProfileEdit() { 
-      document.getElementById('myEditProfileModal').classList.add('hidden'); 
+      const modal = document.getElementById('myEditProfileModal');
+      if(modal) modal.classList.add('hidden'); 
     }
     
     async function submitMyProfileEdit() {
@@ -700,172 +737,182 @@
          } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
       } catch(e) { handleError(e); }
     }
-    // 🌟 ฟังก์ชันจัดการคำขอ 🌟
+
+    // 🌟 ฟังก์ชันจัดการคำขอ (Batch) 🌟
     function cancelPrintReq(tsStr) {
-      Swal.fire({ 
-        title: 'ยืนยันการยกเลิก?', 
-        text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่", 
-        icon: 'warning', 
-        showCancelButton: true, 
-        confirmButtonColor: '#f59e0b', 
-        confirmButtonText: 'ใช่, ยกเลิกคำขอ', 
-        cancelButtonText: 'ปิดหน้าต่าง' 
+      Swal.fire({
+        title: 'ยืนยันการยกเลิก?',
+        text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f59e0b',
+        confirmButtonText: 'ใช่, ยกเลิกคำขอ',
+        cancelButtonText: 'ปิดหน้าต่าง'
       }).then(async function(result) {
         if(result.isConfirmed) {
           showLoading("กำลังอัปเดตสถานะ...");
           try {
-            const res = await fetchAPI('updatePrintReqStatus', { 
-              tsStr: tsStr, 
-              newStatus: "ยกเลิก" 
-            });
-            if(res.success) { 
-              Swal.fire('สำเร็จ!', res.message, 'success'); 
-              loadMainData(); 
-            } else { 
-              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "ยกเลิก" });
+            if(res.success) {
+              Swal.fire('สำเร็จ!', res.message, 'success');
+              loadMainData();
+            } else {
+              Swal.fire('ผิดพลาด', res.message, 'error');
             }
-          } catch(e) { 
-            handleError(e); 
+          } catch(e) {
+            handleError(e);
           }
         }
       });
     }
 
     function deletePrintReq(tsStr) {
-      Swal.fire({ 
-        title: 'ยืนยันการลบทิ้งถาวร?', 
-        text: "คุณต้องการลบประวัติคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่ (ข้อมูลจะถูกลบออกจากฐานข้อมูลและกู้คืนไม่ได้)", 
-        icon: 'error', 
-        showCancelButton: true, 
-        confirmButtonColor: '#d33', 
-        confirmButtonText: 'ใช่, ลบทิ้งเลย', 
-        cancelButtonText: 'ยกเลิก' 
+      Swal.fire({
+        title: 'ยืนยันการลบทิ้งถาวร?',
+        text: "คุณต้องการลบประวัติคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่ (ข้อมูลจะถูกลบออกจากฐานข้อมูลและกู้คืนไม่ได้)",
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'ใช่, ลบทิ้งเลย',
+        cancelButtonText: 'ยกเลิก'
       }).then(async function(result) {
         if(result.isConfirmed) {
           showLoading("กำลังลบประวัติคำขอ...");
           try {
             const res = await fetchAPI('deletePrintReq', { tsStr: tsStr });
-            if(res.success) { 
-              Swal.fire('สำเร็จ!', res.message, 'success'); 
-              loadMainData(); 
-            } else { 
-              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            if(res.success) {
+              Swal.fire('สำเร็จ!', res.message, 'success');
+              loadMainData();
+            } else {
+              Swal.fire('ผิดพลาด', res.message, 'error');
             }
-          } catch(e) { 
-            handleError(e); 
+          } catch(e) {
+            handleError(e);
           }
         }
       });
     }
 
     function updatePrintStatus(tsStr) {
-      Swal.fire({ 
-        title: 'ยืนยันการอนุมัติ?', 
-        text: "คุณต้องการเปลี่ยนสถานะคำขอทั้งหมดในรอบนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่", 
-        icon: 'question', 
-        showCancelButton: true, 
-        confirmButtonColor: '#10b981', 
-        confirmButtonText: 'ใช่, อนุมัติเลย', 
-        cancelButtonText: 'ยกเลิก' 
+      Swal.fire({
+        title: 'ยืนยันการอนุมัติ?',
+        text: "คุณต้องการเปลี่ยนสถานะคำขอทั้งหมดในรอบนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        confirmButtonText: 'ใช่, อนุมัติเลย',
+        cancelButtonText: 'ยกเลิก'
       }).then(async function(result) {
         if(result.isConfirmed) { 
           showLoading("กำลังอัปเดตสถานะ..."); 
           try { 
-            const res = await fetchAPI('updatePrintReqStatus', { 
-              tsStr: tsStr, 
-              newStatus: "เสร็จสิ้น" 
-            }); 
-            if(res.success) { 
-              Swal.fire('สำเร็จ!', res.message, 'success'); 
-              loadMainData(); 
-            } else { 
-              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "เสร็จสิ้น" }); 
+            if(res.success) {
+              Swal.fire('สำเร็จ!', res.message, 'success');
+              loadMainData();
+            } else {
+              Swal.fire('ผิดพลาด', res.message, 'error');
             } 
-          } catch(e) { 
-            handleError(e); 
+          } catch(e) {
+            handleError(e);
           } 
         }
       });
     }
 
     function addFileRow() {
-      const container = document.getElementById('printFilesContainer'); 
-      const firstRow = container.querySelector('.file-row'); 
+      const container = document.getElementById('printFilesContainer');
+      if(!container) return;
+      const firstRow = container.querySelector('.file-row');
+      if(!firstRow) return;
+      
       const newRow = firstRow.cloneNode(true);
       
-      newRow.querySelector('.req-file').value = ""; 
-      newRow.querySelector('.req-pages-range').value = ""; 
-      newRow.querySelector('.req-copies').value = "1"; 
-      newRow.querySelector('.req-total-sheets').value = "";
-      newRow.querySelector('.remove-btn').classList.remove('hidden'); 
+      const reqFile = newRow.querySelector('.req-file');
+      if(reqFile) reqFile.value = "";
       
-      container.appendChild(newRow); 
+      const reqPages = newRow.querySelector('.req-pages-range');
+      if(reqPages) reqPages.value = "";
+      
+      const reqCopies = newRow.querySelector('.req-copies');
+      if(reqCopies) reqCopies.value = "1";
+      
+      const reqTotal = newRow.querySelector('.req-total-sheets');
+      if(reqTotal) reqTotal.value = "";
+      
+      const removeBtn = newRow.querySelector('.remove-btn');
+      if(removeBtn) removeBtn.classList.remove('hidden');
+      
+      container.appendChild(newRow);
       updateRemoveButtons();
     }
     
     function removeFileRow(btn) {
-      const container = document.getElementById('printFilesContainer'); 
-      if (container.querySelectorAll('.file-row').length > 1) { 
-        btn.closest('.file-row').remove(); 
-      } 
+      const container = document.getElementById('printFilesContainer');
+      if(container && container.querySelectorAll('.file-row').length > 1) {
+        btn.closest('.file-row').remove();
+      }
       updateRemoveButtons();
     }
     
     function updateRemoveButtons() {
-      const rows = document.querySelectorAll('.file-row'); 
-      rows.forEach(function(r, idx) { 
-        if (rows.length === 1) { 
-          r.querySelector('.remove-btn').classList.add('hidden'); 
-        } else { 
-          r.querySelector('.remove-btn').classList.remove('hidden'); 
-        } 
+      const rows = document.querySelectorAll('.file-row');
+      rows.forEach(function(r, idx) {
+        const btn = r.querySelector('.remove-btn');
+        if(!btn) return;
+        
+        if (rows.length === 1) {
+          btn.classList.add('hidden');
+        } else {
+          btn.classList.remove('hidden');
+        }
       });
     }
 
-    // 🌟 Helper Function: แปลงไฟล์เป็น Base64 🌟
     function readFileAsDataURL(file) { 
       return new Promise(function(resolve, reject) { 
         const reader = new FileReader(); 
-        reader.onload = function(e) { 
-          resolve(e.target.result); 
-        }; 
-        reader.onerror = function(e) { 
-          reject(e); 
-        }; 
+        reader.onload = function(e) { resolve(e.target.result); }; 
+        reader.onerror = function(e) { reject(e); }; 
         reader.readAsDataURL(file); 
       }); 
     }
 
     async function submitPrintReq() {
-      const rows = document.querySelectorAll('.file-row'); 
-      const remarkInput = document.getElementById('reqRemark').value.trim(); 
-      let filesData = []; 
+      const rows = document.querySelectorAll('.file-row');
+      const remarkInputEl = document.getElementById('reqRemark');
+      const remarkInput = remarkInputEl ? remarkInputEl.value.trim() : "";
+      let filesData = [];
       let totalAllSheets = 0;
 
       for(let i = 0; i < rows.length; i++) {
          let r = rows[i];
-         const fileInput = r.querySelector('.req-file'); 
-         const pagesRange = r.querySelector('.req-pages-range').value.trim(); 
-         const copies = r.querySelector('.req-copies').value; 
-         const totalSheets = parseInt(r.querySelector('.req-total-sheets').value);
+         const fileInput = r.querySelector('.req-file');
+         const pagesRangeEl = r.querySelector('.req-pages-range');
+         const copiesEl = r.querySelector('.req-copies');
+         const totalSheetsEl = r.querySelector('.req-total-sheets');
+         
+         const pagesRange = pagesRangeEl ? pagesRangeEl.value.trim() : "";
+         const copies = copiesEl ? copiesEl.value : "1";
+         const totalSheets = totalSheetsEl ? parseInt(totalSheetsEl.value) : 0;
 
-         if (fileInput.files.length === 0 || !totalSheets || totalSheets <= 0) {
-           return Swal.fire('แจ้งเตือน', 'กรุณาแนบไฟล์และระบุจำนวนแผ่นรวมให้ครบทุกรายการ', 'warning');
+         if (!fileInput || fileInput.files.length === 0 || !totalSheets || totalSheets <= 0) {
+            return Swal.fire('แจ้งเตือน', 'กรุณาแนบไฟล์และระบุจำนวนแผ่นรวมให้ครบทุกรายการ', 'warning');
          }
          
          const file = fileInput.files[0];
          if (file.size > 15 * 1024 * 1024) {
-           return Swal.fire('แจ้งเตือน', `ไฟล์ ${file.name} มีขนาดใหญ่เกิน 15MB`, 'warning');
+            return Swal.fire('แจ้งเตือน', `ไฟล์ ${file.name} มีขนาดใหญ่เกิน 15MB`, 'warning');
          }
 
          const dataURI = await readFileAsDataURL(file);
-         filesData.push({ 
-           fileName: file.name, 
-           mimeType: file.type, 
-           fileDataURI: dataURI, 
-           pageRange: pagesRange || 'ทั้งหมด', 
-           copies: copies || 1, 
-           sheets: totalSheets 
+         filesData.push({
+            fileName: file.name,
+            mimeType: file.type,
+            fileDataURI: dataURI,
+            pageRange: pagesRange || 'ทั้งหมด',
+            copies: copies || 1,
+            sheets: totalSheets
          });
          
          totalAllSheets += totalSheets;
@@ -873,13 +920,13 @@
 
       showLoading("กำลังอัปโหลดไฟล์ส่งคำขอ...");
       try {
-        const reqData = { 
-          mobile: currentUser.mobile, 
-          name: currentUser.name, 
-          group: currentUser.group, 
-          files: filesData, 
-          totalAllSheets: totalAllSheets, 
-          remark: remarkInput 
+        const reqData = {
+           mobile: currentUser.mobile,
+           name: currentUser.name,
+           group: currentUser.group,
+           files: filesData,
+           totalAllSheets: totalAllSheets,
+           remark: remarkInput
         };
         
         const res = await fetchAPI('submitPrintRequest', reqData);
@@ -887,29 +934,34 @@
         
         if(res.success) {
            Swal.fire('สำเร็จ!', res.message, 'success');
-           document.getElementById('reqRemark').value = ""; 
            
-           const container = document.getElementById('printFilesContainer'); 
-           const firstRow = container.querySelector('.file-row').cloneNode(true);
-           firstRow.querySelector('.req-file').value = ""; 
-           firstRow.querySelector('.req-pages-range').value = ""; 
-           firstRow.querySelector('.req-copies').value = "1"; 
-           firstRow.querySelector('.req-total-sheets').value = ""; 
-           firstRow.querySelector('.remove-btn').classList.add('hidden'); 
+           if(document.getElementById('reqRemark')) document.getElementById('reqRemark').value = ""; 
            
-           container.innerHTML = ''; 
-           container.appendChild(firstRow);
+           const container = document.getElementById('printFilesContainer');
+           if(container) {
+             const firstRow = container.querySelector('.file-row');
+             if(firstRow) {
+               const newFirstRow = firstRow.cloneNode(true);
+               if(newFirstRow.querySelector('.req-file')) newFirstRow.querySelector('.req-file').value = "";
+               if(newFirstRow.querySelector('.req-pages-range')) newFirstRow.querySelector('.req-pages-range').value = "";
+               if(newFirstRow.querySelector('.req-copies')) newFirstRow.querySelector('.req-copies').value = "1";
+               if(newFirstRow.querySelector('.req-total-sheets')) newFirstRow.querySelector('.req-total-sheets').value = "";
+               if(newFirstRow.querySelector('.remove-btn')) newFirstRow.querySelector('.remove-btn').classList.add('hidden');
+               
+               container.innerHTML = '';
+               container.appendChild(newFirstRow);
+             }
+           }
            
            loadMainData();
-        } else { 
-          Swal.fire('ผิดพลาด', res.message, 'error'); 
+        } else {
+           Swal.fire('ผิดพลาด', res.message, 'error');
         }
-      } catch(err) { 
-        handleError(err); 
+      } catch(err) {
+        handleError(err);
       }
     }
 
-    // 🌟 ฟังก์ชันโหลดข้อมูลหลัก (Dashboard Data) 🌟
     async function loadMainData() {
       showLoading("กำลังโหลดข้อมูล...");
       try {
@@ -917,7 +969,7 @@
         const res = await fetchAPI('getDashboardData', fetchPayload);
         
         if (!res.success || !res.data) { 
-          hideLoading(); 
+          hideLoading();
           return Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลจากระบบได้', 'error'); 
         }
         globalData = res.data; 
@@ -936,91 +988,97 @@
               }
               
               localStorage.setItem('printapp_user', JSON.stringify(st));
-              currentUser = st; 
+              currentUser = st;
               updateAuthUI();
            }
         }
         
         populateFilters();
         if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'assistant')) {
-          loadAdminData();
+           loadAdminData();
         }
         
         switchView(currentActiveView); 
         hideLoading();
-      } catch(e) { 
-        handleError(e); 
+      } catch(e) {
+        handleError(e);
       }
     }
 
-    // 🌟 ฟังก์ชันสลับหน้าต่าง (Switch View) 🌟
     function switchView(view) {
       currentActiveView = view;
       var views = ['dashboard', 'user', 'requests', 'chat', 'upload', 'admin', 'report'];
       
       views.forEach(function(v) { 
         var el = document.getElementById('view-' + v);
-        if (el) el.classList.add('hidden'); 
+        if(el) el.classList.add('hidden'); 
         var nav = document.getElementById('nav-' + v);
-        if (nav) nav.classList.remove('nav-active'); 
+        if(nav) nav.classList.remove('nav-active'); 
       });
       
       var targetEl = document.getElementById('view-' + view);
-      if (targetEl) targetEl.classList.remove('hidden'); 
-      
+      if(targetEl) targetEl.classList.remove('hidden'); 
       var targetNav = document.getElementById('nav-' + view);
-      if (targetNav) targetNav.classList.add('nav-active');
+      if(targetNav) targetNav.classList.add('nav-active');
       
       if (view === 'dashboard') {
-        renderDashboard(); 
+         renderDashboard(); 
       } else if (view === 'user') {
-        renderUserDash();
+         renderUserDash();
       } else if (view === 'chat') {
-        renderChatTab(); 
+         renderChatTab(); 
       }
     }
 
-    // 🌟 ฟังก์ชัน User Dash 🌟
+    // 🌟 ฟังก์ชัน User Dash (พร้อมระบบป้องกัน Null 100%) 🌟
     function renderUserDash() {
       if (!currentUser || !globalData.staffs) return;
       
-      const period = document.getElementById('periodFilter').value; 
+      const periodEl = document.getElementById('periodFilter');
+      const period = periodEl ? periodEl.value : "all"; 
+      
       const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
       const cCol = parseFloat(globalData.settings.cost_color) || 5;
       
       let staffs = globalData.staffs;
       if (period !== "all") {
-        staffs = staffs.filter(function(r) { 
-          return r["รอบข้อมูล"] === period; 
-        });
+         staffs = staffs.filter(function(r) { return r["รอบข้อมูล"] === period; });
       }
 
       let groupDict = getGroupDict();
       
-      if (globalData.myProfile && globalData.myProfile.pendingEdit) {
-         document.getElementById('pendingEditWarning').classList.remove('hidden');
-      } else {
-         document.getElementById('pendingEditWarning').classList.add('hidden');
+      let pendingWarningEl = document.getElementById('pendingEditWarning');
+      if (pendingWarningEl) {
+         if (globalData.myProfile && globalData.myProfile.pendingEdit) {
+            pendingWarningEl.classList.remove('hidden');
+         } else {
+            pendingWarningEl.classList.add('hidden');
+         }
       }
 
       let me = staffs.find(function(r) { 
         return r["ชื่อ-สกุลบุคลากร"] === currentUser.name || r["Username ในเครื่อง"] === currentUser.printerUser; 
       });
       
+      let myPrintEl = document.getElementById('myPrint');
+      let myCopyEl = document.getElementById('myCopy');
+      let myCostEl = document.getElementById('myCost');
+      let myGroupNameEl = document.getElementById('myGroupName');
+      
       if (me) {
-        document.getElementById('myPrint').innerText = parseFloat(me["รวม Print"] || 0).toLocaleString(); 
-        document.getElementById('myCopy').innerText = parseFloat(me["รวม Copy"] || 0).toLocaleString();
+        if(myPrintEl) myPrintEl.innerText = parseFloat(me["รวม Print"] || 0).toLocaleString(); 
+        if(myCopyEl) myCopyEl.innerText = parseFloat(me["รวม Copy"] || 0).toLocaleString();
         
         let cost = (parseFloat(me["Print สี"] || 0) + parseFloat(me["Copy สี"] || 0)) * cCol + 
                    (parseFloat(me["Print ขาวดำ"] || 0) + parseFloat(me["Copy ขาวดำ"] || 0)) * cBw; 
-        document.getElementById('myCost').innerText = cost.toLocaleString();
+        if(myCostEl) myCostEl.innerText = cost.toLocaleString();
       } else {
-        document.getElementById('myPrint').innerText = "0"; 
-        document.getElementById('myCopy').innerText = "0"; 
-        document.getElementById('myCost').innerText = "0";
+        if(myPrintEl) myPrintEl.innerText = "0"; 
+        if(myCopyEl) myCopyEl.innerText = "0"; 
+        if(myCostEl) myCostEl.innerText = "0";
       }
 
-      document.getElementById('myGroupName').innerText = currentUser.group;
+      if(myGroupNameEl) myGroupNameEl.innerText = currentUser.group;
       
       let myGroup = staffs.filter(function(r) { 
         let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
@@ -1029,96 +1087,103 @@
       });
       
       let tb = document.getElementById('myGroupTable'); 
-      tb.innerHTML = '';
-      
-      myGroup.sort(function(a,b) { 
-        return (parseFloat(b["รวมทั้งหมด (Print+Copy)"]) || 0) - (parseFloat(a["รวมทั้งหมด (Print+Copy)"]) || 0); 
-      }).forEach(function(r) { 
-        let nameLabel = r["ชื่อ-สกุลบุคลากร"] || r["Username ในเครื่อง"]; 
-        tb.innerHTML += `<tr class="border-b">
-          <td class="p-2">${esc(nameLabel)}</td>
-          <td class="p-2 text-right">${r["รวม Print"]}</td>
-          <td class="p-2 text-right">${r["รวม Copy"]}</td>
-          <td class="p-2 text-right font-bold text-blue-600">${r["รวมทั้งหมด (Print+Copy)"]}</td>
-        </tr>`; 
-      });
+      if(tb) {
+         tb.innerHTML = '';
+         myGroup.sort(function(a,b) { 
+           return (parseFloat(b["รวมทั้งหมด (Print+Copy)"]) || 0) - (parseFloat(a["รวมทั้งหมด (Print+Copy)"]) || 0); 
+         }).forEach(function(r) { 
+           let nameLabel = r["ชื่อ-สกุลบุคลากร"] || r["Username ในเครื่อง"]; 
+           tb.innerHTML += `<tr class="border-b">
+             <td class="p-2">${esc(nameLabel)}</td>
+             <td class="p-2 text-right">${r["รวม Print"]}</td>
+             <td class="p-2 text-right">${r["รวม Copy"]}</td>
+             <td class="p-2 text-right font-bold text-blue-600">${r["รวมทั้งหมด (Print+Copy)"]}</td>
+           </tr>`; 
+         });
+      }
 
       let reqTb = document.getElementById('myPrintReqTableBody'); 
-      reqTb.innerHTML = '';
-      
-      let myReqsRaw = globalData.printReqs.filter(function(r) { 
-        return String(r["เบอร์มือถือ"]).replace(/'/g, '').trim() === currentUser.mobile; 
-      });
+      if(reqTb) {
+         reqTb.innerHTML = '';
+         
+         let myReqsRaw = globalData.printReqs.filter(function(r) { 
+           return String(r["เบอร์มือถือ"]).replace(/'/g, '').trim() === currentUser.mobile; 
+         });
 
-      if (myReqsRaw.length === 0) { 
-        reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>'; 
-      } else {
-        let groupedMyReqs = {};
-        myReqsRaw.forEach(function(r) {
-           let ts = r["Timestamp_Str"] || r["Timestamp"];
-           if(!groupedMyReqs[ts]) {
-              groupedMyReqs[ts] = {
-                 ts: ts,
-                 status: r["สถานะ"],
-                 remark: r["หมายเหตุ"] || "-",
-                 files: [],
-                 totalPages: 0
-              };
-           }
-           groupedMyReqs[ts].files.push({
-              url: r["ไฟล์แนบ"],
-              pages: r["จำนวนแผ่น"],
-              details: r["รายละเอียด"] || ""
+         if (myReqsRaw.length === 0) { 
+           reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>'; 
+         } else {
+           let groupedMyReqs = {};
+           myReqsRaw.forEach(function(r) {
+              let ts = r["Timestamp_Str"] || r["Timestamp"];
+              if(!groupedMyReqs[ts]) {
+                 groupedMyReqs[ts] = {
+                    ts: ts,
+                    status: r["สถานะ"],
+                    remark: r["หมายเหตุ"] || "-",
+                    files: [],
+                    totalPages: 0
+                 };
+              }
+              groupedMyReqs[ts].files.push({
+                 url: r["ไฟล์แนบ"],
+                 pages: r["จำนวนแผ่น"],
+                 details: r["รายละเอียด"] || ""
+              });
+              groupedMyReqs[ts].totalPages += (parseFloat(r["จำนวนแผ่น"]) || 0);
            });
-           groupedMyReqs[ts].totalPages += (parseFloat(r["จำนวนแผ่น"]) || 0);
-        });
 
-        let sortedMyReqs = Object.values(groupedMyReqs).reverse();
+           let sortedMyReqs = Object.values(groupedMyReqs).reverse();
 
-        sortedMyReqs.forEach(function(r) {
-          let dateLabel = r.ts; 
-          let status = r.status || "รอปริ้น";
-          
-          let statusBadge = "";
-          let actionBtns = `<div class="flex justify-center space-x-2 mt-1">`;
-          
-          if (status === "รอปริ้น") {
-            statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>`;
-            actionBtns += `<button data-ts="${esc(dateLabel)}" onclick="cancelPrintReq(this.dataset.ts)" class="text-orange-500 hover:text-orange-700" title="ยกเลิกคำขอ"><i class="fas fa-times-circle"></i></button>`;
-          } else if (status === "ยกเลิก") {
-            statusBadge = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-ban"></i> ยกเลิกแล้ว</span>`;
-          } else {
-            statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${esc(status)}</span>`;
-          }
-          
-          actionBtns += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบประวัติ"><i class="fas fa-trash"></i></button></div>`;
-            
-          let filesHtml = r.files.map(function(f, i) {
-             return `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> โหลดไฟล์ที่ ${i+1}</a>`;
-          }).join('');
-          
-          reqTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
-            <td class="p-2 text-xs">${esc(dateLabel)}</td>
-            <td class="p-2 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
-            <td class="p-2 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td>
-            <td class="p-2 text-center">${statusBadge} ${actionBtns}</td>
-          </tr>`;
-        });
+           sortedMyReqs.forEach(function(r) {
+             let dateLabel = r.ts; 
+             let status = r.status || "รอปริ้น";
+             
+             let statusBadge = "";
+             let actionBtns = `<div class="flex justify-center space-x-2 mt-1">`;
+             
+             if (status === "รอปริ้น") {
+               statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>`;
+               actionBtns += `<button data-ts="${esc(dateLabel)}" onclick="cancelPrintReq(this.dataset.ts)" class="text-orange-500 hover:text-orange-700" title="ยกเลิกคำขอ"><i class="fas fa-times-circle"></i></button>`;
+             } else if (status === "ยกเลิก") {
+               statusBadge = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-ban"></i> ยกเลิกแล้ว</span>`;
+             } else {
+               statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${esc(status)}</span>`;
+             }
+             
+             actionBtns += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบประวัติ"><i class="fas fa-trash"></i></button></div>`;
+               
+             let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> โหลดไฟล์ที่ ${i+1}</a>`).join('');
+             
+             reqTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+               <td class="p-2 text-xs">${esc(dateLabel)}</td>
+               <td class="p-2 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
+               <td class="p-2 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td>
+               <td class="p-2 text-center">${statusBadge} ${actionBtns}</td>
+             </tr>`;
+           });
+         }
       }
     }
 
-    // 🌟 ระบบจัดการแท็บแชทแยกอิสระ 🌟
+    // 🌟 ระบบแชท 🌟
     function renderChatTab() {
       const chats = globalData.chats || [];
       if(currentUser.role === 'admin' || currentUser.role === 'assistant') {
-         document.getElementById('chatUserView').classList.add('hidden');
-         document.getElementById('chatAdminView').classList.remove('hidden');
-         document.getElementById('nav-chat').innerHTML = '<i class="fas fa-comments"></i> ข้อความสนทนา';
+         const chatUserView = document.getElementById('chatUserView');
+         const chatAdminView = document.getElementById('chatAdminView');
+         const navChat = document.getElementById('nav-chat');
+         if(chatUserView) chatUserView.classList.add('hidden');
+         if(chatAdminView) chatAdminView.classList.remove('hidden');
+         if(navChat) navChat.innerHTML = '<i class="fas fa-comments"></i> ข้อความสนทนา';
          renderAdminChatList(chats);
       } else {
-         document.getElementById('chatAdminView').classList.add('hidden');
-         document.getElementById('chatUserView').classList.remove('hidden');
-         document.getElementById('nav-chat').innerHTML = '<i class="fas fa-comments"></i> ติดต่อ Admin';
+         const chatUserView = document.getElementById('chatUserView');
+         const chatAdminView = document.getElementById('chatAdminView');
+         const navChat = document.getElementById('nav-chat');
+         if(chatAdminView) chatAdminView.classList.add('hidden');
+         if(chatUserView) chatUserView.classList.remove('hidden');
+         if(navChat) navChat.innerHTML = '<i class="fas fa-comments"></i> ติดต่อ Admin';
          currentActiveChatRoom = currentUser.mobile;
          renderChatBox('chatUserView', currentUser.mobile, chats);
       }
@@ -1126,24 +1191,23 @@
 
     function renderAdminChatList(chats) {
        const userListDiv = document.getElementById('chatAdminUserList');
+       if(!userListDiv) return;
        const rooms = {};
        
        chats.forEach(function(c) {
           let rid = String(c.Room_ID).replace(/'/g, '').trim(); 
           if(!rooms[rid]) {
-            rooms[rid] = { roomId: rid, msgs: [], lastTime: '' };
+             rooms[rid] = { roomId: rid, msgs: [], lastTime: '' };
           }
           rooms[rid].msgs.push(c);
           rooms[rid].lastTime = c.Chat_Time_Str || c.Chat_Time;
        });
 
        let listHtml = '<div class="bg-gray-200 p-3 font-bold border-b text-sm sticky top-0"><i class="fas fa-address-book"></i> รายการสนทนา</div>';
-       const sortedRooms = Object.values(rooms).sort(function(a,b) {
-         return new Date(b.lastTime) - new Date(a.lastTime);
-       });
+       const sortedRooms = Object.values(rooms).sort((a,b) => new Date(b.lastTime) - new Date(a.lastTime));
 
        if(sortedRooms.length === 0) {
-         listHtml += '<div class="p-4 text-center text-gray-500 text-xs">ยังไม่มีข้อความ</div>';
+          listHtml += '<div class="p-4 text-center text-gray-500 text-xs">ยังไม่มีข้อความ</div>';
        }
 
        sortedRooms.forEach(function(r) {
@@ -1158,10 +1222,11 @@
        });
        userListDiv.innerHTML = listHtml;
 
+       const chatAdminBox = document.getElementById('chatAdminBox');
        if(currentActiveChatRoom) {
           renderChatBox('chatAdminBox', currentActiveChatRoom, chats);
-       } else {
-          document.getElementById('chatAdminBox').innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-gray-400 bg-gray-50"><i class="fas fa-comments text-5xl mb-3 text-gray-300"></i> <p>เลือกรายการเพื่อเริ่มการสนทนา</p></div>';
+       } else if(chatAdminBox) {
+          chatAdminBox.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-gray-400 bg-gray-50"><i class="fas fa-comments text-5xl mb-3 text-gray-300"></i> <p>เลือกรายการเพื่อเริ่มการสนทนา</p></div>';
        }
     }
 
@@ -1172,10 +1237,8 @@
 
     function renderChatBox(containerId, roomId, chats) {
        const container = document.getElementById(containerId);
-       const roomChats = chats.filter(function(c) {
-         return String(c.Room_ID).replace(/'/g, '').trim() === roomId;
-       });
-       
+       if(!container) return;
+       const roomChats = chats.filter(c => String(c.Room_ID).replace(/'/g, '').trim() === roomId);
        let headerText = currentUser.role === 'user' ? 'สนทนากับ Admin (สสจ.นย.)' : `สนทนากับผู้ใช้: ${roomId}`;
 
        let html = `
@@ -1187,7 +1250,7 @@
        `;
 
        if(roomChats.length === 0) {
-         html += '<div class="text-center text-sm text-gray-400 mt-10 bg-white py-4 rounded-lg border border-dashed border-gray-300">เริ่มพิมพ์ข้อความเพื่อติดต่อสนทนาได้เลยครับ 👋</div>';
+          html += '<div class="text-center text-sm text-gray-400 mt-10 bg-white py-4 rounded-lg border border-dashed border-gray-300">เริ่มพิมพ์ข้อความเพื่อติดต่อสนทนาได้เลยครับ 👋</div>';
        }
 
        roomChats.forEach(function(c) {
@@ -1235,56 +1298,45 @@
        container.innerHTML = html;
        
        setTimeout(function() { 
-         const msgArea = container.querySelector('#chatMessagesArea'); 
-         if(msgArea) {
-            msgArea.scrollTop = msgArea.scrollHeight; 
-         }
+          const msgArea = container.querySelector('#chatMessagesArea'); 
+          if(msgArea) msgArea.scrollTop = msgArea.scrollHeight; 
        }, 100);
     }
 
     async function submitChatMsg() {
        const input = document.getElementById('chatInputMain'); 
        if(!input) return;
-       
        const msg = input.value.trim(); 
        if(!msg || !currentActiveChatRoom) return;
-       
        input.value = '';
 
        if(!globalData.chats) globalData.chats = [];
-       
        globalData.chats.push({ 
-         Room_ID: currentActiveChatRoom, 
-         Chat_Time_Str: "กำลังส่ง...", 
-         Sender_Name: currentUser.name, 
-         Sender_Role: currentUser.role, 
-         Message: msg 
+          Room_ID: currentActiveChatRoom, 
+          Chat_Time_Str: "กำลังส่ง...", 
+          Sender_Name: currentUser.name, 
+          Sender_Role: currentUser.role, 
+          Message: msg 
        });
-       
        renderChatTab();
 
        try {
           const res = await fetchAPI('sendChatMessage', { 
-            roomId: currentActiveChatRoom, 
-            senderName: currentUser.name, 
-            senderRole: currentUser.role, 
-            message: msg 
+             roomId: currentActiveChatRoom, 
+             senderName: currentUser.name, 
+             senderRole: currentUser.role, 
+             message: msg 
           });
-          
           if(res.success) { 
-            loadMainData(); 
+             loadMainData(); 
           } else { 
-            Swal.fire('Error', res.message, 'error'); 
+             Swal.fire('Error', res.message, 'error'); 
           }
-       } catch(e) { 
-         console.error(e); 
-       }
+       } catch(e) { console.error(e); }
     }
 
     async function editChatMsg(roomId, timeStr) {
-       const chatMsg = globalData.chats.find(function(c) {
-         return String(c.Room_ID).replace(/'/g, '').trim() === roomId && (c.Chat_Time_Str || c.Chat_Time) === timeStr;
-       });
+       const chatMsg = globalData.chats.find(c => String(c.Room_ID).replace(/'/g, '').trim() === roomId && (c.Chat_Time_Str || c.Chat_Time) === timeStr);
        if(!chatMsg) return;
        
        const { value: newMsg } = await Swal.fire({
@@ -1300,20 +1352,13 @@
           showLoading("กำลังแก้ไข...");
           try {
              const res = await fetchAPI('editChatMessage', { 
-               roomId: roomId, 
-               chatTimeStr: timeStr, 
-               senderName: currentUser.name, 
-               newMessage: newMsg.trim() 
+                roomId: roomId, 
+                chatTimeStr: timeStr, 
+                senderName: currentUser.name, 
+                newMessage: newMsg.trim() 
              });
-             
-             if(res.success) { 
-               loadMainData(); 
-             } else { 
-               Swal.fire('Error', res.message, 'error'); 
-             }
-          } catch(e) { 
-            handleError(e); 
-          }
+             if(res.success) { loadMainData(); } else { Swal.fire('Error', res.message, 'error'); }
+          } catch(e) { handleError(e); }
        }
     }
 
@@ -1331,19 +1376,12 @@
              showLoading("กำลังลบ...");
              try {
                 const apiRes = await fetchAPI('deleteChatMessage', { 
-                  roomId: roomId, 
-                  chatTimeStr: timeStr, 
-                  senderName: currentUser.name 
+                   roomId: roomId, 
+                   chatTimeStr: timeStr, 
+                   senderName: currentUser.name 
                 });
-                
-                if(apiRes.success) { 
-                  loadMainData(); 
-                } else { 
-                  Swal.fire('Error', apiRes.message, 'error'); 
-                }
-             } catch(e) { 
-               handleError(e); 
-             }
+                if(apiRes.success) { loadMainData(); } else { Swal.fire('Error', apiRes.message, 'error'); }
+             } catch(e) { handleError(e); }
           }
        });
     }
@@ -1351,9 +1389,9 @@
     function getGroupDict() {
       let dict = {};
       if (globalData && globalData.groups) { 
-        globalData.groups.forEach(function(g) { 
-          dict[String(g.code).padStart(2, '0')] = g.name; 
-        }); 
+         globalData.groups.forEach(function(g) { 
+            dict[String(g.code).padStart(2, '0')] = g.name; 
+         }); 
       }
       return dict;
     }
@@ -1373,9 +1411,9 @@
       let repOpts = '';
       
       periods.forEach(function(p) { 
-        let t = `<option value="${esc(p)}">${esc(p)}</option>`; 
-        opts += t; 
-        repOpts += t; 
+         let t = `<option value="${esc(p)}">${esc(p)}</option>`; 
+         opts += t; 
+         repOpts += t; 
       });
       
       if (pf) pf.innerHTML = opts; 
@@ -1384,17 +1422,17 @@
       if (df) df.innerHTML = repOpts;
       
       if (periods.length > 0) { 
-        if (pf) pf.value = periods[0]; 
-        if (rf) rf.value = periods[0]; 
-        if (ef) ef.value = periods[0]; 
-        if (df) df.value = periods[0]; 
+         if (pf) pf.value = periods[0]; 
+         if (rf) rf.value = periods[0]; 
+         if (ef) ef.value = periods[0]; 
+         if (df) df.value = periods[0]; 
       }
       
       if (gf) {
         let grpOpts = '<option value="all">รวมทุกกลุ่มงาน</option>';
         groups.forEach(function(g) { 
-          let codePad = String(g.code).padStart(2, '0'); 
-          grpOpts += `<option value="${esc(codePad)}">${esc(codePad)} - ${esc(g.name)}</option>`; 
+           let codePad = String(g.code).padStart(2, '0'); 
+           grpOpts += `<option value="${esc(codePad)}">${esc(codePad)} - ${esc(g.name)}</option>`; 
         });
         gf.innerHTML = grpOpts;
       }
@@ -1403,22 +1441,26 @@
     function renderDashboard() {
       if (!globalData || !globalData.stacks) return;
       
-      const period = document.getElementById('periodFilter').value; 
-      const floorStr = document.getElementById('floorFilter').value; 
-      const groupCode = document.getElementById('groupFilter').value;
+      const periodEl = document.getElementById('periodFilter');
+      const floorEl = document.getElementById('floorFilter');
+      const groupEl = document.getElementById('groupFilter');
+      
+      const period = periodEl ? periodEl.value : "all"; 
+      const floorStr = floorEl ? floorEl.value : "all"; 
+      const groupCode = groupEl ? groupEl.value : "all";
       const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
       const cCol = parseFloat(globalData.settings.cost_color) || 5;
       
       let stacks = globalData.stacks;
       if (period !== "all") {
-        stacks = stacks.filter(function(r) { return r["รอบข้อมูล"] === period; }); 
+         stacks = stacks.filter(function(r) { return r["รอบข้อมูล"] === period; }); 
       }
       if (floorStr !== "all") { 
-        let floorLabel = "ชั้น " + floorStr.replace('F', ''); 
-        stacks = stacks.filter(function(r) { return r["ชั้น"] === floorLabel; }); 
+         let floorLabel = "ชั้น " + floorStr.replace('F', ''); 
+         stacks = stacks.filter(function(r) { return r["ชั้น"] === floorLabel; }); 
       }
       if (groupCode !== "all") {
-        stacks = stacks.filter(function(r) { return String(r["รหัสกลุ่ม"]).padStart(2, '0') === groupCode; }); 
+         stacks = stacks.filter(function(r) { return String(r["รหัสกลุ่ม"]).padStart(2, '0') === groupCode; }); 
       }
 
       let groupDict = getGroupDict(); 
@@ -1431,7 +1473,7 @@
         let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
         
         if(!groupMap[code]) {
-          groupMap[code] = { code: code, name: name, pc:0, pbw:0, cc:0, cbw:0, totalP:0, totalC:0, total:0 };
+           groupMap[code] = { code: code, name: name, pc:0, pbw:0, cc:0, cbw:0, totalP:0, totalC:0, total:0 };
         }
         
         let pc = parseFloat(r["Print สี"]) || 0; 
@@ -1461,52 +1503,58 @@
       });
 
       currentDashData = Object.values(groupMap);
-      document.getElementById('sumTotal').innerText = tU.toLocaleString(); 
-      document.getElementById('sumPrint').innerText = tP.toLocaleString(); 
-      document.getElementById('sumCopy').innerText = tC.toLocaleString(); 
-      document.getElementById('sumColor').innerText = tCol.toLocaleString(); 
-      document.getElementById('sumBW').innerText = tBw.toLocaleString(); 
-      document.getElementById('sumCost').innerText = tCost.toLocaleString();
+      
+      const sumTotalEl = document.getElementById('sumTotal');
+      if(sumTotalEl) sumTotalEl.innerText = tU.toLocaleString(); 
+      
+      const sumPrintEl = document.getElementById('sumPrint');
+      if(sumPrintEl) sumPrintEl.innerText = tP.toLocaleString(); 
+      
+      const sumCopyEl = document.getElementById('sumCopy');
+      if(sumCopyEl) sumCopyEl.innerText = tC.toLocaleString(); 
+      
+      const sumColorEl = document.getElementById('sumColor');
+      if(sumColorEl) sumColorEl.innerText = tCol.toLocaleString(); 
+      
+      const sumBWEl = document.getElementById('sumBW');
+      if(sumBWEl) sumBWEl.innerText = tBw.toLocaleString(); 
+      
+      const sumCostEl = document.getElementById('sumCost');
+      if(sumCostEl) sumCostEl.innerText = tCost.toLocaleString();
 
       let sortedForChart = [...currentDashData].sort(function(a,b) { return b.total - a.total; }).slice(0, 10);
       
-      if (chartInstances.bar) {
-        chartInstances.bar.destroy();
-      }
-      
+      if (chartInstances.bar) chartInstances.bar.destroy();
       const barCtx = document.getElementById('barChart');
       if (barCtx) { 
-        chartInstances.bar = new Chart(barCtx, { 
-          type: 'bar', 
-          data: { 
-            labels: sortedForChart.map(function(r) { return esc(r.name).substring(3, 18) + "..."; }), 
-            datasets: [ 
-              { label: 'Print', data: sortedForChart.map(function(r) { return r.totalP; }), backgroundColor: '#10b981' }, 
-              { label: 'Copy', data: sortedForChart.map(function(r) { return r.totalC; }), backgroundColor: '#8b5cf6' } 
-            ] 
-          }, 
-          options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            scales: { x: { stacked: true }, y: { stacked: true } } 
-          } 
-        }); 
+         chartInstances.bar = new Chart(barCtx, { 
+            type: 'bar', 
+            data: { 
+               labels: sortedForChart.map(function(r) { return esc(r.name).substring(3, 18) + "..."; }), 
+               datasets: [ 
+                  { label: 'Print', data: sortedForChart.map(function(r) { return r.totalP; }), backgroundColor: '#10b981' }, 
+                  { label: 'Copy', data: sortedForChart.map(function(r) { return r.totalC; }), backgroundColor: '#8b5cf6' } 
+               ] 
+            }, 
+            options: { 
+               responsive: true, 
+               maintainAspectRatio: false, 
+               scales: { x: { stacked: true }, y: { stacked: true } } 
+            } 
+         }); 
       }
       
-      if (chartInstances.pie) {
-        chartInstances.pie.destroy();
-      }
-      
+      if (chartInstances.pie) chartInstances.pie.destroy();
       const pieCtx = document.getElementById('pieChart');
       if (pieCtx) { 
-        chartInstances.pie = new Chart(pieCtx, { 
-          type: 'doughnut', 
-          data: { 
-            labels: ['ชั้น 1','ชั้น 2','ชั้น 3'], 
-            datasets: [{ data: [f1,f2,f3], backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] 
-          }, 
-          options: { responsive: true, maintainAspectRatio: false } 
-        }); 
+         chartInstances.pie = new Chart(pieCtx, { 
+            type: 'doughnut', 
+            data: { 
+               labels: ['ชั้น 1','ชั้น 2','ชั้น 3'], 
+               datasets: [{ data: [f1,f2,f3], backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] 
+            }, 
+            options: { responsive: true, maintainAspectRatio: false } 
+         }); 
       }
       
       renderDashTable();
@@ -1514,155 +1562,62 @@
 
     function sortDashTable(col) {
       if (dashSortCol === col) {
-        dashSortAsc = !dashSortAsc; 
+         dashSortAsc = !dashSortAsc; 
       } else { 
-        dashSortCol = col; 
-        dashSortAsc = false; 
+         dashSortCol = col; 
+         dashSortAsc = false; 
       } 
       renderDashTable();
     }
 
     function renderDashTable() {
       document.querySelectorAll('#view-dashboard .sortable i').forEach(function(icon) { 
-        icon.className = 'fas fa-sort ml-1 text-gray-400'; 
+         icon.className = 'fas fa-sort ml-1 text-gray-400'; 
       });
       
       currentDashData.sort(function(a, b) { 
-        let valA = a[dashSortCol]; 
-        let valB = b[dashSortCol]; 
-        if (typeof valA === 'string') {
-          return dashSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA); 
-        } else {
-          return dashSortAsc ? valA - valB : valB - valA; 
-        }
+         let valA = a[dashSortCol]; 
+         let valB = b[dashSortCol]; 
+         if (typeof valA === 'string') {
+            return dashSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA); 
+         } else {
+            return dashSortAsc ? valA - valB : valB - valA; 
+         }
       });
       
       let tb = document.getElementById('dashTableBody'); 
-      tb.innerHTML = '';
-      
-      currentDashData.forEach(function(r) { 
-        tb.innerHTML += `<tr class="border-b hover:bg-gray-50">
-          <td class="p-3 text-gray-600">${esc(r.code)}</td>
-          <td class="p-3 font-medium">${esc(r.name)}</td>
-          <td class="p-3 text-right">${r.pc.toLocaleString()}</td>
-          <td class="p-3 text-right">${r.pbw.toLocaleString()}</td>
-          <td class="p-3 text-right">${r.cc.toLocaleString()}</td>
-          <td class="p-3 text-right">${r.cbw.toLocaleString()}</td>
-          <td class="p-3 text-right font-bold text-blue-600">${r.total.toLocaleString()}</td>
-        </tr>`; 
-      });
-    }
-
-    // 🌟 ระบบจัดการแอดมินและการอัปโหลดไฟล์ 🌟
-    async function handleMultiUpload() {
-      const p = document.getElementById('uploadPeriod').value.trim(); 
-      if (!p) {
-         return Swal.fire('แจ้งเตือน', 'กรุณาระบุรอบข้อมูล (เช่น มกราคม 2569) ก่อนทำการอัปโหลด', 'warning');
-      }
-      
-      const filesToUpload = []; 
-      const floors = ['F1', 'F2', 'F3'];
-      
-      floors.forEach(function(f) { 
-        const input = document.getElementById('uploadFile' + f); 
-        if (input && input.files.length > 0) {
-           filesToUpload.push({ floorKey: f, file: input.files[0] }); 
-        }
-      });
-      
-      if (filesToUpload.length === 0) {
-         return Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์อย่างน้อย 1 ชั้น', 'warning');
-      }
-      
-      showLoading("กำลังอ่านไฟล์และเตรียมอัปโหลด (ห้ามปิดหน้าต่าง)...");
-      try {
-        const fileDataArray = [];
-        for (let i = 0; i < filesToUpload.length; i++) { 
-          const item = filesToUpload[i]; 
-          const dataURI = await readFileAsDataURL(item.file); 
-          fileDataArray.push({ floorKey: item.floorKey, fileName: item.file.name, dataURI: dataURI }); 
-        }
-        
-        showLoading("กำลังอัปโหลดขึ้นเซิร์ฟเวอร์และคำนวณสถิติ...");
-        const res = await fetchAPI('uploadMultipleCsvsToDrive', { filesArray: fileDataArray, period: p });
-        
-        if (res.success) { 
-          Swal.fire('สำเร็จ!', res.message, 'success').then(function() { window.location.reload(); }); 
-        } else { 
-          Swal.fire('ผิดพลาด', res.message, 'error'); 
-        } 
-      } catch (err) { 
-        handleError(err); 
+      if(tb) {
+         tb.innerHTML = '';
+         currentDashData.forEach(function(r) { 
+           tb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+              <td class="p-3 text-gray-600">${esc(r.code)}</td>
+              <td class="p-3 font-medium">${esc(r.name)}</td>
+              <td class="p-3 text-right">${r.pc.toLocaleString()}</td>
+              <td class="p-3 text-right">${r.pbw.toLocaleString()}</td>
+              <td class="p-3 text-right">${r.cc.toLocaleString()}</td>
+              <td class="p-3 text-right">${r.cbw.toLocaleString()}</td>
+              <td class="p-3 text-right font-bold text-blue-600">${r.total.toLocaleString()}</td>
+           </tr>`; 
+         });
       }
     }
 
-    function deleteUpload() {
-      const p = document.getElementById('delPeriodSel').value; 
-      const f = document.getElementById('delFloorSel').value;
-      
-      if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรอบข้อมูล', 'warning');
-      
-      Swal.fire({ 
-        title: 'ยืนยันการลบข้อมูล?', 
-        html: `ลบข้อมูลรอบ <b>[${esc(p)}]</b> เครื่อง <b>[${esc(f)}]</b><br><br><span class='text-red-500'>การกระทำนี้ไม่สามารถกู้คืนได้!</span>`, 
-        icon: 'warning', 
-        showCancelButton: true, 
-        confirmButtonColor: '#d33', 
-        confirmButtonText: 'ใช่, ลบข้อมูล', 
-        cancelButtonText: 'ยกเลิก' 
-      }).then(async function(result) {
-        if (result.isConfirmed) { 
-          showLoading("กำลังลบและคำนวณใหม่..."); 
-          try { 
-            const res = await fetchAPI('deleteUploadData', { period: p, floor: f }); 
-            if (res.success) { 
-              Swal.fire('สำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); 
-            } else { 
-              Swal.fire('ผิดพลาด', res.message, 'error'); 
-            } 
-          } catch(e) { 
-            handleError(e); 
-          } 
-        }
-      });
-    }
-
-    function clearDatabaseUI() {
-      Swal.fire({ 
-        title: '⚠️ พื้นที่อันตราย!', 
-        text: "คุณแน่ใจหรือไม่ที่จะล้างฐานข้อมูลสถิติทั้งหมด? พิมพ์ 'ยืนยัน' เพื่อดำเนินการต่อ", 
-        input: 'text', 
-        icon: 'error', 
-        showCancelButton: true, 
-        confirmButtonColor: '#d33', 
-        confirmButtonText: 'ล้างฐานข้อมูล', 
-        cancelButtonText: 'ยกเลิก', 
-        preConfirm: function(inputValue) { 
-          if (inputValue !== 'ยืนยัน') Swal.showValidationMessage("คุณพิมพ์คำยืนยันไม่ถูกต้อง"); 
-        } 
-      }).then(async function(result) {
-        if (result.isConfirmed) { 
-          showLoading("กำลังล้างฐานข้อมูล..."); 
-          try { 
-            const res = await fetchAPI('clearDatabase'); 
-            if(res.success) {
-              Swal.fire('ล้างข้อมูลสำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); 
-            } else {
-              Swal.fire('เกิดข้อผิดพลาด', res.message, 'error'); 
-            }
-          } catch(e) { 
-            handleError(e); 
-          } 
-        }
-      });
-    }
-
+    // 🌟 ระบบจัดการแอดมิน (ป้องกัน Error แบบสมบูรณ์ด้วย dataset) 🌟
     async function loadAdminData() {
-      document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
-      document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
-      document.getElementById('setEmails').value = globalData.settings.notify_emails || "";
-      document.getElementById('setTgToken').value = globalData.settings.telegram_bot_token || "";
-      document.getElementById('setTgChatId').value = globalData.settings.telegram_chat_id || "";
+      const setBwEl = document.getElementById('setBw');
+      if(setBwEl) setBwEl.value = globalData.settings.cost_bw || 1; 
+      
+      const setColorEl = document.getElementById('setColor');
+      if(setColorEl) setColorEl.value = globalData.settings.cost_color || 5; 
+      
+      const setEmailsEl = document.getElementById('setEmails');
+      if(setEmailsEl) setEmailsEl.value = globalData.settings.notify_emails || "";
+      
+      const setTgTokenEl = document.getElementById('setTgToken');
+      if(setTgTokenEl) setTgTokenEl.value = globalData.settings.telegram_bot_token || "";
+      
+      const setTgChatIdEl = document.getElementById('setTgChatId');
+      if(setTgChatIdEl) setTgChatIdEl.value = globalData.settings.telegram_chat_id || "";
       
       let pr = globalData.printReqs || []; 
       let prTb = document.getElementById('requestsPrintReqBody'); 
@@ -1699,9 +1654,7 @@
            
            actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>`;
            
-           let filesHtml = r.files.map(function(f, i) {
-             return `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${esc(f.pages)} แผ่น)</span></a>`;
-           }).join('');
+           let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${esc(f.pages)} แผ่น)</span></a>`).join('');
 
            prTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
               <td class="p-3 text-xs">${esc(dateLabel)}</td>
@@ -1714,61 +1667,69 @@
          });
       }
 
-      allUsersCache = globalData.users || []; 
-      tempGroups = globalData.groups || []; 
-      renderGroupTable();
-      
-      const tb = document.getElementById('userTableBody'); 
-      tb.innerHTML = "";
-      
-      allUsersCache.forEach(function(u) {
-        let badge = '';
-        if (u.pendingEdit) badge += '<span class="px-2 bg-purple-200 text-purple-800 rounded text-xs inline-block mb-1 ml-1"><i class="fas fa-edit"></i> ขอแก้ไข</span>';
-        if (u.status === 'pending') badge += '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติปริ้น</span>'; 
-        else if (u.status === 'suspended') badge += '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; 
-        else { 
-          let roleName = ""; 
-          if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; 
-          else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; 
-          else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; 
-          else roleName = 'ผู้ใช้งาน'; 
-          badge += `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; 
-        }
+      try {
+        const res = await fetchAPI('getAdminData'); 
+        if(!res.success) throw new Error(res.message || "Failed to load admin data"); 
         
-        let actionBtns = `<div class="flex justify-center space-x-3">`;
+        allUsersCache = res.data.users; 
+        tempGroups = res.data.groups || []; 
+        renderGroupTable();
         
-        if(u.pendingEdit) {
-           actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
-        }
+        const tb = document.getElementById('userTableBody'); 
+        if(!tb) return;
+        tb.innerHTML = "";
         
-        actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="viewUserPin(this.dataset.mobile)" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
-        actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="openEditUserModal(this.dataset.mobile)" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
-
-        if (u.status === 'pending') {
-           actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
-        }
-        
-        if (u.status !== 'pending' && u.role !== 'admin') { 
-          if (u.status === 'suspended') {
-             actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
-          } else {
-             actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
+        allUsersCache.forEach(function(u) {
+          let badge = '';
+          if (u.pendingEdit) badge += '<span class="px-2 bg-purple-200 text-purple-800 rounded text-xs inline-block mb-1 ml-1"><i class="fas fa-edit"></i> ขอแก้ไข</span>';
+          if (u.status === 'pending') badge += '<span class="px-2 bg-yellow-200 text-yellow-800 rounded text-xs inline-block mb-1">รออนุมัติปริ้น</span>'; 
+          else if (u.status === 'suspended') badge += '<span class="px-2 bg-red-200 text-red-800 rounded text-xs inline-block mb-1"><i class="fas fa-ban"></i> ถูกระงับ</span>'; 
+          else { 
+            let roleName = ""; 
+            if (u.role === 'admin') roleName = 'ผู้ดูแลระบบ'; 
+            else if (u.role === 'assistant') roleName = 'ผู้ช่วย Admin'; 
+            else if (u.role === 'observer') roleName = 'ผู้สังเกตการณ์'; 
+            else roleName = 'ผู้ใช้งาน'; 
+            badge += `<span class="px-2 bg-green-200 text-green-800 rounded text-xs inline-block mb-1">${roleName}</span>`; 
           }
-        }
-        if (u.role !== 'admin') {
-           actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
-        }
-        actionBtns += `</div>`;
-        
-        tb.innerHTML += `<tr class="border-b hover:bg-gray-50">
-           <td class="p-2"><b>${esc(u.name)}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${esc(u.mobile)}</span><br>${badge}</td>
-           <td class="p-2 align-middle">${actionBtns}</td>
-        </tr>`;
-      });
+          
+          let actionBtns = `<div class="flex justify-center space-x-3">`;
+          
+          if(u.pendingEdit) {
+             actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
+          }
+          
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="viewUserPin(this.dataset.mobile)" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="openEditUserModal(this.dataset.mobile)" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
+
+          if (u.status === 'pending') {
+             actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
+          }
+          
+          if (u.status !== 'pending' && u.role !== 'admin') { 
+            if (u.status === 'suspended') {
+               actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
+            } else {
+               actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
+            }
+          }
+          if (u.role !== 'admin') {
+             actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
+          }
+          actionBtns += `</div>`;
+          
+          tb.innerHTML += `<tr class="border-b hover:bg-gray-50">
+             <td class="p-2"><b>${esc(u.name)}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${esc(u.mobile)}</span><br>${badge}</td>
+             <td class="p-2 align-middle">${actionBtns}</td>
+          </tr>`;
+        });
+      } catch(e) { 
+         handleError(e); 
+      }
     }
 
     function reviewProfileEdit(mobile) {
-       const u = allUsersCache.find(function(x) { return x.mobile === mobile; });
+       const u = allUsersCache.find(x => x.mobile === mobile);
        if(!u || !u.pendingEdit) return;
        const newData = JSON.parse(u.pendingEdit);
        
@@ -1815,9 +1776,8 @@
     }
 
     function viewUserPin(mobile) { 
-      const u = allUsersCache.find(function(x) { return x.mobile === mobile; });
+      const u = allUsersCache.find(x => x.mobile === mobile);
       if(!u) return;
-      
       Swal.fire({ 
          title: `รหัส PIN ของ ${esc(u.name)}`, 
          html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${esc(u.pin)}</span>`, 
@@ -1826,45 +1786,71 @@
     }
 
     function openEditUserModal(mobile) {
-      const u = allUsersCache.find(function(x) { return x.mobile === mobile; });
+      const u = allUsersCache.find(x => x.mobile === mobile);
       if(!u) return;
 
-      document.getElementById('editMobile').value = u.mobile; 
-      document.getElementById('editOriginalMobile').value = u.mobile; 
-      document.getElementById('editName').value = u.name; 
-      document.getElementById('editRole').value = u.role || 'user'; 
-      document.getElementById('editStatus').value = u.status || 'approved'; 
-      document.getElementById('editPos').value = u.position || ''; 
-      document.getElementById('editPrintUser').value = u.printerUser || ''; 
-      document.getElementById('editEmail').value = u.email || '';
+      const editMobileEl = document.getElementById('editMobile');
+      const editOrigMobileEl = document.getElementById('editOriginalMobile');
+      const editNameEl = document.getElementById('editName');
+      const editRoleEl = document.getElementById('editRole');
+      const editStatusEl = document.getElementById('editStatus');
+      const editPosEl = document.getElementById('editPos');
+      const editPrintUserEl = document.getElementById('editPrintUser');
+      const editEmailEl = document.getElementById('editEmail');
+      const selGroup = document.getElementById('editGroup');
+
+      if(editMobileEl) editMobileEl.value = u.mobile; 
+      if(editOrigMobileEl) editOrigMobileEl.value = u.mobile; 
+      if(editNameEl) editNameEl.value = u.name; 
+      if(editRoleEl) editRoleEl.value = u.role || 'user'; 
+      if(editStatusEl) editStatusEl.value = u.status || 'approved'; 
+      if(editPosEl) editPosEl.value = u.position || ''; 
+      if(editPrintUserEl) editPrintUserEl.value = u.printerUser || ''; 
+      if(editEmailEl) editEmailEl.value = u.email || '';
       
-      const selGroup = document.getElementById('editGroup'); 
-      selGroup.innerHTML = '';
-      tempGroups.forEach(function(g) { 
-        let selected = (g.name === u.group) ? 'selected' : ''; 
-        selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}" ${selected}>${esc(g.code)} - ${esc(g.name)}</option>`; 
-      });
-      document.getElementById('adminEditUserModal').classList.remove('hidden');
+      if(selGroup) {
+         selGroup.innerHTML = '';
+         tempGroups.forEach(function(g) { 
+           let selected = (g.name === u.group) ? 'selected' : ''; 
+           selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}" ${selected}>${esc(g.code)} - ${esc(g.name)}</option>`; 
+         });
+      }
+      
+      const modal = document.getElementById('adminEditUserModal');
+      if(modal) modal.classList.remove('hidden');
     }
 
     function closeEditUserModal() { 
-       document.getElementById('adminEditUserModal').classList.add('hidden'); 
+       const modal = document.getElementById('adminEditUserModal');
+       if(modal) modal.classList.add('hidden'); 
     }
 
     async function submitEditUser() {
-      const originalMobile = document.getElementById('editOriginalMobile').value; 
-      const groupData = document.getElementById('editGroup').value.split('|');
+      const originalMobileEl = document.getElementById('editOriginalMobile');
+      const groupDataEl = document.getElementById('editGroup');
+      const editMobileEl = document.getElementById('editMobile');
+      const editNameEl = document.getElementById('editName');
+      const editRoleEl = document.getElementById('editRole');
+      const editStatusEl = document.getElementById('editStatus');
+      const editPosEl = document.getElementById('editPos');
+      const editPrintUserEl = document.getElementById('editPrintUser');
+      const editEmailEl = document.getElementById('editEmail');
+
+      if(!originalMobileEl || !groupDataEl || !editMobileEl || !editNameEl) return;
+
+      const originalMobile = originalMobileEl.value; 
+      const groupData = groupDataEl.value.split('|');
       
       const updatedData = { 
-         mobile: document.getElementById('editMobile').value.trim(), 
-         name: document.getElementById('editName').value.trim(), 
-         role: document.getElementById('editRole').value, 
-         status: document.getElementById('editStatus').value, 
-         position: document.getElementById('editPos').value.trim(), 
+         mobile: editMobileEl.value.trim(), 
+         name: editNameEl.value.trim(), 
+         role: editRoleEl ? editRoleEl.value : 'user', 
+         status: editStatusEl ? editStatusEl.value : 'approved', 
+         position: editPosEl ? editPosEl.value.trim() : '', 
          groupCode: groupData[0], 
          groupName: groupData[1], 
-         printerUser: document.getElementById('editPrintUser').value.trim(), 
-         email: document.getElementById('editEmail').value.trim() 
+         printerUser: editPrintUserEl ? editPrintUserEl.value.trim() : '', 
+         email: editEmailEl ? editEmailEl.value.trim() : '' 
       };
       
       if (!updatedData.mobile || !updatedData.name) {
@@ -1888,11 +1874,18 @@
     
     async function saveAdminSettings() {
       showLoading("กำลังบันทึก...");
-      const b = document.getElementById('setBw').value; 
-      const c = document.getElementById('setColor').value; 
-      const e = document.getElementById('setEmails').value; 
-      const tt = document.getElementById('setTgToken').value; 
-      const tc = document.getElementById('setTgChatId').value;
+      
+      const bEl = document.getElementById('setBw');
+      const cEl = document.getElementById('setColor');
+      const eEl = document.getElementById('setEmails');
+      const ttEl = document.getElementById('setTgToken');
+      const tcEl = document.getElementById('setTgChatId');
+      
+      const b = bEl ? bEl.value : 1; 
+      const c = cEl ? cEl.value : 5; 
+      const e = eEl ? eEl.value : ''; 
+      const tt = ttEl ? ttEl.value : ''; 
+      const tc = tcEl ? tcEl.value : '';
       
       try { 
         const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e, tgToken: tt, tgChatId: tc }); 
@@ -1924,9 +1917,7 @@
                   await fetchAPI('deleteUser', { mobile: mob }); 
                   loadAdminData(); 
                   hideLoading(); 
-               } catch(e) { 
-                  handleError(e); 
-               } 
+               } catch(e) { handleError(e); } 
             } 
          }); 
       } else if (action === 'suspend') { 
@@ -1945,9 +1936,7 @@
                   await fetchAPI('suspendUser', { mobile: mob }); 
                   loadAdminData(); 
                   hideLoading(); 
-               } catch(e) { 
-                  handleError(e); 
-               } 
+               } catch(e) { handleError(e); } 
             } 
          }); 
       } else if (action === 'approve') { 
@@ -1961,28 +1950,43 @@
 
     function openAdminCreateUserModal() {
       const selGroup = document.getElementById('adminRegGroup'); 
-      selGroup.innerHTML = '';
-      tempGroups.forEach(function(g) { 
-         selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}">${esc(g.code)} - ${esc(g.name)}</option>`; 
-      });
-      document.getElementById('adminCreateUserModal').classList.remove('hidden');
+      if(selGroup) {
+         selGroup.innerHTML = '';
+         tempGroups.forEach(function(g) { 
+            selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}">${esc(g.code)} - ${esc(g.name)}</option>`; 
+         });
+      }
+      
+      const modal = document.getElementById('adminCreateUserModal');
+      if(modal) modal.classList.remove('hidden');
     }
 
     function closeAdminCreateUserModal() { 
-       document.getElementById('adminCreateUserModal').classList.add('hidden'); 
+       const modal = document.getElementById('adminCreateUserModal');
+       if(modal) modal.classList.add('hidden'); 
     }
 
     async function adminSubmitCreateUser() {
-      const groupData = document.getElementById('adminRegGroup').value.split('|');
+      const groupDataEl = document.getElementById('adminRegGroup');
+      if(!groupDataEl) return;
+      const groupData = groupDataEl.value.split('|');
+      
+      const mobileEl = document.getElementById('adminRegMobile');
+      const nameEl = document.getElementById('adminRegName');
+      const posEl = document.getElementById('adminRegPos');
+      const printerUserEl = document.getElementById('adminRegPrintUser');
+      const roleEl = document.getElementById('adminRegRole');
+      const emailEl = document.getElementById('adminRegEmail');
+
       const data = { 
-         mobile: document.getElementById('adminRegMobile').value.trim(), 
-         name: document.getElementById('adminRegName').value.trim(), 
-         position: document.getElementById('adminRegPos').value.trim(), 
+         mobile: mobileEl ? mobileEl.value.trim() : '', 
+         name: nameEl ? nameEl.value.trim() : '', 
+         position: posEl ? posEl.value.trim() : '', 
          groupCode: groupData[0], 
          groupName: groupData[1], 
-         printerUser: document.getElementById('adminRegPrintUser').value.trim(), 
-         role: document.getElementById('adminRegRole').value, 
-         email: document.getElementById('adminRegEmail').value.trim() 
+         printerUser: printerUserEl ? printerUserEl.value.trim() : '', 
+         role: roleEl ? roleEl.value : 'user', 
+         email: emailEl ? emailEl.value.trim() : '' 
       };
       
       if (!data.mobile || !data.name) {
@@ -1995,10 +1999,12 @@
         if (res.success) { 
            Swal.fire({ icon: 'success', title: 'สร้างบัญชีสำเร็จ', html: res.message, confirmButtonText: 'รับทราบ' }); 
            closeAdminCreateUserModal(); 
-           document.getElementById('adminRegMobile').value = ''; 
-           document.getElementById('adminRegName').value = ''; 
-           document.getElementById('adminRegPrintUser').value = ''; 
-           document.getElementById('adminRegEmail').value = ''; 
+           
+           if(mobileEl) mobileEl.value = ''; 
+           if(nameEl) nameEl.value = ''; 
+           if(printerUserEl) printerUserEl.value = ''; 
+           if(emailEl) emailEl.value = ''; 
+           
            loadAdminData(); 
         } else { 
            Swal.fire('ผิดพลาด', res.message, 'error'); 
@@ -2009,8 +2015,10 @@
     }
 
     async function triggerEmail() {
-      const p = document.getElementById('emailPeriodSel').value; 
+      const periodEl = document.getElementById('emailPeriodSel');
+      const p = periodEl ? periodEl.value : null; 
       if (!p) return;
+      
       showLoading("กำลังส่งอีเมล..."); 
       try { 
          const res = await fetchAPI('sendSummaryEmail', { period: p }); 
@@ -2026,6 +2034,7 @@
 
     function renderGroupTable() {
       let tb = document.getElementById('groupTableBody'); 
+      if(!tb) return;
       tb.innerHTML = '';
       tempGroups.forEach(function(g, idx) { 
          tb.innerHTML += `<tr class="border-b"><td class="p-1 w-1/4">${esc(g.code)}</td><td class="p-1 w-2/4">${esc(g.name)}</td><td class="p-1 text-center w-1/4"><button onclick="removeGroupRow(${idx})" class="text-red-500"><i class="fas fa-times"></i></button></td></tr>`; 
@@ -2033,15 +2042,18 @@
     }
     
     function addGroupRow() {
-      let c = document.getElementById('newGrpCode').value.trim(); 
-      let n = document.getElementById('newGrpName').value.trim();
+      const cEl = document.getElementById('newGrpCode');
+      const nEl = document.getElementById('newGrpName');
+      
+      let c = cEl ? cEl.value.trim() : ''; 
+      let n = nEl ? nEl.value.trim() : '';
       
       if (!c || !n) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลกลุ่มงานให้ครบ', 'warning');
       
       tempGroups.push({code: c, name: n}); 
       renderGroupTable(); 
-      document.getElementById('newGrpCode').value = ''; 
-      document.getElementById('newGrpName').value = '';
+      if(cEl) cEl.value = ''; 
+      if(nEl) nEl.value = '';
     }
     
     function removeGroupRow(idx) { 
@@ -2059,10 +2071,113 @@
       }
     }
 
+    async function handleMultiUpload() {
+      const periodEl = document.getElementById('uploadPeriod');
+      const p = periodEl ? periodEl.value.trim() : ''; 
+      if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรอบข้อมูล (เช่น มกราคม 2569) ก่อนทำการอัปโหลด', 'warning');
+      
+      const filesToUpload = []; 
+      const floors = ['F1', 'F2', 'F3'];
+      
+      floors.forEach(function(f) { 
+        const input = document.getElementById('uploadFile' + f); 
+        if (input && input.files.length > 0) {
+           filesToUpload.push({ floorKey: f, file: input.files[0] }); 
+        }
+      });
+      
+      if (filesToUpload.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์อย่างน้อย 1 ชั้น', 'warning');
+      
+      showLoading("กำลังอ่านไฟล์และเตรียมอัปโหลด (ห้ามปิดหน้าต่าง)...");
+      try {
+        const fileDataArray = [];
+        for (let i = 0; i < filesToUpload.length; i++) { 
+          const item = filesToUpload[i]; 
+          const dataURI = await readFileAsDataURL(item.file); 
+          fileDataArray.push({ floorKey: item.floorKey, fileName: item.file.name, dataURI: dataURI }); 
+        }
+        
+        showLoading("กำลังอัปโหลดขึ้นเซิร์ฟเวอร์และคำนวณสถิติ...");
+        const res = await fetchAPI('uploadMultipleCsvsToDrive', { filesArray: fileDataArray, period: p });
+        
+        if (res.success) { 
+          Swal.fire('สำเร็จ!', res.message, 'success').then(function() { window.location.reload(); }); 
+        } else { 
+          Swal.fire('ผิดพลาด', res.message, 'error'); 
+        } 
+      } catch (err) { 
+        handleError(err); 
+      }
+    }
+
+    function deleteUpload() {
+      const pEl = document.getElementById('delPeriodSel');
+      const fEl = document.getElementById('delFloorSel');
+      
+      const p = pEl ? pEl.value : null; 
+      const f = fEl ? fEl.value : null;
+      if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรอบข้อมูล', 'warning');
+      
+      Swal.fire({ 
+        title: 'ยืนยันการลบข้อมูล?', 
+        html: `ลบข้อมูลรอบ <b>[${esc(p)}]</b> เครื่อง <b>[${esc(f)}]</b><br><br><span class='text-red-500'>การกระทำนี้ไม่สามารถกู้คืนได้!</span>`, 
+        icon: 'warning', 
+        showCancelButton: true, 
+        confirmButtonColor: '#d33', 
+        confirmButtonText: 'ใช่, ลบข้อมูล', 
+        cancelButtonText: 'ยกเลิก' 
+      }).then(async function(result) {
+        if (result.isConfirmed) { 
+          showLoading("กำลังลบและคำนวณใหม่..."); 
+          try { 
+            const res = await fetchAPI('deleteUploadData', { period: p, floor: f }); 
+            if (res.success) { 
+              Swal.fire('สำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); 
+            } else { 
+              Swal.fire('ผิดพลาด', res.message, 'error'); 
+            } 
+          } catch(e) { handleError(e); } 
+        }
+      });
+    }
+
+    function clearDatabaseUI() {
+      Swal.fire({ 
+        title: '⚠️ พื้นที่อันตราย!', 
+        text: "คุณแน่ใจหรือไม่ที่จะล้างฐานข้อมูลสถิติทั้งหมด? พิมพ์ 'ยืนยัน' เพื่อดำเนินการต่อ", 
+        input: 'text', 
+        icon: 'error', 
+        showCancelButton: true, 
+        confirmButtonColor: '#d33', 
+        confirmButtonText: 'ล้างฐานข้อมูล', 
+        cancelButtonText: 'ยกเลิก', 
+        preConfirm: function(inputValue) { 
+          if (inputValue !== 'ยืนยัน') Swal.showValidationMessage("คุณพิมพ์คำยืนยันไม่ถูกต้อง"); 
+        } 
+      }).then(async function(result) {
+        if (result.isConfirmed) { 
+          showLoading("กำลังล้างฐานข้อมูล..."); 
+          try { 
+            const res = await fetchAPI('clearDatabase'); 
+            if(res.success) {
+              Swal.fire('ล้างข้อมูลสำเร็จ', res.message, 'success').then(function() { window.location.reload(); }); 
+            } else {
+              Swal.fire('เกิดข้อผิดพลาด', res.message, 'error'); 
+            }
+          } catch(e) { handleError(e); } 
+        }
+      });
+    }
+
     function generateReport() {
-      const period = document.getElementById('repPeriod').value; 
-      const lvl = document.getElementById('repLevel').value; 
-      const format = document.getElementById('repFormat').value;
+      const periodEl = document.getElementById('repPeriod');
+      const lvlEl = document.getElementById('repLevel');
+      const formatEl = document.getElementById('repFormat');
+      
+      const period = periodEl ? periodEl.value : null; 
+      const lvl = lvlEl ? lvlEl.value : 'group'; 
+      const format = formatEl ? formatEl.value : '1';
+      
       const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
       const cCol = parseFloat(globalData.settings.cost_color) || 5;
       
@@ -2118,10 +2233,12 @@
         }
         html += `</tbody></table>`;
       }
-      document.getElementById('reportRenderArea').innerHTML = html; 
-      document.getElementById('reportPreviewContainer').classList.remove('hidden');
+      
+      const renderArea = document.getElementById('reportRenderArea');
+      const previewContainer = document.getElementById('reportPreviewContainer');
+      if(renderArea) renderArea.innerHTML = html; 
+      if(previewContainer) previewContainer.classList.remove('hidden');
     }
   </script>
 </body>
 </html>
-    
