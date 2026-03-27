@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V22.2</title>
+  <title>Print & Copy Management V22.3</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -40,10 +40,10 @@
       }
     }
 
-    // 🌟 Helper Function: จัดการอักขระพิเศษให้อยู่หมัด 🌟
+    // 🌟 Helper Function: จัดการอักขระพิเศษ ป้องกันการเคาะบรรทัดใน CSV ทำให้เว็บพัง 🌟
     function esc(str) {
       if(str == null) return '';
-      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
   </script>
 
@@ -240,6 +240,7 @@
               <i class="fas fa-user-edit mr-1"></i> แก้ไขข้อมูลส่วนตัว
             </button>
           </div>
+          
           <div id="pendingEditWarning" class="hidden mt-3 p-2 bg-orange-50 border border-orange-200 rounded text-center">
             <p class="text-xs text-orange-600 font-bold"><i class="fas fa-clock"></i> คำขอแก้ไขข้อมูลของคุณกำลังรอ Admin อนุมัติ</p>
           </div>
@@ -445,9 +446,7 @@
               <label class="text-sm">อีเมลสรุปรายงานประจำเดือน</label>
               <input type="text" id="setEmails" class="w-full border p-1 rounded">
             </div>
-            
             <hr class="my-2">
-            
             <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
             <div>
               <label class="text-sm text-gray-500">Bot Token</label>
@@ -458,7 +457,6 @@
               <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm">
               <p class="text-xs text-red-500 mt-1">*อย่าลืมใส่ -100 นำหน้าตัวเลขสำหรับกลุ่มเสมอ</p>
             </div>
-            
             <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-bold mt-2 shadow">บันทึกการตั้งค่า</button>
             <hr>
             <div>
@@ -511,12 +509,11 @@
 
       <div class="bg-white rounded-lg shadow p-6 border-red-600 border-t-4 mt-8 super-admin-only">
         <h3 class="text-lg font-bold text-red-600 mb-4"><i class="fas fa-exclamation-triangle"></i> พื้นที่อันตราย (Danger Zone)</h3>
-        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งาน คำขอปริ้น และประวัติการแชททั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
+        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งานและประวัติคำขอทั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
         <button onclick="clearDatabaseUI()" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 shadow">
-          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติและประวัติทั้งหมด
+          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติทั้งหมด
         </button>
       </div>
-
     </div>
 
     <div id="view-report" class="view-section hidden">
@@ -931,7 +928,6 @@
       } catch(e) { handleError(e); }
     }
 
-    // 🌟 ฟังก์ชันจัดการคำขอ (Batch) 🌟
     function cancelPrintReq(tsStr) {
       Swal.fire({ title: 'ยืนยันการยกเลิก?', text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f59e0b', confirmButtonText: 'ใช่, ยกเลิกคำขอ', cancelButtonText: 'ปิดหน้าต่าง' }).then(async function(result) {
         if(result.isConfirmed) {
@@ -1058,7 +1054,6 @@
       else if (view === 'chat') renderChatTab(); 
     }
 
-    // 🌟 ระบบจัดการแท็บแชทแยกอิสระ 🌟
     function renderChatTab() {
       const chats = globalData.chats || [];
       if(currentUser.role === 'admin' || currentUser.role === 'assistant') {
@@ -1290,7 +1285,7 @@
       });
     }
 
-    // 🌟 ระบบจัดการแอดมิน - แก้อาการอัปเดตบรรทัดเดียว 🌟
+    // 🌟 ระบบจัดการแอดมิน - แก้อาการบั๊กจากอักขระใน CSV 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
@@ -1357,7 +1352,6 @@
           
           let actionBtns = `<div class="flex justify-center space-x-3">`;
           
-          // 🌟 ส่งตัวแปรผ่าน dataset ป้องกัน Syntax Error ล้านเปอร์เซ็นต์ 🌟
           if(u.pendingEdit) actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
           
           actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="viewUserPin(this.dataset.mobile)" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
@@ -1402,7 +1396,7 @@
     function viewUserPin(mobile) { 
       const u = allUsersCache.find(x => x.mobile === mobile);
       if(!u) return;
-      Swal.fire({ title: `รหัส PIN ของ ${u.name}`, html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${u.pin}</span>`, icon: 'info' }); 
+      Swal.fire({ title: `รหัส PIN ของ ${esc(u.name)}`, html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${esc(u.pin)}</span>`, icon: 'info' }); 
     }
 
     function openEditUserModal(mobile) {
@@ -1426,4 +1420,122 @@
       document.getElementById('adminEditUserModal').classList.remove('hidden');
     }
 
-    function closeEdit
+    function closeEditUserModal() { document.getElementById('adminEditUserModal').classList.add('hidden'); }
+
+    async function submitEditUser() {
+      const originalMobile = document.getElementById('editOriginalMobile').value; const groupData = document.getElementById('editGroup').value.split('|');
+      const updatedData = { mobile: document.getElementById('editMobile').value.trim(), name: document.getElementById('editName').value.trim(), role: document.getElementById('editRole').value, status: document.getElementById('editStatus').value, position: document.getElementById('editPos').value.trim(), groupCode: groupData[0], groupName: groupData[1], printerUser: document.getElementById('editPrintUser').value.trim(), email: document.getElementById('editEmail').value.trim() };
+      if (!updatedData.mobile || !updatedData.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
+      showLoading("กำลังบันทึกข้อมูล...");
+      try { 
+        const res = await fetchAPI('editUser', { mobile: originalMobile, updatedData: updatedData }); 
+        if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeEditUserModal(); loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
+      } catch(e) { handleError(e); }
+    }
+    
+    async function saveAdminSettings() {
+      showLoading("กำลังบันทึก...");
+      const b = document.getElementById('setBw').value; const c = document.getElementById('setColor').value; const e = document.getElementById('setEmails').value; const tt = document.getElementById('setTgToken').value; const tc = document.getElementById('setTgChatId').value;
+      try { 
+        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e, tgToken: tt, tgChatId: tc }); 
+        if (res.success) { Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success'); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+      } catch (err) { handleError(err); }
+    }
+
+    function actionUser(mob, action) {
+      if (action === 'delete') { Swal.fire({ title: 'ยืนยันการลบผู้ใช้?', text: "การลบบัญชีผู้ใช้จะไม่สามารถกู้คืนได้", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบบัญชี', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('deleteUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
+      else if (action === 'suspend') { Swal.fire({ title: 'ระงับ/ปลดระงับบัญชีนี้?', text: "ผู้ใช้งานจะไม่สามารถล็อกอินเข้าสู่ระบบได้หากถูกระงับ", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f97316', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('suspendUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
+      else if (action === 'approve') { showLoading("กำลังดำเนินการ..."); fetchAPI('approveUser', { mobile: mob }).then(function() { loadAdminData(); hideLoading(); }).catch(handleError); }
+    }
+
+    function openAdminCreateUserModal() {
+      const selGroup = document.getElementById('adminRegGroup'); selGroup.innerHTML = '';
+      tempGroups.forEach(function(g) { selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}">${esc(g.code)} - ${esc(g.name)}</option>`; });
+      document.getElementById('adminCreateUserModal').classList.remove('hidden');
+    }
+
+    function closeAdminCreateUserModal() { document.getElementById('adminCreateUserModal').classList.add('hidden'); }
+
+    async function adminSubmitCreateUser() {
+      const groupData = document.getElementById('adminRegGroup').value.split('|');
+      const data = { mobile: document.getElementById('adminRegMobile').value.trim(), name: document.getElementById('adminRegName').value.trim(), position: document.getElementById('adminRegPos').value.trim(), groupCode: groupData[0], groupName: groupData[1], printerUser: document.getElementById('adminRegPrintUser').value.trim(), role: document.getElementById('adminRegRole').value, email: document.getElementById('adminRegEmail').value.trim() };
+      if (!data.mobile || !data.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
+      showLoading("กำลังสร้างบัญชี...");
+      try {
+        const res = await fetchAPI('adminCreateUser', data);
+        if (res.success) { Swal.fire({ icon: 'success', title: 'สร้างบัญชีสำเร็จ', html: res.message, confirmButtonText: 'รับทราบ' }); closeAdminCreateUserModal(); document.getElementById('adminRegMobile').value = ''; document.getElementById('adminRegName').value = ''; document.getElementById('adminRegPrintUser').value = ''; document.getElementById('adminRegEmail').value = ''; loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+      } catch(e) { handleError(e); }
+    }
+
+    async function triggerEmail() {
+      const p = document.getElementById('emailPeriodSel').value; if (!p) return;
+      showLoading("กำลังส่งอีเมล..."); 
+      try { const res = await fetchAPI('sendSummaryEmail', { period: p }); if(res.success) Swal.fire('สำเร็จ', res.message, 'success'); else Swal.fire('ผิดพลาด', res.message, 'error'); } catch(e) { handleError(e); }
+    }
+
+    function renderGroupTable() {
+      let tb = document.getElementById('groupTableBody'); tb.innerHTML = '';
+      tempGroups.forEach(function(g, idx) { tb.innerHTML += `<tr class="border-b"><td class="p-1 w-1/4">${esc(g.code)}</td><td class="p-1 w-2/4">${esc(g.name)}</td><td class="p-1 text-center w-1/4"><button onclick="removeGroupRow(${idx})" class="text-red-500"><i class="fas fa-times"></i></button></td></tr>`; });
+    }
+    
+    function addGroupRow() {
+      let c = document.getElementById('newGrpCode').value.trim(); let n = document.getElementById('newGrpName').value.trim();
+      if (!c || !n) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลกลุ่มงานให้ครบ', 'warning');
+      tempGroups.push({code: c, name: n}); renderGroupTable(); document.getElementById('newGrpCode').value = ''; document.getElementById('newGrpName').value = '';
+    }
+    
+    function removeGroupRow(idx) { tempGroups.splice(idx, 1); renderGroupTable(); }
+    
+    async function saveGroups() { 
+      showLoading("กำลังบันทึกกลุ่ม..."); try { await fetchAPI('saveGroupConfig', { groups: tempGroups }); Swal.fire('สำเร็จ', 'บันทึกกลุ่มงานลงฐานข้อมูลเรียบร้อย', 'success'); } catch(e) { handleError(e); }
+    }
+
+    function generateReport() {
+      const period = document.getElementById('repPeriod').value; const lvl = document.getElementById('repLevel').value; const format = document.getElementById('repFormat').value;
+      const cBw = parseFloat(globalData.settings.cost_bw) || 1; const cCol = parseFloat(globalData.settings.cost_color) || 5;
+      let data = lvl === 'group' ? globalData.totals : globalData.staffs; let groupDict = getGroupDict();
+      if (period) data = data.filter(function(r) { return r["รอบข้อมูล"] === period; });
+      data = data.filter(function(r) { return parseFloat(r["รวมทั้งหมด (Print+Copy)"]) > 0; });
+      
+      let html = `<div class="text-center mb-6"><h1 class="text-2xl font-bold">รายงานสถิติ Print & Copy</h1><p>ประจำรอบ: ${esc(period)}</p></div>`;
+      if (format === "2") {
+        html += `<ul class="list-disc pl-6 space-y-2">`;
+        if (lvl === 'group') {
+          data.forEach(function(r) { 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            html += `<li><strong>${esc(name)}</strong> : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น (สี: ${col}, ขาวดำ: ${bw}) - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
+          });
+        } else {
+          data.forEach(function(r) { 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            html += `<li><strong>${esc(r["ชื่อ-สกุลบุคลากร"])}</strong> (${esc(name).substring(3,15)}..) : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
+          });
+        }
+        html += `</ul>`;
+      } else {
+        html += `<table class="min-w-full"><thead><tr>`;
+        if (lvl === 'group') {
+          html += `<th>กลุ่มงาน</th><th>Print/Copy สี (แผ่น)</th><th>Print/Copy ขาวดำ (แผ่น)</th><th>ยอดรวม</th><th>ค่าใช้จ่าย(฿)</th></tr></thead><tbody>`;
+          data.forEach(function(r) { 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            html += `<tr><td>${esc(name)}</td><td class="text-right">${col}</td><td class="text-right">${bw}</td><td class="text-right font-bold">${r["รวมทั้งหมด (Print+Copy)"]}</td><td class="text-right text-red-600">${((col*cCol)+(bw*cBw)).toLocaleString()}</td></tr>`; 
+          });
+        } else {
+          html += `<th>Username</th><th>ชื่อ-สกุล</th><th>กลุ่มงาน</th><th>รวมทั้งหมด</th><th>ค่าใช้จ่าย(฿)</th></tr></thead><tbody>`;
+          data.forEach(function(r) { 
+            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
+            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
+            html += `<tr><td>${esc(r["Username ในเครื่อง"])}</td><td>${esc(r["ชื่อ-สกุลบุคลากร"])}</td><td>${esc(name).substring(3,15)}..</td><td class="text-right font-bold">${r["รวมทั้งหมด (Print+Copy)"]}</td><td class="text-right text-red-600">${((col*cCol)+(bw*cBw)).toLocaleString()}</td></tr>`; 
+          });
+        }
+        html += `</tbody></table>`;
+      }
+      document.getElementById('reportRenderArea').innerHTML = html; 
+      document.getElementById('reportPreviewContainer').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
