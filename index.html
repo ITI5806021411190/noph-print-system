@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V21.0</title>
+  <title>Print & Copy Management V21.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -51,10 +51,10 @@
     .swal2-title, .swal2-content, .swal2-html-container { font-family: 'Prompt', sans-serif !important; }
     
     /* สไตล์ปรับแต่ง Scrollbar ในแชทให้สวยงาม */
-    #chatContainer::-webkit-scrollbar { width: 6px; }
-    #chatContainer::-webkit-scrollbar-track { background: #f1f1f1; }
-    #chatContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    #chatContainer::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .chat-scroll::-webkit-scrollbar { width: 6px; }
+    .chat-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+    .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .chat-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     
     @media print {
       body { background-color: white; }
@@ -84,6 +84,10 @@
         
         <div class="nav-item pb-1 hidden admin-only text-yellow-300" id="nav-requests" onclick="switchView('requests')">
           <i class="fas fa-list-check"></i> จัดการคำขอ
+        </div>
+        
+        <div class="nav-item pb-1 hidden auth-only text-pink-300" id="nav-chat" onclick="switchView('chat')">
+          <i class="fas fa-comments"></i> ติดต่อ Admin
         </div>
         
         <div class="nav-item pb-1 hidden admin-only" id="nav-upload" onclick="switchView('upload')">
@@ -297,7 +301,7 @@
                 <th class="p-2 text-left">วันที่ส่งคำขอ</th>
                 <th class="p-2 text-center">จำนวน (แผ่น)</th>
                 <th class="p-2 text-left">รายการไฟล์แนบ</th>
-                <th class="p-2 text-center">สถานะและการจัดการ</th>
+                <th class="p-2 text-center">สถานะการอนุมัติ</th>
               </tr>
             </thead>
             <tbody id="myPrintReqTableBody"></tbody>
@@ -352,10 +356,23 @@
       </div>
     </div>
 
+    <div id="view-chat" class="view-section hidden">
+      <h2 class="text-2xl font-semibold mb-6 text-pink-600"><i class="fas fa-comments mr-2"></i> ระบบสนทนา / ติดต่อ Admin</h2>
+      
+      <div id="chatUserView" class="hidden max-w-2xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[600px] border border-pink-100">
+        </div>
+      
+      <div id="chatAdminView" class="hidden grid grid-cols-1 md:grid-cols-3 gap-0 bg-white rounded-lg shadow-lg h-[650px] overflow-hidden border border-pink-100">
+        <div class="border-r border-gray-200 overflow-y-auto bg-gray-50 flex flex-col" id="chatAdminUserList">
+           </div>
+        <div class="md:col-span-2 flex flex-col bg-white" id="chatAdminBox">
+           </div>
+      </div>
+    </div>
+
     <div id="view-upload" class="view-section hidden">
       <h2 class="text-2xl font-semibold mb-6">จัดการไฟล์และข้อมูล CSV</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-lg font-bold text-blue-600 mb-4"><i class="fas fa-upload"></i> นำเข้าข้อมูลใหม่</h3>
           <div class="space-y-4">
@@ -435,12 +452,11 @@
             <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
             <div>
               <label class="text-sm text-gray-500">Bot Token</label>
-              <input type="text" id="setTgToken" class="w-full border p-1 rounded text-sm" placeholder="เช่น 123456:ABC-DEF1234ghIkl...">
+              <input type="text" id="setTgToken" class="w-full border p-1 rounded text-sm">
             </div>
             <div>
               <label class="text-sm text-gray-500">Chat ID ของกลุ่ม</label>
-              <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm" placeholder="เช่น -100123456789">
-              <p class="text-xs text-red-500 mt-1">*อย่าลืมใส่ -100 นำหน้าตัวเลขสำหรับกลุ่มเสมอ</p>
+              <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm">
             </div>
             
             <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-bold mt-2 shadow">บันทึกการตั้งค่า</button>
@@ -495,9 +511,9 @@
 
       <div class="bg-white rounded-lg shadow p-6 border-red-600 border-t-4 mt-8 super-admin-only">
         <h3 class="text-lg font-bold text-red-600 mb-4"><i class="fas fa-exclamation-triangle"></i> พื้นที่อันตราย (Danger Zone)</h3>
-        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งานและประวัติคำขอทั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
+        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งาน คำขอปริ้น และประวัติการแชททั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
         <button onclick="clearDatabaseUI()" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 shadow">
-          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติทั้งหมด
+          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติและประวัติทั้งหมด
         </button>
       </div>
 
@@ -542,36 +558,6 @@
       </div>
     </div>
   </main>
-
-  <footer class="bg-gray-800 text-white text-center py-4 mt-auto no-print text-sm w-full">
-    พัฒนาและดูแลระบบโดย กลุ่มงานสุขภาพดิจิทัล สำนักงานสาธารณสุขจังหวัดนครนายก
-  </footer>
-
-  <div id="chatModal" class="fixed inset-0 z-50 auth-bg flex items-center justify-center overflow-y-auto hidden">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md h-[550px] flex flex-col m-4 relative overflow-hidden">
-      <div class="p-4 border-b flex justify-between items-center bg-blue-600 text-white">
-        <div class="flex items-center">
-          <i class="fas fa-comments text-xl mr-2"></i>
-          <div>
-            <h3 class="font-bold text-sm" id="chatModalTitle">สนทนาคำขอปริ้นสี</h3>
-            <p class="text-[10px] text-blue-200" id="chatModalSub">กำลังเชื่อมต่อ...</p>
-          </div>
-        </div>
-        <button onclick="closeChatModal()" class="text-blue-200 hover:text-white"><i class="fas fa-times text-xl"></i></button>
-      </div>
-      
-      <div id="chatContainer" class="flex-1 p-4 overflow-y-auto space-y-3 bg-blue-50">
-        </div>
-      
-      <div class="p-3 border-t bg-white flex space-x-2">
-        <input type="hidden" id="chatReqId">
-        <input type="text" id="chatInput" class="flex-1 border-2 border-blue-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-blue-400" placeholder="พิมพ์ข้อความสอบถามที่นี่..." onkeypress="if(event.key === 'Enter') sendChatMsg()">
-        <button onclick="sendChatMsg()" class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-700 shadow flex-shrink-0 transition">
-          <i class="fas fa-paper-plane ml-1"></i>
-        </button>
-      </div>
-    </div>
-  </div>
 
   <div id="authContainer" class="fixed inset-0 z-40 auth-bg flex items-center justify-center overflow-y-auto hidden">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 m-4 relative">
@@ -791,7 +777,7 @@
     let dashSortAsc = false;
     let currentDashData = []; 
     let allUsersCache = []; 
-    let currentChatReqId = null; // เก็บไอดีแชทปัจจุบันที่กำลังเปิดดู
+    let currentActiveChatRoom = null; // เก็บหมายเลขเบอร์มือถือของห้องแชทที่กำลังเปิด
 
     window.onload = function() {
       fetchAPI('getGroupOptions').then(function(res) {
@@ -836,6 +822,7 @@
       document.getElementById('nav-upload').classList.add('hidden'); 
       document.getElementById('nav-admin').classList.add('hidden');
       document.getElementById('nav-requests').classList.add('hidden');
+      document.getElementById('nav-chat').classList.add('hidden');
       
       if (stored) {
         currentUser = JSON.parse(stored);
@@ -1175,7 +1162,7 @@
            group: currentUser.group,
            files: filesData,
            totalAllSheets: totalAllSheets,
-           remark: remarkInput // ส่งหมายเหตุไปด้วย
+           remark: remarkInput
         };
         
         const res = await fetchAPI('submitPrintRequest', reqData);
@@ -1184,7 +1171,7 @@
         if(res.success) {
            Swal.fire('สำเร็จ!', res.message, 'success');
            
-           document.getElementById('reqRemark').value = ""; // เคลียร์หมายเหตุ
+           document.getElementById('reqRemark').value = ""; 
            
            const container = document.getElementById('printFilesContainer');
            const firstRow = container.querySelector('.file-row').cloneNode(true);
@@ -1244,7 +1231,13 @@
           loadAdminData();
         }
         
-        switchView('dashboard'); 
+        // ถ้าย้ายหน้าอยู่ก็โหลดแชทใหม่แบบเงียบๆ
+        if (!document.getElementById('view-chat').classList.contains('hidden')) {
+           renderChatTab();
+        } else {
+           switchView('dashboard'); 
+        }
+        
         hideLoading();
       } catch(e) { 
         handleError(e); 
@@ -1252,7 +1245,7 @@
     }
 
     function switchView(view) {
-      var views = ['dashboard', 'user', 'requests', 'upload', 'admin', 'report'];
+      var views = ['dashboard', 'user', 'requests', 'chat', 'upload', 'admin', 'report'];
       views.forEach(function(v) { 
         document.getElementById('view-' + v)?.classList.add('hidden'); 
         document.getElementById('nav-' + v)?.classList.remove('nav-active'); 
@@ -1262,12 +1255,174 @@
       
       if (view === 'dashboard') renderDashboard(); 
       else if (view === 'user') renderUserDash();
+      else if (view === 'chat') renderChatTab(); // 🌟 โหลดหน้าแชทเมื่อกดแท็บ
+    }
+
+    // 🌟 ฟังก์ชันจัดการแท็บแชท (แยกอิสระ) 🌟
+    function renderChatTab() {
+      const chats = globalData.chats || [];
       
-      // กรณีเพิ่งสลับกลับมาแชท ให้เลื่อนลงไปล่างสุดเสมอ
-      if(currentChatReqId) {
-         const container = document.getElementById('chatContainer');
-         container.scrollTop = container.scrollHeight;
+      if(currentUser.role === 'admin' || currentUser.role === 'assistant') {
+         document.getElementById('chatUserView').classList.add('hidden');
+         document.getElementById('chatAdminView').classList.remove('hidden');
+         document.getElementById('nav-chat').innerHTML = '<i class="fas fa-comments"></i> ข้อความสนทนา';
+         renderAdminChatList(chats);
+      } else {
+         document.getElementById('chatAdminView').classList.add('hidden');
+         document.getElementById('chatUserView').classList.remove('hidden');
+         document.getElementById('nav-chat').innerHTML = '<i class="fas fa-comments"></i> ติดต่อ Admin';
+         currentActiveChatRoom = currentUser.mobile;
+         renderChatBox('chatUserView', currentUser.mobile, chats);
       }
+    }
+
+    function renderAdminChatList(chats) {
+       const userListDiv = document.getElementById('chatAdminUserList');
+       const rooms = {};
+       
+       // ดึงแชททั้งหมดมาจัดกลุ่มตามเบอร์มือถือ
+       chats.forEach(c => {
+          let rid = String(c.Req_ID || c.Room_ID).replace(/'/g, '').trim(); 
+          if(!rooms[rid]) rooms[rid] = { roomId: rid, msgs: [], lastTime: '' };
+          rooms[rid].msgs.push(c);
+          rooms[rid].lastTime = c.Chat_Time_Str || c.Chat_Time;
+       });
+
+       let listHtml = '<div class="bg-gray-200 p-3 font-bold border-b text-sm sticky top-0"><i class="fas fa-address-book"></i> รายการสนทนา</div>';
+       const sortedRooms = Object.values(rooms).sort((a,b) => new Date(b.lastTime) - new Date(a.lastTime));
+
+       if(sortedRooms.length === 0) {
+         listHtml += '<div class="p-4 text-center text-gray-500 text-xs">ยังไม่มีข้อความ</div>';
+       }
+
+       sortedRooms.forEach(r => {
+          const lastMsg = r.msgs[r.msgs.length-1];
+          const activeClass = (currentActiveChatRoom === r.roomId) ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-white hover:bg-gray-100 border-l-4 border-transparent';
+          listHtml += `
+            <div class="p-3 border-b cursor-pointer transition ${activeClass}" onclick="openAdminChatRoom('${r.roomId}')">
+               <div class="font-bold text-sm text-gray-800">${lastMsg.Sender_Name === currentUser.name ? r.roomId : lastMsg.Sender_Name}</div>
+               <div class="text-xs text-gray-500 truncate mt-1"><i class="fas fa-reply text-gray-300"></i> ${lastMsg.Message}</div>
+            </div>
+          `;
+       });
+       userListDiv.innerHTML = listHtml;
+
+       if(currentActiveChatRoom) {
+          renderChatBox('chatAdminBox', currentActiveChatRoom, chats);
+       } else {
+          document.getElementById('chatAdminBox').innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-gray-400 bg-gray-50"><i class="fas fa-comments text-5xl mb-3 text-gray-300"></i> <p>เลือกรายการเพื่อเริ่มการสนทนา</p></div>';
+       }
+    }
+
+    function openAdminChatRoom(roomId) {
+       currentActiveChatRoom = roomId;
+       renderChatTab();
+    }
+
+    function renderChatBox(containerId, roomId, chats) {
+       const container = document.getElementById(containerId);
+       const roomChats = chats.filter(c => String(c.Req_ID || c.Room_ID).replace(/'/g, '').trim() === roomId);
+
+       let headerText = currentUser.role === 'user' ? 'สนทนากับ Admin (สสจ.นย.)' : `สนทนากับผู้ใช้: ${roomId}`;
+
+       let html = `
+         <div class="p-3 border-b bg-blue-600 text-white font-bold flex justify-between items-center shadow-sm z-10">
+            <span><i class="fas fa-comments"></i> ${headerText}</span>
+            <button onclick="loadMainData()" class="text-xs bg-white text-blue-600 px-3 py-1.5 rounded-full shadow hover:bg-blue-50 transition"><i class="fas fa-sync-alt"></i> อัปเดต</button>
+         </div>
+         <div id="chatMessagesArea" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50 chat-scroll">
+       `;
+
+       if(roomChats.length === 0) {
+          html += '<div class="text-center text-sm text-gray-400 mt-10 bg-white py-4 rounded-lg border border-dashed border-gray-300">เริ่มพิมพ์ข้อความเพื่อติดต่อสนทนาได้เลยครับ 👋</div>';
+       }
+
+       roomChats.forEach(c => {
+          const isMe = c.Sender_Name === currentUser.name;
+          const timeStr = c.Chat_Time_Str || c.Chat_Time;
+          const roleBadge = (c.Sender_Role === 'admin' || c.Sender_Role === 'assistant') ? '<span class="text-[9px] bg-yellow-300 text-yellow-800 px-1.5 rounded-full ml-1 font-bold">Admin</span>' : '';
+
+          if(isMe) {
+             html += `
+               <div class="flex justify-end">
+                 <div class="bg-blue-500 text-white p-3 rounded-2xl rounded-tr-sm max-w-[80%] text-sm shadow-sm relative">
+                   <p>${c.Message}</p>
+                   <p class="text-[10px] text-blue-100 text-right mt-1">${timeStr}</p>
+                 </div>
+               </div>
+             `;
+          } else {
+             html += `
+               <div class="flex justify-start">
+                 <div class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-sm max-w-[80%] text-sm shadow-sm relative">
+                   <p class="text-[11px] text-gray-500 mb-1 border-b pb-1"><b>${c.Sender_Name}</b> ${roleBadge}</p>
+                   <p class="text-gray-800 mt-1">${c.Message}</p>
+                   <p class="text-[10px] text-gray-400 text-right mt-1">${timeStr}</p>
+                 </div>
+               </div>
+             `;
+          }
+       });
+
+       html += `
+         </div>
+         <div class="p-3 border-t bg-white flex space-x-2 shadow-inner">
+           <input type="text" id="chatInputMain" class="flex-1 border border-gray-300 bg-gray-50 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:bg-white transition" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="if(event.key === 'Enter') submitChatMsg()">
+           <button onclick="submitChatMsg()" class="bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-700 shadow-md flex-shrink-0 transition transform hover:scale-105">
+             <i class="fas fa-paper-plane ml-1"></i>
+           </button>
+         </div>
+       `;
+
+       container.innerHTML = html;
+
+       // เลื่อนลงไปล่างสุดอัตโนมัติ
+       setTimeout(() => {
+          const msgArea = container.querySelector('#chatMessagesArea');
+          if(msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+       }, 100);
+    }
+
+    async function submitChatMsg() {
+       const input = document.getElementById('chatInputMain');
+       if(!input) return;
+       const msg = input.value.trim();
+       if(!msg || !currentActiveChatRoom) return;
+
+       input.value = '';
+
+       // แสดงข้อความจำลองไปก่อน (Optimistic Update)
+       if(!globalData.chats) globalData.chats = [];
+       globalData.chats.push({
+          Room_ID: currentActiveChatRoom,
+          Chat_Time_Str: "กำลังส่ง...",
+          Sender_Name: currentUser.name,
+          Sender_Role: currentUser.role,
+          Message: msg
+       });
+       renderChatTab();
+
+       try {
+          const res = await fetchAPI('sendChatMessage', {
+             roomId: currentActiveChatRoom,
+             senderName: currentUser.name,
+             senderRole: currentUser.role,
+             message: msg
+          });
+
+          if(res.success) {
+             const fetchPayload = { mobile: currentUser.mobile };
+             const silentRes = await fetchAPI('getDashboardData', fetchPayload);
+             if(silentRes.success && silentRes.data) {
+                globalData = silentRes.data;
+                renderChatTab();
+             }
+          } else {
+             Swal.fire('Error', res.message, 'error');
+          }
+       } catch(e) {
+          console.error(e);
+       }
     }
 
     function getGroupDict() {
@@ -1474,248 +1629,7 @@
       });
     }
 
-    // 🌟 ระบบจัดการ Chat (Frontend) 🌟
-    function openChatModal(reqId) {
-       currentChatReqId = reqId;
-       document.getElementById('chatReqId').value = reqId;
-       renderChatMessages();
-       document.getElementById('chatModal').classList.remove('hidden');
-    }
-    
-    function closeChatModal() {
-       document.getElementById('chatModal').classList.add('hidden');
-       currentChatReqId = null;
-    }
-    
-    function renderChatMessages() {
-       const container = document.getElementById('chatContainer');
-       container.innerHTML = '';
-       const chats = (globalData.chats || []).filter(c => c.Req_ID === currentChatReqId);
-       
-       if(chats.length === 0) {
-          container.innerHTML = '<div class="text-center text-sm text-gray-400 mt-4"><i class="fas fa-comment-slash text-2xl mb-2"></i><br>ยังไม่มีข้อความสนทนา เริ่มพิมพ์สอบถามได้เลยครับ</div>';
-          return;
-       }
-       
-       chats.forEach(c => {
-          const isMe = c.Sender_Name === currentUser.name;
-          const timeStr = c.Chat_Time_Str || c.Chat_Time;
-          const roleBadge = (c.Sender_Role === 'admin' || c.Sender_Role === 'assistant') ? '<span class="text-[10px] bg-red-100 text-red-600 px-1 rounded ml-1 font-bold">Admin</span>' : '';
-          
-          if(isMe) {
-             container.innerHTML += `
-               <div class="flex justify-end">
-                 <div class="bg-blue-600 text-white p-3 rounded-t-xl rounded-bl-xl max-w-[85%] text-sm shadow-md">
-                   <p>${c.Message}</p>
-                   <p class="text-[10px] text-blue-200 text-right mt-1">${timeStr}</p>
-                 </div>
-               </div>
-             `;
-          } else {
-             container.innerHTML += `
-               <div class="flex justify-start">
-                 <div class="bg-white border border-gray-200 p-3 rounded-t-xl rounded-br-xl max-w-[85%] text-sm shadow-md">
-                   <p class="text-[11px] text-gray-500 mb-1"><b>${c.Sender_Name}</b> ${roleBadge}</p>
-                   <p class="text-gray-800">${c.Message}</p>
-                   <p class="text-[10px] text-gray-400 text-right mt-1">${timeStr}</p>
-                 </div>
-               </div>
-             `;
-          }
-       });
-       
-       // เลื่อนลงไปล่างสุดเสมอเมื่อโหลดเสร็จ
-       setTimeout(() => {
-          container.scrollTop = container.scrollHeight;
-       }, 100);
-    }
-    
-    async function sendChatMsg() {
-       const input = document.getElementById('chatInput');
-       const msg = input.value.trim();
-       if(!msg) return;
-       
-       input.value = '';
-       
-       // แสดงข้อความบนจอหลอกๆ ไปก่อนเพื่อให้ดูไว (Optimistic UI)
-       if(!globalData.chats) globalData.chats = [];
-       const tempMsg = {
-          Req_ID: currentChatReqId,
-          Chat_Time_Str: "กำลังส่ง...",
-          Sender_Name: currentUser.name,
-          Sender_Role: currentUser.role,
-          Message: msg
-       };
-       globalData.chats.push(tempMsg);
-       renderChatMessages();
-       
-       try {
-          const res = await fetchAPI('sendChatMessage', {
-             reqId: currentChatReqId,
-             senderName: currentUser.name,
-             senderRole: currentUser.role,
-             message: msg
-          });
-          
-          if(res.success) {
-             // โหลดข้อมูลแชทใหม่แบบเงียบๆ เพื่อเอาเวลาจริง
-             const fetchPayload = { mobile: currentUser.mobile };
-             const silentRes = await fetchAPI('getDashboardData', fetchPayload);
-             if(silentRes.success && silentRes.data) {
-                globalData = silentRes.data;
-                if(currentChatReqId) renderChatMessages(); // รีเฟรชแชท
-                
-                // อัปเดตตัวเลขแชทบนปุ่มในตาราง
-                if (document.getElementById('view-requests').classList.contains('hidden') === false) {
-                   loadAdminData(); // ถ้าเปิดหน้าแอดมินอยู่ก็โหลดตารางใหม่
-                } else if (document.getElementById('view-user').classList.contains('hidden') === false) {
-                   renderUserDash(); // ถ้าเปิดหน้ายูสอยู่ก็โหลดตารางใหม่
-                }
-             }
-          } else {
-             Swal.fire('Error', res.message, 'error');
-          }
-       } catch(e) {
-          console.error(e);
-       }
-    }
-
-    function renderUserDash() {
-      if (!currentUser || !globalData.staffs) return;
-      
-      const period = document.getElementById('periodFilter').value; 
-      const cBw = parseFloat(globalData.settings.cost_bw) || 1; 
-      const cCol = parseFloat(globalData.settings.cost_color) || 5;
-      
-      let staffs = globalData.staffs;
-      if (period !== "all") {
-        staffs = staffs.filter(function(r) { return r["รอบข้อมูล"] === period; });
-      }
-
-      let groupDict = getGroupDict();
-      
-      if (globalData.myProfile && globalData.myProfile.pendingEdit) {
-         document.getElementById('pendingEditWarning').classList.remove('hidden');
-      } else {
-         document.getElementById('pendingEditWarning').classList.add('hidden');
-      }
-
-      let me = staffs.find(function(r) { 
-        return r["ชื่อ-สกุลบุคลากร"] === currentUser.name || r["Username ในเครื่อง"] === currentUser.printerUser; 
-      });
-      
-      if (me) {
-        document.getElementById('myPrint').innerText = parseFloat(me["รวม Print"] || 0).toLocaleString(); 
-        document.getElementById('myCopy').innerText = parseFloat(me["รวม Copy"] || 0).toLocaleString();
-        
-        let cost = (parseFloat(me["Print สี"] || 0) + parseFloat(me["Copy สี"] || 0)) * cCol + 
-                   (parseFloat(me["Print ขาวดำ"] || 0) + parseFloat(me["Copy ขาวดำ"] || 0)) * cBw; 
-        document.getElementById('myCost').innerText = cost.toLocaleString();
-      } else {
-        document.getElementById('myPrint').innerText = "0"; 
-        document.getElementById('myCopy').innerText = "0"; 
-        document.getElementById('myCost').innerText = "0";
-      }
-
-      document.getElementById('myGroupName').innerText = currentUser.group;
-      
-      let myGroup = staffs.filter(function(r) { 
-        let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); 
-        let mappedName = groupDict[code] || String(r["ชื่อกลุ่ม"]); 
-        return mappedName === currentUser.group || String(r["ชื่อกลุ่ม"]) === currentUser.group; 
-      });
-      
-      let tb = document.getElementById('myGroupTable'); 
-      tb.innerHTML = '';
-      
-      myGroup.sort(function(a,b) { 
-        return (parseFloat(b["รวมทั้งหมด (Print+Copy)"]) || 0) - (parseFloat(a["รวมทั้งหมด (Print+Copy)"]) || 0); 
-      }).forEach(function(r) { 
-        let nameLabel = r["ชื่อ-สกุลบุคลากร"] || r["Username ในเครื่อง"]; 
-        tb.innerHTML += `<tr class="border-b">
-          <td class="p-2">${nameLabel}</td>
-          <td class="p-2 text-right">${r["รวม Print"]}</td>
-          <td class="p-2 text-right">${r["รวม Copy"]}</td>
-          <td class="p-2 text-right font-bold text-blue-600">${r["รวมทั้งหมด (Print+Copy)"]}</td>
-        </tr>`; 
-      });
-
-      let reqTb = document.getElementById('myPrintReqTableBody'); 
-      reqTb.innerHTML = '';
-      
-      let myReqsRaw = globalData.printReqs.filter(function(r) { 
-        return String(r["เบอร์มือถือ"]).replace(/'/g, '').trim() === currentUser.mobile; 
-      });
-
-      if (myReqsRaw.length === 0) { 
-        reqTb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">ยังไม่มีประวัติคำขอปริ้นสี</td></tr>'; 
-      } else {
-        let groupedMyReqs = {};
-        myReqsRaw.forEach(r => {
-           let ts = r["Timestamp_Str"] || r["Timestamp"];
-           if(!groupedMyReqs[ts]) {
-              groupedMyReqs[ts] = {
-                 ts: ts,
-                 status: r["สถานะ"],
-                 remark: r["หมายเหตุ"] || "-",
-                 files: [],
-                 totalPages: 0
-              };
-           }
-           groupedMyReqs[ts].files.push({
-              url: r["ไฟล์แนบ"],
-              pages: r["จำนวนแผ่น"],
-              details: r["รายละเอียด"] || ""
-           });
-           groupedMyReqs[ts].totalPages += (parseFloat(r["จำนวนแผ่น"]) || 0);
-        });
-
-        let sortedMyReqs = Object.values(groupedMyReqs).reverse();
-
-        sortedMyReqs.forEach(function(r) {
-          let dateLabel = r.ts; 
-          let status = r.status || "รอปริ้น";
-          
-          let statusBadge = "";
-          let actionBtns = `<div class="flex justify-center space-x-2 mt-1">`;
-          
-          if (status === "รอปริ้น") {
-            statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-clock"></i> รอปริ้น</span>`;
-            actionBtns += `<button onclick="cancelPrintReq('${dateLabel}')" class="text-orange-500 hover:text-orange-700" title="ยกเลิกคำขอ"><i class="fas fa-times-circle"></i></button>`;
-          } else if (status === "ยกเลิก") {
-            statusBadge = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-ban"></i> ยกเลิกแล้ว</span>`;
-          } else {
-            statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs"><i class="fas fa-check-circle"></i> ${status}</span>`;
-          }
-          
-          actionBtns += `<button onclick="deletePrintReq('${dateLabel}')" class="text-red-500 hover:text-red-700" title="ลบประวัติ"><i class="fas fa-trash"></i></button></div>`;
-            
-          let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> โหลดไฟล์ที่ ${i+1}</a>`).join('');
-          
-          // นับจำนวนแชท
-          let chatsCount = (globalData.chats || []).filter(c => c.Req_ID === r.ts).length;
-          let chatBtn = `<button onclick="openChatModal('${r.ts}')" class="mt-2 text-blue-600 bg-blue-50 px-2 py-1 rounded text-xs hover:bg-blue-100 border border-blue-200 font-semibold w-full"><i class="fas fa-comment-dots"></i> 💬 สนทนา (${chatsCount})</button>`;
-
-          reqTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
-            <td class="p-2 text-xs">${dateLabel}</td>
-            <td class="p-2 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
-            <td class="p-2 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${r.remark}</p></td>
-            <td class="p-2 text-center">${statusBadge} ${actionBtns} ${chatBtn}</td>
-          </tr>`;
-        });
-      }
-    }
-
     // --- Admin Functions ---
-    function readFileAsDataURL(file) { 
-      return new Promise(function(resolve, reject) { 
-        const reader = new FileReader(); 
-        reader.onload = function(e) { resolve(e.target.result); }; 
-        reader.onerror = function(e) { reject(e); }; 
-        reader.readAsDataURL(file); 
-      }); 
-    }
-
     async function handleMultiUpload() {
       const p = document.getElementById('uploadPeriod').value.trim(); 
       if (!p) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรอบข้อมูล (เช่น มกราคม 2569) ก่อนทำการอัปโหลด', 'warning');
@@ -1750,6 +1664,15 @@
       } catch (err) { 
         handleError(err); 
       }
+    }
+
+    function readFileAsDataURL(file) { 
+      return new Promise(function(resolve, reject) { 
+        const reader = new FileReader(); 
+        reader.onload = function(e) { resolve(e.target.result); }; 
+        reader.onerror = function(e) { reject(e); }; 
+        reader.readAsDataURL(file); 
+      }); 
     }
 
     function deleteUpload() {
@@ -1812,34 +1735,7 @@
       });
     }
 
-    function updatePrintStatus(tsStr) {
-      Swal.fire({ 
-        title: 'ยืนยันการอนุมัติ?', 
-        text: "คุณต้องการเปลี่ยนสถานะคำขอทั้งหมดในรอบนี้เป็น 'เสร็จสิ้น' ใช่หรือไม่", 
-        icon: 'question', 
-        showCancelButton: true, 
-        confirmButtonColor: '#10b981', 
-        confirmButtonText: 'ใช่, อนุมัติเลย', 
-        cancelButtonText: 'ยกเลิก' 
-      }).then(async function(result) {
-        if(result.isConfirmed) { 
-          showLoading("กำลังอัปเดตสถานะ..."); 
-          try { 
-            const res = await fetchAPI('updatePrintReqStatus', { tsStr: tsStr, newStatus: "เสร็จสิ้น" }); 
-            if(res.success) { 
-              Swal.fire('สำเร็จ!', res.message, 'success'); 
-              loadAdminData(); 
-            } else { 
-              Swal.fire('ผิดพลาด', res.message, 'error'); 
-            } 
-          } catch(e) { 
-            handleError(e); 
-          } 
-        }
-      });
-    }
-
-    // 🌟 อัปเดตตารางแอดมิน แสดงหน้าแชทและหมายเหตุ 🌟
+    // 🌟 อัปเดตตารางแอดมิน 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
@@ -1847,7 +1743,6 @@
       document.getElementById('setTgToken').value = globalData.settings.telegram_bot_token || "";
       document.getElementById('setTgChatId').value = globalData.settings.telegram_chat_id || "";
       
-      // อัปเดตตาราง Request
       let pr = globalData.printReqs || []; 
       let prTb = document.getElementById('printReqBody'); 
       prTb.innerHTML = '';
@@ -1895,10 +1790,6 @@
         actionBtn += `<button onclick="deletePrintReq('${dateLabel}')" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>`;
         
         let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${f.pages} แผ่น)</span></a>`).join('');
-        
-        // ปุ่มแชทฝั่ง Admin
-        let chatsCount = (globalData.chats || []).filter(c => c.Req_ID === r.ts).length;
-        let chatBtn = `<button onclick="openChatModal('${r.ts}')" class="mt-2 text-blue-600 bg-blue-50 px-2 py-1 rounded text-xs hover:bg-blue-100 border border-blue-200 font-semibold w-full"><i class="fas fa-comment-dots"></i> 💬 สนทนา (${chatsCount})</button>`;
 
         prTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
           <td class="p-3 text-xs">${dateLabel}</td>
@@ -1906,11 +1797,10 @@
           <td class="p-3 text-xs">${r.group}</td>
           <td class="p-3 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
           <td class="p-3 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${r.remark}</p></td>
-          <td class="p-3 text-center">${statusBadge}${actionBtn}${chatBtn}</td>
+          <td class="p-3 text-center">${statusBadge}${actionBtn}</td>
         </tr>`; 
       });
 
-      // ดึงข้อมูล User ลงตาราง Admin
       try {
         const res = await fetchAPI('getAdminData'); 
         if(!res.success) throw new Error(res.message || "Failed to load admin data"); 
