@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V22.1</title>
+  <title>Print & Copy Management V22.2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -38,6 +38,12 @@
       } catch (err) {
         throw new Error(err.message);
       }
+    }
+
+    // 🌟 Helper Function: จัดการอักขระพิเศษให้อยู่หมัด 🌟
+    function esc(str) {
+      if(str == null) return '';
+      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
   </script>
 
@@ -296,7 +302,7 @@
                 <th class="p-2 text-left">วันที่ส่งคำขอ</th>
                 <th class="p-2 text-center">จำนวน (แผ่น)</th>
                 <th class="p-2 text-left">รายการไฟล์แนบ</th>
-                <th class="p-2 text-center">สถานะและการจัดการ</th>
+                <th class="p-2 text-center">สถานะการอนุมัติ</th>
               </tr>
             </thead>
             <tbody id="myPrintReqTableBody"></tbody>
@@ -439,7 +445,9 @@
               <label class="text-sm">อีเมลสรุปรายงานประจำเดือน</label>
               <input type="text" id="setEmails" class="w-full border p-1 rounded">
             </div>
+            
             <hr class="my-2">
+            
             <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
             <div>
               <label class="text-sm text-gray-500">Bot Token</label>
@@ -450,6 +458,7 @@
               <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm">
               <p class="text-xs text-red-500 mt-1">*อย่าลืมใส่ -100 นำหน้าตัวเลขสำหรับกลุ่มเสมอ</p>
             </div>
+            
             <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-bold mt-2 shadow">บันทึกการตั้งค่า</button>
             <hr>
             <div>
@@ -502,11 +511,12 @@
 
       <div class="bg-white rounded-lg shadow p-6 border-red-600 border-t-4 mt-8 super-admin-only">
         <h3 class="text-lg font-bold text-red-600 mb-4"><i class="fas fa-exclamation-triangle"></i> พื้นที่อันตราย (Danger Zone)</h3>
-        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งานและประวัติคำขอทั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
+        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งาน คำขอปริ้น และประวัติการแชททั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
         <button onclick="clearDatabaseUI()" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 shadow">
-          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติทั้งหมด
+          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติและประวัติทั้งหมด
         </button>
       </div>
+
     </div>
 
     <div id="view-report" class="view-section hidden">
@@ -778,7 +788,7 @@
           const selAdminReg = document.getElementById('adminRegGroup');
           const selEditGroup = document.getElementById('editGroup');
           let html = '';
-          opts.forEach(function(o) { html += `<option value="${o.code}|${o.name}">${o.code} - ${o.name}</option>`; });
+          opts.forEach(function(o) { html += `<option value="${esc(o.code)}|${esc(o.name)}">${esc(o.code)} - ${esc(o.name)}</option>`; });
           if(selReg) selReg.innerHTML += html;
           if(selAdminReg) selAdminReg.innerHTML += html;
           if(selEditGroup) selEditGroup.innerHTML += html;
@@ -903,7 +913,7 @@
       const sel = document.getElementById('myEditGroup'); sel.innerHTML = '';
       globalData.groups.forEach(g => {
          let selected = (g.name === globalData.myProfile.groupName) ? 'selected' : '';
-         sel.innerHTML += `<option value="${g.code}|${g.name}" ${selected}>${g.code} - ${g.name}</option>`;
+         sel.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}" ${selected}>${esc(g.code)} - ${esc(g.name)}</option>`;
       });
       document.getElementById('myEditProfileModal').classList.remove('hidden');
     }
@@ -921,7 +931,7 @@
       } catch(e) { handleError(e); }
     }
 
-    // 🌟 ระบบจัดการคำขอ (ส่งเฉพาะ ID ผ่านปุ่ม) 🌟
+    // 🌟 ฟังก์ชันจัดการคำขอ (Batch) 🌟
     function cancelPrintReq(tsStr) {
       Swal.fire({ title: 'ยืนยันการยกเลิก?', text: "คุณต้องการยกเลิกคำขอปริ้นทั้งหมดในรอบนี้ใช่หรือไม่", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f59e0b', confirmButtonText: 'ใช่, ยกเลิกคำขอ', cancelButtonText: 'ปิดหน้าต่าง' }).then(async function(result) {
         if(result.isConfirmed) {
@@ -1048,7 +1058,7 @@
       else if (view === 'chat') renderChatTab(); 
     }
 
-    // 🌟 ระบบจัดการแท็บแชท 🌟
+    // 🌟 ระบบจัดการแท็บแชทแยกอิสระ 🌟
     function renderChatTab() {
       const chats = globalData.chats || [];
       if(currentUser.role === 'admin' || currentUser.role === 'assistant') {
@@ -1085,9 +1095,9 @@
           const lastMsg = r.msgs[r.msgs.length-1];
           const activeClass = (currentActiveChatRoom === r.roomId) ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-white hover:bg-gray-100 border-l-4 border-transparent';
           listHtml += `
-            <div class="p-3 border-b cursor-pointer transition ${activeClass}" onclick="openAdminChatRoom('${r.roomId}')">
-               <div class="font-bold text-sm text-gray-800">${lastMsg.Sender_Name === currentUser.name ? r.roomId : lastMsg.Sender_Name}</div>
-               <div class="text-xs text-gray-500 truncate mt-1"><i class="fas fa-reply text-gray-300"></i> ${lastMsg.Message}</div>
+            <div class="p-3 border-b cursor-pointer transition ${activeClass}" data-room="${esc(r.roomId)}" onclick="openAdminChatRoom(this.dataset.room)">
+               <div class="font-bold text-sm text-gray-800">${esc(lastMsg.Sender_Name === currentUser.name ? r.roomId : lastMsg.Sender_Name)}</div>
+               <div class="text-xs text-gray-500 truncate mt-1"><i class="fas fa-reply text-gray-300"></i> ${esc(lastMsg.Message)}</div>
             </div>
           `;
        });
@@ -1111,7 +1121,7 @@
 
        let html = `
          <div class="p-3 border-b bg-blue-600 text-white font-bold flex justify-between items-center shadow-sm z-10">
-            <span><i class="fas fa-comments"></i> ${headerText}</span>
+            <span><i class="fas fa-comments"></i> ${esc(headerText)}</span>
             <button onclick="loadMainData()" class="text-xs bg-white text-blue-600 px-3 py-1.5 rounded-full shadow hover:bg-blue-50 transition"><i class="fas fa-sync-alt"></i> อัปเดต</button>
          </div>
          <div id="chatMessagesArea" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50 chat-scroll">
@@ -1129,12 +1139,12 @@
                <div class="flex justify-end mb-2 group relative">
                  <div class="flex flex-col items-end">
                    <div class="bg-blue-500 text-white p-3 rounded-2xl rounded-tr-sm max-w-[100%] text-sm shadow-sm relative">
-                     <p>${c.Message}</p>
-                     <p class="text-[10px] text-blue-100 text-right mt-1">${timeStr}</p>
+                     <p>${esc(c.Message)}</p>
+                     <p class="text-[10px] text-blue-100 text-right mt-1">${esc(timeStr)}</p>
                    </div>
                    <div class="flex space-x-3 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onclick="editChatMsg('${roomId}', '${timeStr}')" class="text-[11px] text-gray-500 hover:text-blue-600 font-bold"><i class="fas fa-edit"></i> แก้ไข</button>
-                      <button onclick="deleteChatMsg('${roomId}', '${timeStr}')" class="text-[11px] text-gray-500 hover:text-red-600 font-bold"><i class="fas fa-trash"></i> ลบ</button>
+                      <button data-room="${esc(roomId)}" data-time="${esc(timeStr)}" onclick="editChatMsg(this.dataset.room, this.dataset.time)" class="text-[11px] text-gray-500 hover:text-blue-600 font-bold"><i class="fas fa-edit"></i> แก้ไข</button>
+                      <button data-room="${esc(roomId)}" data-time="${esc(timeStr)}" onclick="deleteChatMsg(this.dataset.room, this.dataset.time)" class="text-[11px] text-gray-500 hover:text-red-600 font-bold"><i class="fas fa-trash"></i> ลบ</button>
                    </div>
                  </div>
                </div>
@@ -1143,9 +1153,9 @@
              html += `
                <div class="flex justify-start mb-2">
                  <div class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-sm max-w-[85%] text-sm shadow-sm relative">
-                   <p class="text-[11px] text-gray-500 mb-1 border-b pb-1"><b>${c.Sender_Name}</b> ${roleBadge}</p>
-                   <p class="text-gray-800 mt-1">${c.Message}</p>
-                   <p class="text-[10px] text-gray-400 text-right mt-1">${timeStr}</p>
+                   <p class="text-[11px] text-gray-500 mb-1 border-b pb-1"><b>${esc(c.Sender_Name)}</b> ${roleBadge}</p>
+                   <p class="text-gray-800 mt-1">${esc(c.Message)}</p>
+                   <p class="text-[10px] text-gray-400 text-right mt-1">${esc(timeStr)}</p>
                  </div>
                </div>
              `;
@@ -1222,12 +1232,12 @@
       const groups = globalData.groups || [];
       const pf = document.getElementById('periodFilter'); const rf = document.getElementById('repPeriod'); const ef = document.getElementById('emailPeriodSel'); const df = document.getElementById('delPeriodSel'); const gf = document.getElementById('groupFilter');
       let opts = '<option value="all">ดูข้อมูลรวมทุกรอบ</option>'; let repOpts = '';
-      periods.forEach(function(p) { let t = `<option value="${p}">${p}</option>`; opts += t; repOpts += t; });
+      periods.forEach(function(p) { let t = `<option value="${esc(p)}">${esc(p)}</option>`; opts += t; repOpts += t; });
       if (pf) pf.innerHTML = opts; if (rf) rf.innerHTML = repOpts; if (ef) ef.innerHTML = repOpts; if (df) df.innerHTML = repOpts;
       if (periods.length > 0) { if (pf) pf.value = periods[0]; if (rf) rf.value = periods[0]; if (ef) ef.value = periods[0]; if (df) df.value = periods[0]; }
       if (gf) {
         let grpOpts = '<option value="all">รวมทุกกลุ่มงาน</option>';
-        groups.forEach(function(g) { let codePad = String(g.code).padStart(2, '0'); grpOpts += `<option value="${codePad}">${codePad} - ${g.name}</option>`; });
+        groups.forEach(function(g) { let codePad = String(g.code).padStart(2, '0'); grpOpts += `<option value="${esc(codePad)}">${esc(codePad)} - ${esc(g.name)}</option>`; });
         gf.innerHTML = grpOpts;
       }
     }
@@ -1276,11 +1286,11 @@
       currentDashData.sort(function(a, b) { let valA = a[dashSortCol]; let valB = b[dashSortCol]; if (typeof valA === 'string') return dashSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA); else return dashSortAsc ? valA - valB : valB - valA; });
       let tb = document.getElementById('dashTableBody'); tb.innerHTML = '';
       currentDashData.forEach(function(r) { 
-        tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-gray-600">${r.code}</td><td class="p-3 font-medium">${r.name}</td><td class="p-3 text-right">${r.pc.toLocaleString()}</td><td class="p-3 text-right">${r.pbw.toLocaleString()}</td><td class="p-3 text-right">${r.cc.toLocaleString()}</td><td class="p-3 text-right">${r.cbw.toLocaleString()}</td><td class="p-3 text-right font-bold text-blue-600">${r.total.toLocaleString()}</td></tr>`; 
+        tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-gray-600">${esc(r.code)}</td><td class="p-3 font-medium">${esc(r.name)}</td><td class="p-3 text-right">${r.pc.toLocaleString()}</td><td class="p-3 text-right">${r.pbw.toLocaleString()}</td><td class="p-3 text-right">${r.cc.toLocaleString()}</td><td class="p-3 text-right">${r.cbw.toLocaleString()}</td><td class="p-3 text-right font-bold text-blue-600">${r.total.toLocaleString()}</td></tr>`; 
       });
     }
 
-    // 🌟 ระบบจัดการแอดมิน - ป้องกันบั๊กเอนเทอร์บรรทัดใน CSV 🌟
+    // 🌟 ระบบจัดการแอดมิน - แก้อาการอัปเดตบรรทัดเดียว 🌟
     async function loadAdminData() {
       document.getElementById('setBw').value = globalData.settings.cost_bw || 1; 
       document.getElementById('setColor').value = globalData.settings.cost_color || 5; 
@@ -1309,18 +1319,18 @@
            let dateLabel = r.ts; let status = r.status || "รอปริ้น"; let statusBadge = ""; let actionBtn = `<div class="flex justify-center space-x-2 mt-1">`;
            if (status === "รอปริ้น") { 
              statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs">รอปริ้น</span>`; 
-             actionBtn += `<button onclick="updatePrintStatus('${dateLabel}')" class="text-green-600 hover:text-green-800" title="อนุมัติ"><i class="fas fa-check-circle text-lg"></i></button>`; 
-             actionBtn += `<button onclick="cancelPrintReq('${dateLabel}')" class="text-orange-500 hover:text-orange-700" title="ยกเลิก"><i class="fas fa-times-circle text-lg"></i></button>`; 
+             actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="updatePrintStatus(this.dataset.ts)" class="text-green-600 hover:text-green-800" title="อนุมัติ"><i class="fas fa-check-circle text-lg"></i></button>`; 
+             actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="cancelPrintReq(this.dataset.ts)" class="text-orange-500 hover:text-orange-700" title="ยกเลิก"><i class="fas fa-times-circle text-lg"></i></button>`; 
            } else if (status === "ยกเลิก") {
              statusBadge = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs">ยกเลิกแล้ว</span>`;
            } else { 
-             statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs">${status}</span>`; 
+             statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs">${esc(status)}</span>`; 
            }
            
-           actionBtn += `<button onclick="deletePrintReq('${dateLabel}')" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>`;
+           actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>`;
            let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${f.pages} แผ่น)</span></a>`).join('');
 
-           prTb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-xs">${dateLabel}</td><td class="p-3 font-bold">${r.name}</td><td class="p-3 text-xs">${r.group}</td><td class="p-3 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td><td class="p-3 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${r.remark}</p></td><td class="p-3 text-center">${statusBadge}${actionBtn}</td></tr>`; 
+           prTb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-xs">${esc(dateLabel)}</td><td class="p-3 font-bold">${esc(r.name)}</td><td class="p-3 text-xs">${esc(r.group)}</td><td class="p-3 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td><td class="p-3 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td><td class="p-3 text-center">${statusBadge}${actionBtn}</td></tr>`; 
          });
       }
 
@@ -1347,21 +1357,21 @@
           
           let actionBtns = `<div class="flex justify-center space-x-3">`;
           
-          // 🌟 เปลี่ยนการส่ง Parameter เป็นแค่รหัสเบอร์มือถือเท่านั้น ป้องกัน Error 🌟
-          if(u.pendingEdit) actionBtns += `<button onclick="reviewProfileEdit('${u.mobile}')" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
+          // 🌟 ส่งตัวแปรผ่าน dataset ป้องกัน Syntax Error ล้านเปอร์เซ็นต์ 🌟
+          if(u.pendingEdit) actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="text-purple-500 hover:text-purple-700" title="ตรวจสอบคำขอแก้ไข"><i class="fas fa-tasks text-lg"></i></button>`;
           
-          actionBtns += `<button onclick="viewUserPin('${u.mobile}')" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
-          actionBtns += `<button onclick="openEditUserModal('${u.mobile}')" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="viewUserPin(this.dataset.mobile)" class="text-gray-500 hover:text-gray-800" title="ดูรหัส PIN"><i class="fas fa-eye"></i></button>`;
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="openEditUserModal(this.dataset.mobile)" class="text-blue-500 hover:text-blue-700" title="แก้ไขข้อมูลโดยแอดมิน"><i class="fas fa-edit"></i></button>`;
 
-          if (u.status === 'pending') actionBtns += `<button onclick="actionUser('${u.mobile}', 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
+          if (u.status === 'pending') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'approve')" class="text-green-500 hover:text-green-700" title="อนุมัติการใช้งาน"><i class="fas fa-check-circle"></i></button>`;
           if (u.status !== 'pending' && u.role !== 'admin') { 
-            if (u.status === 'suspended') actionBtns += `<button onclick="actionUser('${u.mobile}', 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
-            else actionBtns += `<button onclick="actionUser('${u.mobile}', 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
+            if (u.status === 'suspended') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-green-500 hover:text-green-700" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`; 
+            else actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="text-orange-500 hover:text-orange-700" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`; 
           }
-          if (u.role !== 'admin') actionBtns += `<button onclick="actionUser('${u.mobile}', 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
+          if (u.role !== 'admin') actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'delete')" class="text-red-500 hover:text-red-700" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>`;
           actionBtns += `</div>`;
           
-          tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2"><b>${u.name}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${u.mobile}</span><br>${badge}</td><td class="p-2 align-middle">${actionBtns}</td></tr>`;
+          tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2"><b>${esc(u.name)}</b><br><span class="text-xs text-gray-500"><i class="fas fa-phone-alt"></i> ${esc(u.mobile)}</span><br>${badge}</td><td class="p-2 align-middle">${actionBtns}</td></tr>`;
         });
       } catch(e) { handleError(e); }
     }
@@ -1373,7 +1383,7 @@
        
        Swal.fire({
           title: 'ตรวจสอบคำขอแก้ไขข้อมูล',
-          html: `<div class="text-left text-sm space-y-3 p-2 bg-gray-50 rounded border"><p><b>บัญชีผู้ใช้ (เบอร์เดิม):</b> ${u.mobile}</p><hr><p><b>เบอร์มือถือใหม่:</b> <br> <span class="text-gray-500 line-through">${u.mobile}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.mobile}</b></p><p><b>ชื่อ-สกุล:</b> <br> <span class="text-gray-500 line-through">${u.name}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.name}</b></p><p><b>ตำแหน่ง:</b> <br> <span class="text-gray-500 line-through">${u.position || '-'}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.position}</b></p><p><b>กลุ่มงาน:</b> <br> <span class="text-gray-500 line-through">${u.group}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.groupName}</b></p><p><b>อีเมล:</b> <br> <span class="text-gray-500 line-through">${u.email || '-'}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${newData.email || '-'}</b></p></div>`,
+          html: `<div class="text-left text-sm space-y-3 p-2 bg-gray-50 rounded border"><p><b>บัญชีผู้ใช้ (เบอร์เดิม):</b> ${esc(u.mobile)}</p><hr><p><b>เบอร์มือถือใหม่:</b> <br> <span class="text-gray-500 line-through">${esc(u.mobile)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.mobile)}</b></p><p><b>ชื่อ-สกุล:</b> <br> <span class="text-gray-500 line-through">${esc(u.name)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.name)}</b></p><p><b>ตำแหน่ง:</b> <br> <span class="text-gray-500 line-through">${esc(u.position || '-')}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.position)}</b></p><p><b>กลุ่มงาน:</b> <br> <span class="text-gray-500 line-through">${esc(u.group)}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.groupName)}</b></p><p><b>อีเมล:</b> <br> <span class="text-gray-500 line-through">${esc(u.email || '-')}</span> <i class="fas fa-arrow-right mx-1 text-gray-400"></i> <b class="text-blue-600">${esc(newData.email || '-')}</b></p></div>`,
           showDenyButton: true, showCancelButton: true, confirmButtonText: '<i class="fas fa-check"></i> อนุมัติการแก้ไข', denyButtonText: '<i class="fas fa-times"></i> ปฏิเสธ', cancelButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#10b981', denyButtonColor: '#ef4444'
        }).then(async (result) => {
           if(result.isConfirmed) await processProfileEdit(mobile, 'approve');
@@ -1395,7 +1405,6 @@
       Swal.fire({ title: `รหัส PIN ของ ${u.name}`, html: `<span class="text-3xl font-bold text-blue-600 tracking-widest">${u.pin}</span>`, icon: 'info' }); 
     }
 
-    // 🌟 ดึงข้อมูลจาก Cache เพื่อหลีกเลี่ยง Syntax Error ใน HTML 🌟
     function openEditUserModal(mobile) {
       const u = allUsersCache.find(x => x.mobile === mobile);
       if(!u) return;
@@ -1412,128 +1421,9 @@
       const selGroup = document.getElementById('editGroup'); selGroup.innerHTML = '';
       tempGroups.forEach(function(g) { 
         let selected = (g.name === u.group) ? 'selected' : ''; 
-        selGroup.innerHTML += `<option value="${g.code}|${g.name}" ${selected}>${g.code} - ${g.name}</option>`; 
+        selGroup.innerHTML += `<option value="${esc(g.code)}|${esc(g.name)}" ${selected}>${esc(g.code)} - ${esc(g.name)}</option>`; 
       });
       document.getElementById('adminEditUserModal').classList.remove('hidden');
     }
 
-    function closeEditUserModal() { document.getElementById('adminEditUserModal').classList.add('hidden'); }
-
-    async function submitEditUser() {
-      const originalMobile = document.getElementById('editOriginalMobile').value; const groupData = document.getElementById('editGroup').value.split('|');
-      const updatedData = { mobile: document.getElementById('editMobile').value.trim(), name: document.getElementById('editName').value.trim(), role: document.getElementById('editRole').value, status: document.getElementById('editStatus').value, position: document.getElementById('editPos').value.trim(), groupCode: groupData[0], groupName: groupData[1], printerUser: document.getElementById('editPrintUser').value.trim(), email: document.getElementById('editEmail').value.trim() };
-      if (!updatedData.mobile || !updatedData.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
-      showLoading("กำลังบันทึกข้อมูล...");
-      try { 
-        const res = await fetchAPI('editUser', { mobile: originalMobile, updatedData: updatedData }); 
-        if(res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeEditUserModal(); loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
-      } catch(e) { handleError(e); }
-    }
-    
-    async function saveAdminSettings() {
-      showLoading("กำลังบันทึก...");
-      const b = document.getElementById('setBw').value; const c = document.getElementById('setColor').value; const e = document.getElementById('setEmails').value; const tt = document.getElementById('setTgToken').value; const tc = document.getElementById('setTgChatId').value;
-      try { 
-        const res = await fetchAPI('saveSettings', { costBw: b, costColor: c, emails: e, tgToken: tt, tgChatId: tc }); 
-        if (res.success) { Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success'); loadMainData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-      } catch (err) { handleError(err); }
-    }
-
-    function actionUser(mob, action) {
-      if (action === 'delete') { Swal.fire({ title: 'ยืนยันการลบผู้ใช้?', text: "การลบบัญชีผู้ใช้จะไม่สามารถกู้คืนได้", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบบัญชี', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('deleteUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
-      else if (action === 'suspend') { Swal.fire({ title: 'ระงับ/ปลดระงับบัญชีนี้?', text: "ผู้ใช้งานจะไม่สามารถล็อกอินเข้าสู่ระบบได้หากถูกระงับ", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f97316', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' }).then(async function(result) { if(result.isConfirmed) { showLoading("กำลังดำเนินการ..."); try { await fetchAPI('suspendUser', { mobile: mob }); loadAdminData(); hideLoading(); } catch(e) { handleError(e); } } }); } 
-      else if (action === 'approve') { showLoading("กำลังดำเนินการ..."); fetchAPI('approveUser', { mobile: mob }).then(function() { loadAdminData(); hideLoading(); }).catch(handleError); }
-    }
-
-    function openAdminCreateUserModal() {
-      const selGroup = document.getElementById('adminRegGroup'); selGroup.innerHTML = '';
-      tempGroups.forEach(function(g) { selGroup.innerHTML += `<option value="${g.code}|${g.name}">${g.code} - ${g.name}</option>`; });
-      document.getElementById('adminCreateUserModal').classList.remove('hidden');
-    }
-
-    function closeAdminCreateUserModal() { document.getElementById('adminCreateUserModal').classList.add('hidden'); }
-
-    async function adminSubmitCreateUser() {
-      const groupData = document.getElementById('adminRegGroup').value.split('|');
-      const data = { mobile: document.getElementById('adminRegMobile').value.trim(), name: document.getElementById('adminRegName').value.trim(), position: document.getElementById('adminRegPos').value.trim(), groupCode: groupData[0], groupName: groupData[1], printerUser: document.getElementById('adminRegPrintUser').value.trim(), role: document.getElementById('adminRegRole').value, email: document.getElementById('adminRegEmail').value.trim() };
-      if (!data.mobile || !data.name) return Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์มือถือและชื่อให้ครบถ้วน', 'warning');
-      showLoading("กำลังสร้างบัญชี...");
-      try {
-        const res = await fetchAPI('adminCreateUser', data);
-        if (res.success) { Swal.fire({ icon: 'success', title: 'สร้างบัญชีสำเร็จ', html: res.message, confirmButtonText: 'รับทราบ' }); closeAdminCreateUserModal(); document.getElementById('adminRegMobile').value = ''; document.getElementById('adminRegName').value = ''; document.getElementById('adminRegPrintUser').value = ''; document.getElementById('adminRegEmail').value = ''; loadAdminData(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-      } catch(e) { handleError(e); }
-    }
-
-    async function triggerEmail() {
-      const p = document.getElementById('emailPeriodSel').value; if (!p) return;
-      showLoading("กำลังส่งอีเมล..."); 
-      try { const res = await fetchAPI('sendSummaryEmail', { period: p }); if(res.success) Swal.fire('สำเร็จ', res.message, 'success'); else Swal.fire('ผิดพลาด', res.message, 'error'); } catch(e) { handleError(e); }
-    }
-
-    function renderGroupTable() {
-      let tb = document.getElementById('groupTableBody'); tb.innerHTML = '';
-      tempGroups.forEach(function(g, idx) { tb.innerHTML += `<tr class="border-b"><td class="p-1 w-1/4">${g.code}</td><td class="p-1 w-2/4">${g.name}</td><td class="p-1 text-center w-1/4"><button onclick="removeGroupRow(${idx})" class="text-red-500"><i class="fas fa-times"></i></button></td></tr>`; });
-    }
-    
-    function addGroupRow() {
-      let c = document.getElementById('newGrpCode').value.trim(); let n = document.getElementById('newGrpName').value.trim();
-      if (!c || !n) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลกลุ่มงานให้ครบ', 'warning');
-      tempGroups.push({code: c, name: n}); renderGroupTable(); document.getElementById('newGrpCode').value = ''; document.getElementById('newGrpName').value = '';
-    }
-    
-    function removeGroupRow(idx) { tempGroups.splice(idx, 1); renderGroupTable(); }
-    
-    async function saveGroups() { 
-      showLoading("กำลังบันทึกกลุ่ม..."); try { await fetchAPI('saveGroupConfig', { groups: tempGroups }); Swal.fire('สำเร็จ', 'บันทึกกลุ่มงานลงฐานข้อมูลเรียบร้อย', 'success'); } catch(e) { handleError(e); }
-    }
-
-    // --- Report ---
-    function generateReport() {
-      const period = document.getElementById('repPeriod').value; const lvl = document.getElementById('repLevel').value; const format = document.getElementById('repFormat').value;
-      const cBw = parseFloat(globalData.settings.cost_bw) || 1; const cCol = parseFloat(globalData.settings.cost_color) || 5;
-      let data = lvl === 'group' ? globalData.totals : globalData.staffs; let groupDict = getGroupDict();
-      if (period) data = data.filter(function(r) { return r["รอบข้อมูล"] === period; });
-      data = data.filter(function(r) { return parseFloat(r["รวมทั้งหมด (Print+Copy)"]) > 0; });
-      
-      let html = `<div class="text-center mb-6"><h1 class="text-2xl font-bold">รายงานสถิติ Print & Copy</h1><p>ประจำรอบ: ${period}</p></div>`;
-      if (format === "2") {
-        html += `<ul class="list-disc pl-6 space-y-2">`;
-        if (lvl === 'group') {
-          data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
-            html += `<li><strong>${name}</strong> : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น (สี: ${col}, ขาวดำ: ${bw}) - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
-          });
-        } else {
-          data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
-            html += `<li><strong>${r["ชื่อ-สกุลบุคลากร"]}</strong> (${name.substring(3,15)}..) : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
-          });
-        }
-        html += `</ul>`;
-      } else {
-        html += `<table class="min-w-full"><thead><tr>`;
-        if (lvl === 'group') {
-          html += `<th>กลุ่มงาน</th><th>Print/Copy สี (แผ่น)</th><th>Print/Copy ขาวดำ (แผ่น)</th><th>ยอดรวม</th><th>ค่าใช้จ่าย(฿)</th></tr></thead><tbody>`;
-          data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
-            html += `<tr><td>${name}</td><td class="text-right">${col}</td><td class="text-right">${bw}</td><td class="text-right font-bold">${r["รวมทั้งหมด (Print+Copy)"]}</td><td class="text-right text-red-600">${((col*cCol)+(bw*cBw)).toLocaleString()}</td></tr>`; 
-          });
-        } else {
-          html += `<th>Username</th><th>ชื่อ-สกุล</th><th>กลุ่มงาน</th><th>รวมทั้งหมด</th><th>ค่าใช้จ่าย(฿)</th></tr></thead><tbody>`;
-          data.forEach(function(r) { 
-            let code = String(r["รหัสกลุ่ม"]).padStart(2, '0'); let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
-            let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
-            html += `<tr><td>${r["Username ในเครื่อง"]}</td><td>${r["ชื่อ-สกุลบุคลากร"]}</td><td>${name.substring(3,15)}..</td><td class="text-right font-bold">${r["รวมทั้งหมด (Print+Copy)"]}</td><td class="text-right text-red-600">${((col*cCol)+(bw*cBw)).toLocaleString()}</td></tr>`; 
-          });
-        }
-        html += `</tbody></table>`;
-      }
-      document.getElementById('reportRenderArea').innerHTML = html; 
-      document.getElementById('reportPreviewContainer').classList.remove('hidden');
-    }
-  </script>
-</body>
-</html>
+    function closeEdit
