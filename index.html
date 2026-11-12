@@ -1867,6 +1867,7 @@
       }
       
       renderDashTable();
+      renderQuotaSection(currentDashData);
     }
 
     function sortDashTable(col) {
@@ -2635,15 +2636,15 @@
       const container = document.getElementById('quotaGridContainer');
       if (!container) return;
       if (!groupData || groupData.length === 0) {
-        container.innerHTML = '<div class="col-span-3 text-center text-gray-400 py-4">ไม่พบข้อมูลสถิติสำหรับวิเคราะห์โควต้า</div>';
+        container.innerHTML = '<div class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-400 py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">ไม่พบข้อมูลสถิติสำหรับวิเคราะห์โควต้า</div>';
         return;
       }
 
-      // Default Quotas
+      // Default Quotas per quarter (approx 1,500 sheets / 3,000 THB)
       const defaultQuotaSheets = 1500;
       const defaultQuotaBudget = 3000;
-      const cBw = parseFloat(globalData.settings.cost_bw) || 0.31;
-      const cCol = parseFloat(globalData.settings.cost_color) || 3.0;
+      const cBw = parseFloat((globalData.settings && globalData.settings.cost_bw) || 0.31);
+      const cCol = parseFloat((globalData.settings && globalData.settings.cost_color) || 3.0);
 
       const groupQuotas = (globalData.settings && globalData.settings.group_quotas) ? 
         (typeof globalData.settings.group_quotas === 'string' ? JSON.parse(globalData.settings.group_quotas || '{}') : globalData.settings.group_quotas) : {};
@@ -2651,53 +2652,53 @@
       const sorted = [...groupData].sort((a, b) => {
         const qA = (groupQuotas[a.code] && groupQuotas[a.code].quotaSheets) || defaultQuotaSheets;
         const qB = (groupQuotas[b.code] && groupQuotas[b.code].quotaSheets) || defaultQuotaSheets;
-        return (b.total / qB) - (a.total / qA);
+        return (b.total / (qB || 1)) - (a.total / (qA || 1));
       });
 
       let html = '';
       sorted.forEach(g => {
         const qSheets = (groupQuotas[g.code] && groupQuotas[g.code].quotaSheets) || defaultQuotaSheets;
         const qBudget = (groupQuotas[g.code] && groupQuotas[g.code].quotaBudget) || defaultQuotaBudget;
-        const estCost = ((g.pc + g.cc) * cCol) + ((g.pbw + g.cbw) * cBw);
-        const pct = Math.round((g.total / qSheets) * 100);
+        const estCost = (((g.pc || 0) + (g.cc || 0)) * cCol) + (((g.pbw || 0) + (g.cbw || 0)) * cBw);
+        const pct = Math.round(((g.total || 0) / (qSheets || 1)) * 100);
 
-        let statusColor = 'emerald';
-        let statusBadge = 'ปกติ';
+        let badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
         let barColor = 'bg-emerald-500';
         let borderColor = 'border-emerald-200';
+        let statusBadge = 'ปกติ';
 
         if (pct >= 90) {
-          statusColor = 'rose';
           statusBadge = pct >= 100 ? 'เกินโควต้า' : 'ใกล้เต็ม';
           barColor = 'bg-rose-500';
           borderColor = 'border-rose-300';
+          badgeClass = 'bg-rose-100 text-rose-800 border-rose-200';
         } else if (pct >= 70) {
-          statusColor = 'amber';
           statusBadge = 'เฝ้าระวัง';
           barColor = 'bg-amber-500';
           borderColor = 'border-amber-300';
+          badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
         }
 
         html += `
           <div class="bg-gray-50 rounded-xl p-4 border ${borderColor} hover:shadow-md transition">
             <div class="flex justify-between items-start mb-2">
-              <div>
+              <div class="pr-2">
                 <span class="text-xs font-bold text-gray-400">[${esc(g.code)}]</span>
                 <h4 class="font-bold text-sm text-gray-800 line-clamp-1" title="${esc(g.name)}">${esc(g.name)}</h4>
               </div>
-              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-${statusColor}-100 text-${statusColor}-700 border border-${statusColor}-200 whitespace-nowrap">
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${badgeClass} border whitespace-nowrap">
                 ${statusBadge} (${pct}%)
               </span>
             </div>
 
             <!-- Progress Bar -->
             <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden">
-              <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${Math.min(100, pct)}%"></div>
+              <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${Math.min(100, Math.max(0, pct))}%"></div>
             </div>
 
             <div class="flex justify-between items-center text-xs text-gray-600 mt-2">
               <div>
-                <span class="text-gray-400">ใช้งาน:</span> <b class="text-gray-900">${g.total.toLocaleString()}</b> / ${qSheets.toLocaleString()} แผ่น
+                <span class="text-gray-400">ใช้งาน:</span> <b class="text-gray-900">${(g.total || 0).toLocaleString()}</b> / ${qSheets.toLocaleString()} แผ่น
               </div>
               <div class="text-right">
                 <span class="text-gray-400">งบประมาณ:</span> <b class="text-blue-600">฿${Math.round(estCost).toLocaleString()}</b> / ฿${qBudget.toLocaleString()}
