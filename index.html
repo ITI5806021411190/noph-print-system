@@ -2282,9 +2282,45 @@
       return dict;
     }
 
+        // 📅 Helper: แยกแยะและแปลงเดือน/ปีภาษาไทยเป็นตัวเลขสำหรับจัดเรียงตามปฏิทินจริง
+    function parseThaiPeriod(pStr) {
+      if (!pStr) return { year: 0, month: 0, sortKey: 0 };
+      const str = String(pStr).trim();
+      const yearMatch = str.match(/\b(25\d{2}|20\d{2})\b/) || str.match(/(\d{4})/);
+      let year = yearMatch ? parseInt(yearMatch[1]) : 0;
+      
+      const monthMap = [
+        { name: 'มกราคม', abbr: 'ม.ค.', m: 1 },
+        { name: 'กุมภาพันธ์', abbr: 'ก.พ.', m: 2 },
+        { name: 'มีนาคม', abbr: 'มี.ค.', m: 3 },
+        { name: 'เมษายน', abbr: 'เม.ย.', m: 4 },
+        { name: 'พฤษภาคม', abbr: 'พ.ค.', m: 5 },
+        { name: 'มิถุนายน', abbr: 'มิ.ย.', m: 6 },
+        { name: 'กรกฎาคม', abbr: 'ก.ค.', m: 7 },
+        { name: 'สิงหาคม', abbr: 'ส.ค.', m: 8 },
+        { name: 'กันยายน', abbr: 'ก.ย.', m: 9 },
+        { name: 'ตุลาคม', abbr: 'ต.ค.', m: 10 },
+        { name: 'พฤศจิกายน', abbr: 'พ.ย.', m: 11 },
+        { name: 'ธันวาคม', abbr: 'ธ.ค.', m: 12 }
+      ];
+      
+      let month = 0;
+      for (const item of monthMap) {
+        if (str.includes(item.name) || str.includes(item.abbr)) {
+          month = item.m;
+          break;
+        }
+      }
+      
+      return { year: year, month: month, sortKey: (year * 100) + month };
+    }
+
     function populateFilters() {
       if (!globalData || !globalData.totals) return;
-      const periods = [...new Set(globalData.totals.map(function(r) { return r["รอบข้อมูล"]; }))].filter(Boolean).sort().reverse();
+      const rawPeriods = [...new Set(globalData.totals.map(function(r) { return r["รอบข้อมูล"]; }))].filter(Boolean);
+      const periods = rawPeriods.sort(function(a, b) { 
+        return parseThaiPeriod(b).sortKey - parseThaiPeriod(a).sortKey; 
+      });
       const groups = globalData.groups || [];
       
       const pf = document.getElementById('periodFilter'); 
@@ -2293,13 +2329,13 @@
       const df = document.getElementById('delPeriodSel'); 
       const gf = document.getElementById('groupFilter');
       
-      let opts = '<option value="all">ดูข้อมูลรวมทุกรอบ</option>'; 
+      let opts = '<option value="all">ดูข้อมูลรวมทุกรอบ (ทั้งหมด)</option>'; 
       let repOpts = '';
       
-      periods.forEach(function(p) { 
-         let t = `<option value="${esc(p)}">${esc(p)}</option>`; 
-         opts += t; 
-         repOpts += t; 
+      periods.forEach(function(p, idx) { 
+         let latestLabel = (idx === 0) ? ' ⭐ (ล่าสุด)' : '';
+         opts += `<option value="${esc(p)}">${esc(p)}${latestLabel}</option>`; 
+         repOpts += `<option value="${esc(p)}">${esc(p)}${latestLabel}</option>`; 
       });
       
       if (pf) pf.innerHTML = opts; 
