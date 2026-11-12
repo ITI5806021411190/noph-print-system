@@ -1393,7 +1393,9 @@
          myGroup.sort(function(a,b) { 
            return (parseFloat(b["รวมทั้งหมด (Print+Copy)"]) || 0) - (parseFloat(a["รวมทั้งหมด (Print+Copy)"]) || 0); 
          }).forEach(function(r) { 
-           let nameLabel = r["ชื่อ-สกุลบุคลากร"] || r["Username ในเครื่อง"]; 
+           let sName = String(r["ชื่อ-สกุลบุคลากร"] || "").trim();
+           let uName = String(r["Username ในเครื่อง"] || "").trim();
+           let nameLabel = (sName && sName !== "-") ? (uName ? `${sName} (${uName})` : sName) : (uName || "ไม่ระบุรหัสเครื่อง"); 
            tb.innerHTML += `<tr class="border-b">
              <td class="p-2">${esc(nameLabel)}</td>
              <td class="p-2 text-right">${r["รวม Print"]}</td>
@@ -2449,7 +2451,10 @@
             let name = groupDict[code] || String(r["ชื่อกลุ่ม"]);
             let col = (parseFloat(r["Print สี"])||0) + (parseFloat(r["Copy สี"])||0); 
             let bw = (parseFloat(r["Print ขาวดำ"])||0) + (parseFloat(r["Copy ขาวดำ"])||0); 
-            html += `<li><strong>${esc(r["ชื่อ-สกุลบุคลากร"])}</strong> (${esc(name).substring(3,15)}..) : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
+            let sName = String(r["ชื่อ-สกุลบุคลากร"] || "").trim();
+            let uName = String(r["Username ในเครื่อง"] || "").trim();
+            let displayName = (sName && sName !== "-") ? (uName ? `${sName} (${uName})` : sName) : (uName || "ไม่ระบุ");
+            html += `<li><strong>${esc(displayName)}</strong> (${esc(name).substring(3,15)}..) : ยอดรวม <b>${r["รวมทั้งหมด (Print+Copy)"]}</b> แผ่น - ค่าใช้จ่าย ฿${((col*cCol)+(bw*cBw)).toLocaleString()}</li>`; 
           });
         }
         html += `</ul>`;
