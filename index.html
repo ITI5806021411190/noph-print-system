@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Print & Copy Management V23.5</title>
+  <title>Print & Copy Management V24.0 (NOPH)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -95,8 +95,9 @@
         <div class="nav-item pb-1 hidden admin-only text-yellow-300" id="nav-requests" onclick="switchView('requests')">
           <i class="fas fa-list-check"></i> จัดการคำขอ
         </div>
-        <div class="nav-item pb-1 hidden auth-only text-pink-300" id="nav-chat" onclick="switchView('chat')">
+        <div class="nav-item pb-1 hidden auth-only text-pink-300 relative" id="nav-chat" onclick="switchView('chat')">
           <i class="fas fa-comments"></i> ติดต่อ Admin
+          <span id="chatUnreadBadge" class="hidden absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full animate-pulse shadow">0</span>
         </div>
         <div class="nav-item pb-1 hidden admin-only" id="nav-upload" onclick="switchView('upload')">
           <i class="fas fa-upload"></i> จัดการไฟล์
@@ -187,6 +188,27 @@
           <div style="position: relative; height: 350px; width: 100%;">
             <canvas id="pieChart"></canvas>
           </div>
+        </div>
+      </div>
+
+      
+      <!-- 📊 FEATURE D: QUOTA & BUDGET TRACKING -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6 border-t-4 border-indigo-600">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
+          <div>
+            <h3 class="text-xl font-bold text-indigo-900 flex items-center">
+              <i class="fas fa-tachometer-alt mr-2 text-indigo-600"></i> ติดตามโควต้าและงบประมาณรายกลุ่มงาน (Quarterly Quota & Budget)
+            </h3>
+            <p class="text-xs text-gray-500 mt-1">เปรียบเทียบยอดการใช้งานจริงกับโควต้าเป้าหมาย เพื่อควบคุมค่าใช้จ่าย สสจ.นครนายก</p>
+          </div>
+          <div class="flex items-center space-x-3 text-xs bg-gray-50 p-2 rounded-lg border">
+            <span class="inline-flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-500 mr-1.5"></span> ปกติ (&lt;70%)</span>
+            <span class="inline-flex items-center"><span class="w-3 h-3 rounded-full bg-amber-500 mr-1.5"></span> เฝ้าระวัง (70-90%)</span>
+            <span class="inline-flex items-center"><span class="w-3 h-3 rounded-full bg-rose-500 mr-1.5"></span> ใกล้/เกินโควต้า (&gt;90%)</span>
+          </div>
+        </div>
+        <div id="quotaGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated in renderDashboard -->
         </div>
       </div>
 
@@ -1432,7 +1454,18 @@
              
              actionBtns += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบประวัติ"><i class="fas fa-trash"></i></button></div>`;
                
-             let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> โหลดไฟล์ที่ ${i+1}</a>`).join('');
+             let filesHtml = r.files.map((f, i) => {
+                let fJson = esc(JSON.stringify(r.files));
+                return `<div class="flex items-center space-x-2 mb-1.5">
+                  <button type="button" onclick='openFilePreview(${fJson}, "${esc(currentUser.name)}", "${esc(f.details || "")}")' class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded text-xs font-semibold flex items-center space-x-1">
+                    <i class="fas fa-eye text-blue-600"></i> <span>ดูตัวอย่าง</span>
+                  </button>
+                  <a href="${f.url}" target="_blank" class="text-blue-600 hover:underline text-xs flex items-center space-x-1">
+                    <i class="fas fa-external-link-alt text-gray-400"></i> <span>ไฟล์ที่ ${i+1}</span>
+                  </a>
+                  ${f.details ? `<span class="text-gray-400 text-xs">(${esc(f.details)})</span>` : ''}
+                </div>`;
+              }).join('');
              
              reqTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
                <td class="p-2 text-xs">${esc(dateLabel)}</td>
@@ -1895,51 +1928,7 @@
       let pr = globalData.printReqs || []; 
       let prTb = document.getElementById('requestsPrintReqBody'); 
       
-      if(prTb) {
-         prTb.innerHTML = '';
-         let groupedAdminReqs = {};
-         pr.forEach(function(r) {
-            let ts = r["Timestamp_Str"] || r["Timestamp"];
-            if(!groupedAdminReqs[ts]) {
-               groupedAdminReqs[ts] = { ts: ts, name: r["ชื่อผู้ขอ"], group: r["กลุ่มงาน"], status: r["สถานะ"], remark: r["หมายเหตุ"] || "-", files: [], totalPages: 0 };
-            }
-            groupedAdminReqs[ts].files.push({ url: r["ไฟล์แนบ"], pages: r["จำนวนแผ่น"], details: r["รายละเอียด"] || "" });
-            groupedAdminReqs[ts].totalPages += (parseFloat(r["จำนวนแผ่น"]) || 0);
-         });
-
-         let sortedAdminReqs = Object.values(groupedAdminReqs).reverse();
-
-         sortedAdminReqs.forEach(function(r) { 
-           let dateLabel = r.ts; 
-           let status = r.status || "รอปริ้น"; 
-           let statusBadge = ""; 
-           let actionBtn = `<div class="flex justify-center space-x-2 mt-1">`;
-           
-           if (status === "รอปริ้น") { 
-             statusBadge = `<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs">รอปริ้น</span>`; 
-             actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="updatePrintStatus(this.dataset.ts)" class="text-green-600 hover:text-green-800" title="อนุมัติ"><i class="fas fa-check-circle text-lg"></i></button>`; 
-             actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="cancelPrintReq(this.dataset.ts)" class="text-orange-500 hover:text-orange-700" title="ยกเลิก"><i class="fas fa-times-circle text-lg"></i></button>`; 
-           } else if (status === "ยกเลิก") {
-             statusBadge = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs">ยกเลิกแล้ว</span>`;
-           } else { 
-             statusBadge = `<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs">${esc(status)}</span>`; 
-           }
-           
-           actionBtn += `<button data-ts="${esc(dateLabel)}" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>`;
-           
-           let filesHtml = r.files.map((f, i) => `<a href="${f.url}" target="_blank" class="text-blue-600 hover:underline block text-xs mb-1"><i class="fas fa-file-download"></i> ลิงก์ที่ ${i+1} <span class="text-gray-500">(${esc(f.pages)} แผ่น)</span></a>`).join('');
-
-           prTb.innerHTML += `<tr class="border-b hover:bg-gray-50">
-              <td class="p-3 text-xs">${esc(dateLabel)}</td>
-              <td class="p-3 font-bold">${esc(r.name)}</td>
-              <td class="p-3 text-xs">${esc(r.group)}</td>
-              <td class="p-3 text-center font-bold">${r.totalPages} แผ่น<br><span class="text-xs text-gray-500 font-normal">(${r.files.length} ไฟล์)</span></td>
-              <td class="p-3 text-left">${filesHtml} <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ${esc(r.remark)}</p></td>
-              <td class="p-3 text-center">${statusBadge}${actionBtn}</td>
-           </tr>`; 
-         });
-      }
-
+      renderRequestsTableOnly();
       try {
         const res = await fetchAPI('getAdminData'); 
         if(!res.success) throw new Error(res.message || "Failed to load admin data"); 
@@ -2493,6 +2482,319 @@
       if(renderArea) renderArea.innerHTML = html; 
       if(previewContainer) previewContainer.classList.remove('hidden');
     }
+  
+    // ==========================================
+    // 🌟 V24.0 ENHANCEMENTS: PREVIEW, CHAT POLL & QUOTA
+    // ==========================================
+    let currentPreviewFiles = [];
+    let activePreviewIndex = 0;
+    let chatPollTimer = null;
+    let lastKnownChatCount = 0;
+
+    // Feature A: In-app Preview Functions
+    function getPreviewUrl(url) {
+      if (!url) return 'about:blank';
+      const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (fileIdMatch) {
+        return 'https://drive.google.com/file/d/' + fileIdMatch[1] + '/preview';
+      }
+      return url;
+    }
+
+    function openFilePreview(files, requesterName, details) {
+      let fileList = [];
+      if (Array.isArray(files)) {
+        fileList = files;
+      } else if (typeof files === 'string') {
+        const urls = files.split(/[\n,]+/).map(u => u.trim()).filter(Boolean);
+        fileList = urls.map((u, i) => ({ url: u, name: 'เอกสารที่ ' + (i + 1) }));
+      }
+      if (!fileList || fileList.length === 0) {
+        return Swal.fire('แจ้งเตือน', 'ไม่พบลิงก์ไฟล์สำหรับดูตัวอย่าง', 'info');
+      }
+
+      currentPreviewFiles = fileList;
+      activePreviewIndex = 0;
+
+      const modal = document.getElementById('filePreviewModal');
+      const title = document.getElementById('previewModalTitle');
+      const sub = document.getElementById('previewModalSub');
+      if (title) title.textContent = 'ตัวอย่างเอกสาร: ' + (requesterName || 'คำขอปริ้นสี');
+      if (sub) sub.textContent = details ? 'รายละเอียด: ' + details : 'ระบบแสดงตัวอย่างเอกสารก่อนพิมพ์ สสจ.นครนายก';
+
+      renderPreviewTabs();
+      loadIframePreview(0);
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function renderPreviewTabs() {
+      const container = document.getElementById('previewTabsContainer');
+      if (!container) return;
+      if (currentPreviewFiles.length <= 1) {
+        container.classList.add('hidden');
+        return;
+      }
+      container.classList.remove('hidden');
+      container.innerHTML = currentPreviewFiles.map((f, i) => {
+        const active = i === activePreviewIndex ? 'bg-blue-600 text-white font-bold' : 'bg-white text-gray-700 hover:bg-gray-200';
+        return '<button type="button" onclick="loadIframePreview(' + i + ')" class="px-3 py-1.5 rounded-lg border shadow-sm transition whitespace-nowrap ' + active + '">' +
+               '<i class="fas fa-file-pdf mr-1"></i> ' + esc(f.name || ('ไฟล์ที่ ' + (i + 1))) +
+               '</button>';
+      }).join('');
+    }
+
+    function loadIframePreview(index) {
+      activePreviewIndex = index;
+      renderPreviewTabs();
+      const f = currentPreviewFiles[index];
+      if (!f) return;
+      const loading = document.getElementById('previewLoading');
+      const iframe = document.getElementById('previewIframe');
+      const openTab = document.getElementById('previewOpenTabBtn');
+      if (loading) loading.classList.remove('hidden');
+      const previewUrl = getPreviewUrl(f.url);
+      if (iframe) iframe.src = previewUrl;
+      if (openTab) openTab.href = f.url;
+    }
+
+    function closeFilePreview() {
+      const modal = document.getElementById('filePreviewModal');
+      const iframe = document.getElementById('previewIframe');
+      if (iframe) iframe.src = 'about:blank';
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // Feature C: Real-time Audio Alert Synthesizer
+    function playNotificationSound() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.1); // A5
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      } catch(e) { }
+    }
+
+    function startChatPolling() {
+      if (chatPollTimer) clearInterval(chatPollTimer);
+      chatPollTimer = setInterval(pollChatSilently, 12000);
+    }
+
+    async function pollChatSilently() {
+      if (!currentUser.name) return;
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'getDashboardData', data: { mobile: currentUser.mobile } }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newChats = json.data.chats || [];
+          if (lastKnownChatCount > 0 && newChats.length > lastKnownChatCount) {
+            playNotificationSound();
+            if (currentActiveView !== 'chat') {
+              const badge = document.getElementById('chatUnreadBadge');
+              if (badge) {
+                const diff = newChats.length - lastKnownChatCount;
+                badge.textContent = diff > 9 ? '9+' : diff;
+                badge.classList.remove('hidden');
+              }
+            }
+          }
+          lastKnownChatCount = newChats.length;
+          globalData.chats = newChats;
+          if (json.data.printReqs) {
+            globalData.printReqs = json.data.printReqs;
+            if (currentActiveView === 'user') renderUserDash();
+            if (currentActiveView === 'requests') renderRequestsTableOnly();
+          }
+          if (currentActiveView === 'chat') {
+            renderChatTab();
+          }
+        }
+      } catch(e) { }
+    }
+
+    // Feature D: Quota & Budget Section Renderer
+    function renderQuotaSection(groupData) {
+      const container = document.getElementById('quotaGridContainer');
+      if (!container) return;
+      if (!groupData || groupData.length === 0) {
+        container.innerHTML = '<div class="col-span-3 text-center text-gray-400 py-4">ไม่พบข้อมูลสถิติสำหรับวิเคราะห์โควต้า</div>';
+        return;
+      }
+
+      // Default Quotas
+      const defaultQuotaSheets = 1500;
+      const defaultQuotaBudget = 3000;
+      const cBw = parseFloat(globalData.settings.cost_bw) || 0.31;
+      const cCol = parseFloat(globalData.settings.cost_color) || 3.0;
+
+      const groupQuotas = (globalData.settings && globalData.settings.group_quotas) ? 
+        (typeof globalData.settings.group_quotas === 'string' ? JSON.parse(globalData.settings.group_quotas || '{}') : globalData.settings.group_quotas) : {};
+
+      const sorted = [...groupData].sort((a, b) => {
+        const qA = (groupQuotas[a.code] && groupQuotas[a.code].quotaSheets) || defaultQuotaSheets;
+        const qB = (groupQuotas[b.code] && groupQuotas[b.code].quotaSheets) || defaultQuotaSheets;
+        return (b.total / qB) - (a.total / qA);
+      });
+
+      let html = '';
+      sorted.forEach(g => {
+        const qSheets = (groupQuotas[g.code] && groupQuotas[g.code].quotaSheets) || defaultQuotaSheets;
+        const qBudget = (groupQuotas[g.code] && groupQuotas[g.code].quotaBudget) || defaultQuotaBudget;
+        const estCost = ((g.pc + g.cc) * cCol) + ((g.pbw + g.cbw) * cBw);
+        const pct = Math.round((g.total / qSheets) * 100);
+
+        let statusColor = 'emerald';
+        let statusBadge = 'ปกติ';
+        let barColor = 'bg-emerald-500';
+        let borderColor = 'border-emerald-200';
+
+        if (pct >= 90) {
+          statusColor = 'rose';
+          statusBadge = pct >= 100 ? 'เกินโควต้า' : 'ใกล้เต็ม';
+          barColor = 'bg-rose-500';
+          borderColor = 'border-rose-300';
+        } else if (pct >= 70) {
+          statusColor = 'amber';
+          statusBadge = 'เฝ้าระวัง';
+          barColor = 'bg-amber-500';
+          borderColor = 'border-amber-300';
+        }
+
+        html += `
+          <div class="bg-gray-50 rounded-xl p-4 border ${borderColor} hover:shadow-md transition">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <span class="text-xs font-bold text-gray-400">[${esc(g.code)}]</span>
+                <h4 class="font-bold text-sm text-gray-800 line-clamp-1" title="${esc(g.name)}">${esc(g.name)}</h4>
+              </div>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-${statusColor}-100 text-${statusColor}-700 border border-${statusColor}-200 whitespace-nowrap">
+                ${statusBadge} (${pct}%)
+              </span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden">
+              <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${Math.min(100, pct)}%"></div>
+            </div>
+
+            <div class="flex justify-between items-center text-xs text-gray-600 mt-2">
+              <div>
+                <span class="text-gray-400">ใช้งาน:</span> <b class="text-gray-900">${g.total.toLocaleString()}</b> / ${qSheets.toLocaleString()} แผ่น
+              </div>
+              <div class="text-right">
+                <span class="text-gray-400">งบประมาณ:</span> <b class="text-blue-600">฿${Math.round(estCost).toLocaleString()}</b> / ฿${qBudget.toLocaleString()}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderRequestsTableOnly() {
+      const pr = globalData.printReqs || [];
+      const prTb = document.getElementById('requestsPrintReqBody');
+      if (!prTb) return;
+      prTb.innerHTML = '';
+
+      let groupedAdminReqs = {};
+      pr.forEach(function(r) {
+        let ts = r["Timestamp_Str"] || r["Timestamp"];
+        if(!groupedAdminReqs[ts]) {
+          groupedAdminReqs[ts] = { ts: ts, name: r["ชื่อผู้ขอ"], group: r["กลุ่มงาน"], status: r["สถานะ"], remark: r["หมายเหตุ"] || "-", files: [], totalPages: 0 };
+        }
+        groupedAdminReqs[ts].files.push({ url: r["ไฟล์แนบ"], pages: r["จำนวนแผ่น"], details: r["รายละเอียด"] || "" });
+        groupedAdminReqs[ts].totalPages += (parseFloat(r["จำนวนแผ่น"]) || 0);
+      });
+
+      let sortedAdminReqs = Object.values(groupedAdminReqs).reverse();
+      sortedAdminReqs.forEach(function(r) {
+        let dateLabel = r.ts;
+        let status = r.status || "รอปริ้น";
+        let statusBadge = "";
+        let actionBtn = '<div class="flex justify-center space-x-2 mt-1">';
+
+        if (status === "รอปริ้น") {
+          statusBadge = '<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded text-xs font-semibold">รอปริ้น</span>';
+          actionBtn += '<button data-ts="' + esc(dateLabel) + '" onclick="updatePrintStatus(this.dataset.ts)" class="text-green-600 hover:text-green-800" title="อนุมัติ"><i class="fas fa-check-circle text-lg"></i></button>';
+          actionBtn += '<button data-ts="' + esc(dateLabel) + '" onclick="cancelPrintReq(this.dataset.ts)" class="text-orange-500 hover:text-orange-700" title="ยกเลิก"><i class="fas fa-times-circle text-lg"></i></button>';
+        } else if (status === "ยกเลิก") {
+          statusBadge = '<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-semibold">ยกเลิกแล้ว</span>';
+        } else {
+          statusBadge = '<span class="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs font-semibold">' + esc(status) + '</span>';
+        }
+        actionBtn += '<button data-ts="' + esc(dateLabel) + '" onclick="deletePrintReq(this.dataset.ts)" class="text-red-500 hover:text-red-700" title="ลบ"><i class="fas fa-trash text-lg"></i></button></div>';
+
+        let filesHtml = r.files.map((f, i) => {
+          let fJson = esc(JSON.stringify(r.files));
+          return '<div class="flex items-center space-x-2 mb-1.5">' +
+                 '<button type="button" onclick=\'openFilePreview(' + fJson + ', "' + esc(r.name) + '", "' + esc(r.group) + '")\' class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded text-xs font-semibold flex items-center space-x-1">' +
+                 '<i class="fas fa-eye text-blue-600"></i> <span>ดูตัวอย่าง</span>' +
+                 '</button>' +
+                 '<a href="' + f.url + '" target="_blank" class="text-blue-600 hover:underline text-xs flex items-center space-x-1">' +
+                 '<i class="fas fa-external-link-alt text-gray-400"></i> <span>ไฟล์ ' + (i + 1) + '</span>' +
+                 '</a>' +
+                 '<span class="text-gray-500 text-xs">(' + esc(f.pages) + ' แผ่น)</span>' +
+                 '</div>';
+        }).join('');
+
+        prTb.innerHTML += '<tr class="border-b hover:bg-gray-50">' +
+          '<td class="p-3 text-xs">' + esc(dateLabel) + '</td>' +
+          '<td class="p-3 font-bold">' + esc(r.name) + '</td>' +
+          '<td class="p-3 text-xs">' + esc(r.group) + '</td>' +
+          '<td class="p-3 text-center font-bold">' + r.totalPages + ' แผ่น<br><span class="text-xs text-gray-500 font-normal">(' + r.files.length + ' ไฟล์)</span></td>' +
+          '<td class="p-3 text-left">' + filesHtml + ' <p class="text-xs text-orange-600 mt-2 bg-orange-50 p-1 rounded border border-orange-100"><i class="fas fa-info-circle"></i> หมายเหตุ: ' + esc(r.remark) + '</p></td>' +
+          '<td class="p-3 text-center">' + statusBadge + actionBtn + '</td>' +
+          '</tr>';
+      });
+    }
+
   </script>
+
+  <!-- 🔍 FEATURE A: IN-APP PDF / IMAGE PREVIEW MODAL -->
+  <div id="filePreviewModal" class="fixed inset-0 z-50 flex items-center justify-center auth-bg hidden p-2 sm:p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden animate-fade-in border border-gray-200">
+      <div class="p-4 bg-gradient-to-r from-blue-700 to-indigo-700 text-white flex justify-between items-center shadow-md">
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-file-invoice text-xl text-yellow-300"></i>
+          <div>
+            <h3 id="previewModalTitle" class="font-bold text-base md:text-lg">ตัวอย่างเอกสาร</h3>
+            <p id="previewModalSub" class="text-xs text-blue-100">ระบบแสดงตัวอย่างเอกสารก่อนพิมพ์ สสจ.นครนายก</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <a id="previewOpenTabBtn" href="#" target="_blank" class="bg-white/20 hover:bg-white/30 text-white text-xs px-3 py-1.5 rounded-lg flex items-center space-x-1 transition font-medium">
+            <i class="fas fa-external-link-alt"></i> <span class="hidden sm:inline">เปิดแท็บใหม่</span>
+          </a>
+          <button onclick="closeFilePreview()" class="text-white hover:text-red-200 text-xl px-2 py-1 transition">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div id="previewTabsContainer" class="bg-gray-100 px-4 py-2 border-b flex space-x-2 overflow-x-auto text-xs hidden"></div>
+      <div class="flex-1 bg-gray-900 relative">
+        <div id="previewLoading" class="absolute inset-0 flex flex-col items-center justify-center text-white space-y-2 z-10 bg-gray-900/80">
+          <i class="fas fa-circle-notch fa-spin text-4xl text-blue-400"></i>
+          <p class="text-sm">กำลังโหลดตัวอย่างเอกสาร...</p>
+        </div>
+        <iframe id="previewIframe" src="about:blank" class="w-full h-full border-0" onload="document.getElementById('previewLoading').classList.add('hidden')"></iframe>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

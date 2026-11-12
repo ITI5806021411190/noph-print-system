@@ -1,0 +1,5 @@
+*_backup.*
+vercel_index.html
+*.tmp
+.DS_Store
+Thumbs.db
