@@ -415,136 +415,195 @@
     </div>
     
     <div id="view-user" class="view-section hidden">
-      <h2 class="text-2xl font-semibold mb-6 text-gray-800">ข้อมูลส่วนตัวและจัดการคำขอของฉัน</h2>
+      <!-- User Portal Header -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-lg shadow-md shadow-emerald-500/20">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            ข้อมูลส่วนตัวและจัดการคำขอของฉัน
+            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Staff Portal</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">ตรวจสอบสถิติการใช้งานของตนเอง ส่งคำขอปริ้นสี และติดตามสถานะแบบเรียลไทม์</p>
+        </div>
+      </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-bold text-blue-600 mb-4"><i class="fas fa-user-circle text-2xl align-middle mr-2"></i> สถิติการใช้งานของฉัน (เดือนปัจจุบัน)</h3>
-          <div class="grid grid-cols-2 gap-4 text-center mb-4">
-            <div class="bg-blue-50 border border-blue-100 p-4 rounded-lg">
-              <p class="text-sm text-blue-600 font-medium">Print ทั้งหมด</p>
-              <p class="text-3xl font-bold text-blue-800 mt-1" id="myPrint">0</p>
-            </div>
-            <div class="bg-purple-50 border border-purple-100 p-4 rounded-lg">
-              <p class="text-sm text-purple-600 font-medium">Copy ทั้งหมด</p>
-              <p class="text-3xl font-bold text-purple-800 mt-1" id="myCopy">0</p>
-            </div>
-          </div>
-          <div class="p-4 bg-red-50 border border-red-100 rounded-lg text-center shadow-sm">
-            <p class="text-sm font-medium text-red-600">ค่าใช้จ่ายของฉันประมาณการ</p>
-            <p class="text-4xl font-bold text-red-600 mt-1">฿<span id="myCost">0</span></p>
-          </div>
-          
-          <hr class="my-5 border-gray-200">
-          
-          <div class="flex space-x-3">
-            <button onclick="requestNewPinUI()" class="w-1/2 bg-yellow-500 hover:bg-yellow-600 text-white py-2.5 rounded-md text-sm font-medium shadow-sm transition">
-              <i class="fas fa-key mr-1"></i> ขอ PIN ใหม่ (ลืมรหัส)
-            </button>
-            <button onclick="openMyProfileEdit()" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-md text-sm font-medium shadow-sm transition">
-              <i class="fas fa-user-edit mr-1"></i> ขอแก้ไขข้อมูลส่วนตัว
-            </button>
-          </div>
-          
-          <div id="pendingEditWarning" class="hidden mt-4 p-3 bg-orange-50 border border-orange-200 rounded-md text-center">
-            <p class="text-sm text-orange-600 font-bold"><i class="fas fa-clock mr-1"></i> คุณมีคำขอแก้ไขข้อมูลที่กำลังรอ Admin อนุมัติ</p>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6 border-t-4 border-green-500">
-          <h3 class="text-lg font-bold text-green-600 mb-2"><i class="fas fa-print mr-2"></i> ฟอร์มส่งคำขอปริ้นสี (Color Print Request)</h3>
-          <p class="text-sm text-gray-500 mb-4">รองรับไฟล์ PDF, JPG, PNG (ขนาดไม่เกิน 15MB/ไฟล์)</p>
-          
-          <div class="mb-5">
-            <label class="block text-sm font-bold text-gray-700 mb-1">หมายเหตุถึง Admin (ระบุหรือไม่ก็ได้)</label>
-            <input type="text" id="reqRemark" class="w-full border-2 border-gray-200 p-2.5 rounded-md text-sm bg-gray-50 focus:outline-none focus:border-green-400 focus:bg-white transition" placeholder="เช่น ขอปริ้นด่วนครับ, รบกวนเย็บมุมซ้ายบนให้ด้วยครับ">
-          </div>
-          
-          <hr class="mb-5 border-gray-200">
-
-          <div id="printFilesContainer" class="space-y-4">
-            <div class="file-row p-4 bg-gray-50 border border-gray-200 rounded-lg relative shadow-sm hover:shadow-md transition">
-               <button type="button" class="absolute top-2 right-2 text-red-400 hover:text-red-600 hidden remove-btn transition" onclick="removeFileRow(this)" title="ลบไฟล์นี้"><i class="fas fa-times-circle text-lg"></i></button>
-               
-               <div class="mb-3 pr-6">
-                 <label class="block text-xs font-bold text-gray-600 mb-1">1. อัปโหลดไฟล์เอกสาร</label>
-                 <input type="file" class="w-full border border-gray-300 p-2 rounded text-sm req-file bg-white focus:outline-none focus:border-blue-400" accept=".pdf,.jpg,.png,.jpeg">
-               </div>
-               
-               <div class="grid grid-cols-3 gap-3">
-                 <div>
-                   <label class="block text-xs font-bold text-gray-600 mb-1">2. ระบุหน้า</label>
-                   <input type="text" class="w-full border border-gray-300 p-2 rounded text-sm req-pages-range focus:outline-none focus:border-blue-400" placeholder="เช่น 1-5, 8, 10">
-                 </div>
-                 <div>
-                   <label class="block text-xs font-bold text-gray-600 mb-1">3. จำนวนชุด</label>
-                   <input type="number" class="w-full border border-gray-300 p-2 rounded text-sm req-copies focus:outline-none focus:border-blue-400" placeholder="เช่น 2" value="1" min="1">
-                 </div>
-                 <div>
-                   <label class="block text-xs font-bold text-blue-600 mb-1">4. สรุปยอดรวมแผ่น</label>
-                   <input type="number" class="w-full border-2 border-blue-400 bg-blue-50 p-2 rounded text-sm req-total-sheets focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="ยอดรวมแผ่น" min="1">
-                 </div>
-               </div>
-               <p class="text-[10px] text-gray-400 mt-2">* ยอดรวมแผ่น = จำนวนหน้าที่สั่ง x จำนวนชุด (กรุณาคำนวณให้ถูกต้องเพื่อประเมินค่าใช้จ่าย)</p>
-            </div>
-          </div>
-          
-          <button type="button" onclick="addFileRow()" class="mt-4 w-full bg-white text-blue-600 py-2.5 rounded-md text-sm font-bold hover:bg-blue-50 border-2 border-blue-200 border-dashed transition shadow-sm">
-            <i class="fas fa-plus-circle mr-1"></i> เพิ่มไฟล์เอกสารอื่น
-          </button>
-          
-          <hr class="my-5 border-gray-200">
-          
-          <button onclick="submitPrintReq()" class="w-full bg-green-600 text-white py-3.5 rounded-lg font-bold text-lg hover:bg-green-700 shadow-lg transform transition hover:-translate-y-0.5">
-            <i class="fas fa-paper-plane mr-2"></i> กดส่งคำขอปริ้นทั้งหมด
-          </button>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Personal Stats Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-lg font-bold text-pink-600"><i class="fas fa-history mr-2"></i> ประวัติคำขอปริ้นสีของฉัน</h3>
-            <p class="text-xs text-gray-500 mt-1">สามารถติดตามสถานะการปริ้น หรือกดยกเลิกคำขอได้ที่นี่</p>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
+                  <i class="fas fa-id-card"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-800">สถิติการใช้งานของฉัน (รอบปัจจุบัน)</h3>
+                  <p class="text-xs text-slate-400">ประมวลผลจากการใช้งานเครื่องพิมพ์และถ่ายเอกสาร</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="bg-blue-50/60 border border-blue-100 p-4 rounded-2xl text-center">
+                <span class="text-xs text-blue-600 font-semibold flex items-center justify-center gap-1"><i class="fas fa-print"></i> Print ทั้งหมด</span>
+                <p class="text-3xl font-bold text-blue-800 mt-1 font-mono" id="myPrint">0</p>
+                <span class="text-[11px] text-blue-400">แผ่น</span>
+              </div>
+              <div class="bg-purple-50/60 border border-purple-100 p-4 rounded-2xl text-center">
+                <span class="text-xs text-purple-600 font-semibold flex items-center justify-center gap-1"><i class="fas fa-copy"></i> Copy ทั้งหมด</span>
+                <p class="text-3xl font-bold text-purple-800 mt-1 font-mono" id="myCopy">0</p>
+                <span class="text-[11px] text-purple-400">แผ่น</span>
+              </div>
+            </div>
+
+            <div class="p-4 bg-rose-50/60 border border-rose-100 rounded-2xl text-center mb-4">
+              <span class="text-xs font-semibold text-rose-600 flex items-center justify-center gap-1"><i class="fas fa-coins"></i> ค่าใช้จ่ายของฉันประมาณการ</span>
+              <p class="text-3xl font-bold text-rose-600 mt-1 font-mono">฿<span id="myCost">0</span></p>
+              <span class="text-[11px] text-rose-400">คำนวณตามอัตราค่าบริการของสำนักงาน</span>
+            </div>
           </div>
-          <button onclick="loadMainData()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-200 border shadow-sm transition"><i class="fas fa-sync-alt mr-1"></i> รีเฟรชสถานะ</button>
+          
+          <div>
+            <div class="flex gap-3 pt-3 border-t border-slate-100">
+              <button onclick="requestNewPinUI()" class="w-1/2 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fas fa-key"></i> <span>ขอ PIN ใหม่</span>
+              </button>
+              <button onclick="openMyProfileEdit()" class="w-1/2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fas fa-user-pen"></i> <span>ขอแก้ไขข้อมูลส่วนตัว</span>
+              </button>
+            </div>
+            
+            <div id="pendingEditWarning" class="hidden mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-center">
+              <p class="text-xs text-amber-700 font-bold flex items-center justify-center gap-1"><i class="fas fa-clock"></i> คุณมีคำขอแก้ไขข้อมูลที่กำลังรอ Admin ตรวจสอบ</p>
+            </div>
+          </div>
         </div>
-        <div class="overflow-x-auto border rounded-lg">
-          <table class="min-w-full text-sm divide-y divide-gray-200">
-            <thead class="bg-gray-50 text-gray-700">
-              <tr>
-                <th class="p-3 text-left font-semibold">วันที่ส่งคำขอ</th>
-                <th class="p-3 text-center font-semibold">ยอดรวม (แผ่น)</th>
-                <th class="p-3 text-left font-semibold">รายการไฟล์ที่แนบ</th>
-                <th class="p-3 text-center font-semibold">สถานะปัจจุบัน</th>
-              </tr>
-            </thead>
-            <tbody id="myPrintReqTableBody" class="divide-y divide-gray-200 bg-white"></tbody>
-          </table>
+
+        <!-- Color Print Form Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+                  <i class="fas fa-print"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-800">ฟอร์มส่งคำขอปริ้นสี (Color Print Request)</h3>
+                  <p class="text-xs text-slate-400">รองรับไฟล์ PDF, JPG, PNG (ขนาดไม่เกิน 15MB/ไฟล์)</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">หมายเหตุถึง Admin (ระบุหรือไม่ก็ได้)</label>
+              <input type="text" id="reqRemark" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition" placeholder="เช่น ขอปริ้นด่วนครับ, รบกวนเย็บมุมซ้ายบนให้ด้วยครับ">
+            </div>
+
+            <div id="printFilesContainer" class="space-y-3 max-h-72 overflow-y-auto pr-1 chat-scroll">
+              <div class="file-row p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl relative shadow-xs hover:border-slate-300 transition">
+                 <button type="button" class="absolute top-2 right-2 text-rose-400 hover:text-rose-600 hidden remove-btn transition" onclick="removeFileRow(this)" title="ลบไฟล์นี้"><i class="fas fa-times-circle text-base"></i></button>
+                 
+                 <div class="mb-2.5 pr-6">
+                   <label class="block text-[11px] font-bold text-slate-600 mb-1">1. อัปโหลดไฟล์เอกสาร</label>
+                   <input type="file" class="w-full border border-slate-300 p-1.5 rounded-lg text-xs req-file bg-white focus:outline-none focus:border-indigo-400" accept=".pdf,.jpg,.png,.jpeg">
+                 </div>
+                 
+                 <div class="grid grid-cols-3 gap-2">
+                   <div>
+                     <label class="block text-[11px] font-bold text-slate-600 mb-1">2. ระบุหน้า</label>
+                     <input type="text" class="w-full border border-slate-300 p-1.5 rounded-lg text-xs req-pages-range focus:outline-none focus:border-indigo-400" placeholder="เช่น 1-5, 8">
+                   </div>
+                   <div>
+                     <label class="block text-[11px] font-bold text-slate-600 mb-1">3. จำนวนชุด</label>
+                     <input type="number" class="w-full border border-slate-300 p-1.5 rounded-lg text-xs req-copies focus:outline-none focus:border-indigo-400" placeholder="1" value="1" min="1">
+                   </div>
+                   <div>
+                     <label class="block text-[11px] font-bold text-indigo-600 mb-1">4. สรุปยอดรวมแผ่น</label>
+                     <input type="number" class="w-full border-2 border-indigo-300 bg-indigo-50/50 p-1.5 rounded-lg text-xs font-bold text-indigo-700 req-total-sheets focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="ยอดรวมแผ่น" min="1">
+                   </div>
+                 </div>
+              </div>
+            </div>
+            
+            <button type="button" onclick="addFileRow()" class="mt-3 w-full bg-white text-indigo-600 py-2 rounded-xl text-xs font-bold hover:bg-indigo-50 border border-dashed border-indigo-300 transition flex items-center justify-center gap-1.5 shadow-xs">
+              <i class="fas fa-plus-circle"></i> <span>เพิ่มไฟล์เอกสารอื่น</span>
+            </button>
+          </div>
+          
+          <div class="pt-4 border-t border-slate-100 mt-4">
+            <button onclick="submitPrintReq()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-3 rounded-xl font-bold text-sm shadow-md shadow-emerald-500/20 transform transition hover:-translate-y-0.5 flex items-center justify-center gap-2">
+              <i class="fas fa-paper-plane"></i> <span>กดส่งคำขอปริ้นทั้งหมด</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-6 border-t-4 border-purple-500">
-        <h3 class="text-lg font-bold text-purple-700 mb-1">
-          <i class="fas fa-users mr-2"></i> ภาพรวมสถิติกลุ่มงาน: <span id="myGroupName" class="text-gray-800 ml-1"></span>
-        </h3>
-        <p class="text-xs text-gray-500 mb-4">แสดงยอดการใช้งานของสมาชิกทุกคนในกลุ่มงานเดียวกัน</p>
-        <div class="overflow-x-auto border rounded-lg">
-          <table class="min-w-full text-sm divide-y divide-gray-200">
-            <thead class="bg-gray-50 text-gray-700">
-              <tr>
-                <th class="p-3 text-left font-semibold">ชื่อ-สกุล (หรือรหัสเครื่อง)</th>
-                <th class="p-3 text-right font-semibold">ยอด Print (แผ่น)</th>
-                <th class="p-3 text-right font-semibold">ยอด Copy (แผ่น)</th>
-                <th class="p-3 text-right font-semibold text-blue-600">รวมทั้งหมด (แผ่น)</th>
-              </tr>
-            </thead>
-            <tbody id="myGroupTable" class="divide-y divide-gray-200 bg-white"></tbody>
-          </table>
+      <!-- My Print Requests History -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center text-sm">
+              <i class="fas fa-clock-rotate-left"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800">ประวัติคำขอปริ้นสีของฉัน</h3>
+              <p class="text-xs text-slate-400">ติดตามสถานะการพิมพ์ หรือขอยกเลิกคำขอที่ยังไม่อนุมัติ</p>
+            </div>
+          </div>
+          <button onclick="loadMainData()" class="bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-xs">
+            <i class="fas fa-sync-alt"></i> <span>รีเฟรชสถานะ</span>
+          </button>
+        </div>
+        <div class="border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm divide-y divide-slate-100">
+              <thead class="bg-slate-100/70 text-slate-600 text-xs font-semibold">
+                <tr>
+                  <th class="p-3.5 text-left">วันที่ส่งคำขอ</th>
+                  <th class="p-3.5 text-center">ยอดรวม (แผ่น)</th>
+                  <th class="p-3.5 text-left">รายการไฟล์ที่แนบ</th>
+                  <th class="p-3.5 text-center">สถานะปัจจุบัน</th>
+                </tr>
+              </thead>
+              <tbody id="myPrintReqTableBody" class="divide-y divide-slate-100 bg-white text-slate-700"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Department Colleagues Usage Table -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+        <div class="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
+          <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+            <i class="fas fa-users"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">
+              ภาพรวมสถิติกลุ่มงาน: <span id="myGroupName" class="text-indigo-600 ml-1"></span>
+            </h3>
+            <p class="text-xs text-slate-400">แสดงยอดการใช้งานของสมาชิกทุกคนในกลุ่มงานเดียวกัน</p>
+          </div>
+        </div>
+        <div class="border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm divide-y divide-slate-100">
+              <thead class="bg-slate-100/70 text-slate-600 text-xs font-semibold">
+                <tr>
+                  <th class="p-3.5 text-left">ชื่อ-สกุล (หรือรหัสเครื่อง)</th>
+                  <th class="p-3.5 text-right">ยอด Print (แผ่น)</th>
+                  <th class="p-3.5 text-right">ยอด Copy (แผ่น)</th>
+                  <th class="p-3.5 text-right font-bold text-indigo-600">รวมทั้งหมด (แผ่น)</th>
+                </tr>
+              </thead>
+              <tbody id="myGroupTable" class="divide-y divide-slate-100 bg-white text-slate-700"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
-
+    
     <div id="view-requests" class="view-section hidden">
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex justify-between items-center mb-6">
@@ -1552,6 +1611,40 @@
       });
     }
 
+    
+    // 🧮 Smart Page Range Auto-calculator
+    document.addEventListener('input', function(e) {
+      if (e.target && (e.target.classList.contains('req-pages-range') || e.target.classList.contains('req-copies'))) {
+        const row = e.target.closest('.file-row');
+        if (row) {
+          const pageRangeInput = row.querySelector('.req-pages-range');
+          const copiesInput = row.querySelector('.req-copies');
+          const totalInput = row.querySelector('.req-total-sheets');
+          if (pageRangeInput && copiesInput && totalInput) {
+            const rawRange = pageRangeInput.value.trim();
+            const copies = parseInt(copiesInput.value) || 1;
+            if (!rawRange) return;
+            let pageCount = 0;
+            const parts = rawRange.split(/[,;\s]+/);
+            parts.forEach(p => {
+              if (p.includes('-')) {
+                const segs = p.split('-').map(x => parseInt(x));
+                if (!isNaN(segs[0]) && !isNaN(segs[1]) && segs[1] >= segs[0]) {
+                  pageCount += (segs[1] - segs[0] + 1);
+                }
+              } else {
+                const num = parseInt(p);
+                if (!isNaN(num)) pageCount += 1;
+              }
+            });
+            if (pageCount > 0) {
+              totalInput.value = pageCount * copies;
+            }
+          }
+        }
+      }
+    });
+
     function addFileRow() {
       const container = document.getElementById('printFilesContainer');
       if(!container) return;
@@ -1987,36 +2080,48 @@
        const container = document.getElementById(containerId);
        if(!container) return;
        const roomChats = chats.filter(c => String(c.Room_ID).replace(/'/g, '').trim() === roomId);
-       let headerText = currentUser.role === 'user' ? 'สนทนากับ Admin (สสจ.นย.)' : `สนทนากับผู้ใช้: ${roomId}`;
+       let headerText = currentUser.role === 'user' ? 'สนทนากับ Admin (สสจ.นครนายก)' : `ห้องสนทนาผู้ใช้: ${roomId}`;
 
        let html = `
-         <div class="p-3 border-b bg-blue-600 text-white font-bold flex justify-between items-center shadow-sm z-10">
-            <span><i class="fas fa-comments"></i> ${esc(headerText)}</span>
-            <button onclick="loadMainData()" class="text-xs bg-white text-blue-600 px-3 py-1.5 rounded-full shadow hover:bg-blue-50 transition"><i class="fas fa-sync-alt"></i> อัปเดต</button>
+         <div class="px-5 py-3.5 border-b border-slate-100 bg-white flex justify-between items-center shadow-xs z-10">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                <i class="fas fa-headset text-xs"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-slate-800">${esc(headerText)}</div>
+                <div class="text-[11px] text-emerald-600 flex items-center gap-1.5 font-medium">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ออนไลน์ (Real-time auto-sync)
+                </div>
+              </div>
+            </div>
+            <button onclick="loadMainData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-indigo-600 px-3 py-1.5 rounded-xl border border-slate-200 transition flex items-center gap-1.5 shadow-xs">
+              <i class="fas fa-sync-alt"></i> <span>อัปเดต</span>
+            </button>
          </div>
-         <div id="chatMessagesArea" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50 chat-scroll">
+         <div id="chatMessagesArea" class="flex-1 p-5 overflow-y-auto space-y-3 bg-slate-50/70 chat-scroll">
        `;
 
        if(roomChats.length === 0) {
-          html += '<div class="text-center text-sm text-gray-400 mt-10 bg-white py-4 rounded-lg border border-dashed border-gray-300">เริ่มพิมพ์ข้อความเพื่อติดต่อสนทนาได้เลยครับ 👋</div>';
+          html += '<div class="text-center text-xs text-slate-400 my-12 bg-white py-6 rounded-2xl border border-dashed border-slate-200 mx-6"><i class="fas fa-comments text-2xl mb-2 text-slate-300 block"></i>เริ่มต้นพิมพ์ข้อความเพื่อติดต่อสอบถามผู้ดูแลระบบได้เลยครับ 👋</div>';
        }
 
        roomChats.forEach(function(c) {
           const isMe = c.Sender_Name === currentUser.name;
           const timeStr = c.Chat_Time_Str || c.Chat_Time;
-          const roleBadge = (c.Sender_Role === 'admin' || c.Sender_Role === 'assistant') ? '<span class="text-[9px] bg-yellow-300 text-yellow-800 px-1.5 rounded-full ml-1 font-bold">Admin</span>' : '';
+          const roleBadge = (c.Sender_Role === 'admin' || c.Sender_Role === 'assistant') ? '<span class="text-[9px] bg-amber-100 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded-full ml-1 font-bold">Admin</span>' : '';
 
           if(isMe) {
              html += `
                <div class="flex justify-end mb-2 group relative">
                  <div class="flex flex-col items-end">
-                   <div class="bg-blue-500 text-white p-3 rounded-2xl rounded-tr-sm max-w-[100%] text-sm shadow-sm relative">
-                     <p>${esc(c.Message)}</p>
-                     <p class="text-[10px] text-blue-100 text-right mt-1">${esc(timeStr)}</p>
+                   <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-3 rounded-2xl rounded-tr-xs max-w-[85%] text-xs md:text-sm shadow-sm relative">
+                     <p class="leading-relaxed">${esc(c.Message)}</p>
+                     <p class="text-[10px] text-indigo-200 text-right mt-1 font-mono">${esc(timeStr)}</p>
                    </div>
                    <div class="flex space-x-3 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button data-room="${esc(roomId)}" data-time="${esc(timeStr)}" onclick="editChatMsg(this.dataset.room, this.dataset.time)" class="text-[11px] text-gray-500 hover:text-blue-600 font-bold"><i class="fas fa-edit"></i> แก้ไข</button>
-                      <button data-room="${esc(roomId)}" data-time="${esc(timeStr)}" onclick="deleteChatMsg(this.dataset.room, this.dataset.time)" class="text-[11px] text-gray-500 hover:text-red-600 font-bold"><i class="fas fa-trash"></i> ลบ</button>
+                      <button data-room="${esc(roomId)}" data-time="${esc(timeStr)}" onclick="editChatMsg(this.dataset.room, this.dataset.time)" class="text-[11px] text-slate-400 hover:text-indigo-600 font-semibold"><i class="fas fa-edit mr-0.5"></i> แก้ไข</button>
+                      <button data-room="${esc(roomId)}" data-time="${esc(timeStr)}" onclick="deleteChatMsg(this.dataset.room, this.dataset.time)" class="text-[11px] text-slate-400 hover:text-rose-600 font-semibold"><i class="fas fa-trash mr-0.5"></i> ลบ</button>
                    </div>
                  </div>
                </div>
@@ -2024,10 +2129,12 @@
           } else {
              html += `
                <div class="flex justify-start mb-2">
-                 <div class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-sm max-w-[85%] text-sm shadow-sm relative">
-                   <p class="text-[11px] text-gray-500 mb-1 border-b pb-1"><b>${esc(c.Sender_Name)}</b> ${roleBadge}</p>
-                   <p class="text-gray-800 mt-1">${esc(c.Message)}</p>
-                   <p class="text-[10px] text-gray-400 text-right mt-1">${esc(timeStr)}</p>
+                 <div class="bg-white border border-slate-200/80 p-3 rounded-2xl rounded-tl-xs max-w-[85%] text-xs md:text-sm shadow-sm relative">
+                   <div class="text-[11px] text-slate-400 mb-1 border-b border-slate-100 pb-1 flex items-center gap-1.5">
+                     <b class="text-slate-700">${esc(c.Sender_Name)}</b> ${roleBadge}
+                   </div>
+                   <p class="text-slate-800 leading-relaxed mt-1">${esc(c.Message)}</p>
+                   <p class="text-[10px] text-slate-400 text-right mt-1 font-mono">${esc(timeStr)}</p>
                  </div>
                </div>
              `;
@@ -2036,10 +2143,10 @@
 
        html += `
          </div>
-         <div class="p-3 border-t bg-white flex space-x-2 shadow-inner">
-           <input type="text" id="chatInputMain" class="flex-1 border border-gray-300 bg-gray-50 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:bg-white transition" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="if(event.key === 'Enter') submitChatMsg()">
-           <button onclick="submitChatMsg()" class="bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center hover:bg-blue-700 shadow-md flex-shrink-0 transition transform hover:scale-105">
-             <i class="fas fa-paper-plane ml-1"></i>
+         <div class="p-3.5 border-t border-slate-100 bg-white flex items-center gap-2">
+           <input type="text" id="chatInputMain" class="flex-1 border border-slate-200 bg-slate-50 rounded-2xl px-4 py-2.5 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="if(event.key === 'Enter') submitChatMsg()">
+           <button onclick="submitChatMsg()" class="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white w-10 h-10 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-500/20 flex-shrink-0 transition transform hover:scale-105">
+             <i class="fas fa-paper-plane text-xs"></i>
            </button>
          </div>
        `;
