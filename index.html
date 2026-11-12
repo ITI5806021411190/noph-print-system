@@ -636,85 +636,330 @@
     </div>
 
     <div id="view-admin" class="view-section hidden">
-      <h2 class="text-2xl font-semibold mb-6">จัดการแอดมินและตั้งค่าระบบ</h2>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        
-        <div class="bg-white rounded-lg shadow p-6 super-admin-only">
-          <h3 class="text-lg font-bold mb-4 text-blue-600"><i class="fas fa-cog"></i> ตั้งค่าทั่วไป</h3>
-          <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="text-sm">เรท ขาว-ดำ</label>
-                <input type="number" id="setBw" class="w-full border p-1 rounded" placeholder="เช่น 0.31">
+      <!-- Admin Console Header -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-lg shadow-md shadow-indigo-500/20">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              จัดการแอดมินและตั้งค่าระบบ
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Admin Console</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">ควบคุมอัตราค่าบริการ การแจ้งเตือน โครงสร้างกลุ่มงาน และจัดการบัญชีบุคลากร สสจ.นครนายก</p>
+          </div>
+        </div>
+        <button onclick="loadAdminData()" class="flex items-center gap-2 bg-white text-slate-700 hover:text-indigo-600 border border-slate-200/80 px-4 py-2 rounded-xl text-xs font-semibold shadow-sm hover:shadow transition">
+          <i class="fas fa-sync-alt"></i> <span>รีเฟรชข้อมูลล่าสุด</span>
+        </button>
+      </div>
+
+      <!-- Admin Section Tabs -->
+      <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-200/80 pb-3" id="adminTabsBar">
+        <button type="button" onclick="switchAdminTab('rates')" id="adminTabBtn-rates" class="admin-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition bg-indigo-600 text-white shadow-sm shadow-indigo-500/20">
+          <i class="fas fa-coins"></i> <span>อัตราค่าบริการ & ราคา</span>
+        </button>
+        <button type="button" onclick="switchAdminTab('alerts')" id="adminTabBtn-alerts" class="admin-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200">
+          <i class="fab fa-telegram-plane"></i> <span>การแจ้งเตือน Telegram & อีเมล</span>
+        </button>
+        <button type="button" onclick="switchAdminTab('groups')" id="adminTabBtn-groups" class="admin-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200">
+          <i class="fas fa-sitemap"></i> <span>โครงสร้างกลุ่มงาน</span>
+        </button>
+        <button type="button" onclick="switchAdminTab('users')" id="adminTabBtn-users" class="admin-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200">
+          <i class="fas fa-users-cog"></i> <span>จัดการบุคลากร & สิทธิ์</span>
+        </button>
+        <button type="button" onclick="switchAdminTab('maintenance')" id="adminTabBtn-maintenance" class="admin-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200 super-admin-only">
+          <i class="fas fa-shield-halved"></i> <span>บำรุงรักษาระบบ (Danger Zone)</span>
+        </button>
+      </div>
+
+      <!-- PANEL 1: Rates & Pricing -->
+      <div id="adminPanel-rates" class="admin-panel space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 max-w-3xl">
+          <div class="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+              <i class="fas fa-tag"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800">อัตราค่าบริการต่อแผ่น (Cost per Sheet)</h3>
+              <p class="text-xs text-slate-400">ใช้สำหรับคำนวณงบประมาณประมาณการในแดชบอร์ดและรายงานของทุกกลุ่มงาน</p>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span> พิมพ์ / ถ่าย ขาว-ดำ (บาท/แผ่น)
+              </label>
+              <div class="relative">
+                <input type="number" id="setBw" step="0.01" class="w-full bg-white border border-slate-300 p-2.5 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="เช่น 0.31">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">บาท</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1.5">* มาตรฐานปัจจุบัน: 0.31 บาท/แผ่น</p>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-pink-500"></span> พิมพ์ / ถ่าย สี (บาท/แผ่น)
+              </label>
+              <div class="relative">
+                <input type="number" id="setColor" step="0.01" class="w-full bg-white border border-slate-300 p-2.5 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="เช่น 3.00">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">บาท</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1.5">* มาตรฐานปัจจุบัน: 3.00 บาท/แผ่น</p>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button onclick="saveAdminSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-md shadow-indigo-500/20 transition flex items-center gap-2">
+              <i class="fas fa-save"></i> <span>บันทึกอัตราค่าบริการ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: Telegram & Email Notifications -->
+      <div id="adminPanel-alerts" class="admin-panel hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Telegram Card -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+            <div class="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
+              <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-500 flex items-center justify-center text-sm">
+                <i class="fab fa-telegram"></i>
               </div>
               <div>
-                <label class="text-sm">เรท สี</label>
-                <input type="number" id="setColor" class="w-full border p-1 rounded" placeholder="เช่น 3">
+                <h3 class="text-base font-bold text-slate-800">การแจ้งเตือนผ่าน Telegram</h3>
+                <p class="text-xs text-slate-400">แจ้งเตือนคำขอปริ้นสีและข้อความแชทใหม่เข้ากลุ่มเจ้าหน้าที่ทันที</p>
               </div>
             </div>
-            <div>
-              <label class="text-sm">อีเมลสรุปรายงานประจำเดือน</label>
-              <input type="text" id="setEmails" class="w-full border p-1 rounded" placeholder="ใส่อีเมลสำหรับรับรายงาน">
-            </div>
-            <hr class="my-2">
-            <h4 class="text-sm font-bold text-blue-800"><i class="fab fa-telegram"></i> แจ้งเตือน Telegram กลุ่ม</h4>
-            <div>
-              <label class="text-sm text-gray-500">Bot Token</label>
-              <input type="text" id="setTgToken" class="w-full border p-1 rounded text-sm" placeholder="วาง Bot Token">
-            </div>
-            <div>
-              <label class="text-sm text-gray-500">Chat ID ของกลุ่ม</label>
-              <input type="text" id="setTgChatId" class="w-full border p-1 rounded text-sm" placeholder="อย่าลืมใส่ -100 นำหน้า">
-            </div>
-            <button onclick="saveAdminSettings()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-bold mt-2 shadow">บันทึกการตั้งค่า</button>
-            <hr>
-            <div>
-              <label class="text-sm">ส่งอีเมลสรุปรอบ:</label>
-              <div class="flex space-x-2 mt-1">
-                <select id="emailPeriodSel" class="w-full border rounded p-1"></select>
-                <button onclick="triggerEmail()" class="bg-gray-800 text-white px-3 rounded hover:bg-gray-900"><i class="fas fa-paper-plane"></i></button>
+
+            <div class="space-y-4 mb-6">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Telegram Bot Token</label>
+                <div class="relative">
+                  <input type="password" id="setTgToken" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" placeholder="7890123456:AAFl1...">
+                  <button type="button" onclick="togglePasswordVisibility('setTgToken')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
               </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Telegram Group Chat ID</label>
+                <input type="text" id="setTgChatId" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" placeholder="-100xxxxxxxxxx">
+                <p class="text-[11px] text-slate-400 mt-1">* สำหรับกลุ่ม อย่าลืมใส่เลขลบ <code>-100</code> นำหน้าเสมอ</p>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+              <button type="button" onclick="testTelegramPing()" class="bg-sky-50 hover:bg-sky-100 text-sky-600 font-semibold px-4 py-2 rounded-xl text-xs border border-sky-200 transition flex items-center gap-1.5">
+                <i class="fas fa-paper-plane"></i> <span>ทดสอบส่งข้อความ (Test Ping)</span>
+              </button>
+              <button onclick="saveAdminSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md shadow-indigo-500/20 transition">
+                <i class="fas fa-save mr-1"></i> บันทึก Telegram
+              </button>
+            </div>
+          </div>
+
+          <!-- Email Summary Card -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-800">อีเมลสรุปรายงานประจำรอบ</h3>
+                  <p class="text-xs text-slate-400">ส่งอีเมลสรุปสถิติประจำเดือนให้ผู้บริหารหรือผู้ดูแลระบบ</p>
+                </div>
+              </div>
+
+              <div class="space-y-4 mb-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">อีเมลผู้รับรายงาน (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
+                  <input type="text" id="setEmails" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="admin@noph.moph.go.th, director@noph.moph.go.th">
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+                  <label class="block text-xs font-semibold text-slate-700 mb-2">สั่งส่งอีเมลสรุปทันทีตามรอบข้อมูล:</label>
+                  <div class="flex gap-2">
+                    <select id="emailPeriodSel" class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"></select>
+                    <button onclick="triggerEmail()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition whitespace-nowrap flex items-center gap-1.5">
+                      <i class="fas fa-paper-plane"></i> <span>ส่งรายงาน</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-100">
+              <button onclick="saveAdminSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md shadow-indigo-500/20 transition">
+                <i class="fas fa-save mr-1"></i> บันทึกอีเมล
+              </button>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="bg-white rounded-lg shadow p-6 super-admin-only">
-          <h3 class="text-lg font-bold mb-4 text-green-600"><i class="fas fa-sitemap"></i> จัดการกลุ่มงาน</h3>
-          <div class="space-y-2 mb-4">
-            <div class="flex space-x-2">
-              <input type="text" id="newGrpCode" placeholder="รหัส" class="w-1/3 border p-1 rounded text-sm">
-              <input type="text" id="newGrpName" placeholder="ชื่อกลุ่มงาน" class="w-2/3 border p-1 rounded text-sm">
+      <!-- PANEL 3: Groups & Workgroups -->
+      <div id="adminPanel-groups" class="admin-panel hidden space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                <i class="fas fa-sitemap"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-slate-800">จัดการโครงสร้างกลุ่มงาน สสจ.นครนายก</h3>
+                <p class="text-xs text-slate-400">กำหนดรหัส 2 หลัก และชื่อกลุ่มงานที่ใช้ในระบบ</p>
+              </div>
             </div>
-            <button onclick="addGroupRow()" class="w-full bg-green-100 text-green-700 border border-green-300 py-1 rounded text-sm font-medium hover:bg-green-200">+ เพิ่มในตารางชั่วคราว</button>
+            <button onclick="saveGroups()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5">
+              <i class="fas fa-cloud-arrow-up"></i> <span>บันทึกกลุ่มงานทั้งหมดลงฐานข้อมูล</span>
+            </button>
           </div>
-          <div class="overflow-y-auto h-32 mb-2 border rounded">
-            <table class="min-w-full text-xs text-left"><tbody id="groupTableBody"></tbody></table>
-          </div>
-          <button onclick="saveGroups()" class="w-full bg-green-600 text-white py-1 rounded hover:bg-green-700 text-sm">บันทึกกลุ่มงานทั้งหมดลงฐานข้อมูล</button>
-        </div>
 
-        <div class="bg-white rounded-lg shadow p-6 super-admin-only">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-orange-600"><i class="fas fa-user-check"></i> จัดการผู้ใช้งาน</h3>
-            <button onclick="openAdminCreateUserModal()" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">+ สร้างบัญชี</button>
+          <!-- Add Group Form -->
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 mb-6 flex flex-col md:flex-row gap-3 items-end">
+            <div class="w-full md:w-32">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">รหัสกลุ่ม (2 หลัก)</label>
+              <input type="text" id="newGrpCode" placeholder="เช่น 01" maxlength="3" class="w-full bg-white border border-slate-300 p-2 rounded-xl text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+            </div>
+            <div class="w-full md:flex-1">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อกลุ่มงาน</label>
+              <input type="text" id="newGrpName" placeholder="เช่น กลุ่มงานพัฒนายุทธศาสตร์สาธารณสุข" class="w-full bg-white border border-slate-300 p-2 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+            </div>
+            <button onclick="addGroupRow()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-xl text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+              <i class="fas fa-plus"></i> <span>เพิ่มลงในตาราง</span>
+            </button>
           </div>
-          <div class="overflow-y-auto h-48 border rounded">
-            <table class="min-w-full text-xs text-left">
-              <thead class="bg-gray-100"><tr><th class="p-1">ชื่อ/มือถือ</th><th class="p-1 text-center">จัดการ</th></tr></thead>
-              <tbody id="userTableBody"></tbody>
+
+          <!-- Groups Table -->
+          <div class="border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
+            <table class="min-w-full text-sm divide-y divide-slate-100">
+              <thead class="bg-slate-100/70 text-slate-600 text-xs font-semibold">
+                <tr>
+                  <th class="p-3 text-left w-24">รหัสกลุ่ม</th>
+                  <th class="p-3 text-left">ชื่อกลุ่มงาน</th>
+                  <th class="p-3 text-center w-24">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="groupTableBody" class="bg-white divide-y divide-slate-100 text-slate-700"></tbody>
             </table>
           </div>
         </div>
       </div>
-      <div class="bg-white rounded-lg shadow p-6 border-red-600 border-t-4 mt-8 super-admin-only">
-        <h3 class="text-lg font-bold text-red-600 mb-4"><i class="fas fa-exclamation-triangle"></i> พื้นที่อันตราย (Danger Zone)</h3>
-        <p class="text-sm text-gray-600 mb-4">ล้างฐานข้อมูลสถิติการใช้งาน คำขอปริ้น และประวัติการแชททั้งหมด (ระบบจะยังคงรักษาบัญชีผู้ใช้งาน กลุ่มงาน และการตั้งค่าไว้)</p>
-        <button onclick="clearDatabaseUI()" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 shadow">
-          <i class="fas fa-skull-crossbones mr-2"></i> ล้างฐานข้อมูลสถิติทั้งหมด
-        </button>
+
+      <!-- PANEL 4: Users & Staff Management -->
+      <div id="adminPanel-users" class="admin-panel hidden space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-sm">
+                <i class="fas fa-users-gear"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-slate-800">จัดการรายชื่อบุคลากรและสิทธิ์การใช้งาน</h3>
+                <p class="text-xs text-slate-400">อนุมัติคำขอลงทะเบียน กำหนดสิทธิ์ Admin ตรวจสอบ PIN และแก้ไขข้อมูล</p>
+              </div>
+            </div>
+            <button onclick="openAdminCreateUserModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5">
+              <i class="fas fa-user-plus"></i> <span>สร้างบัญชีบุคลากรใหม่</span>
+            </button>
+          </div>
+
+          <!-- User Filters Bar -->
+          <div class="flex flex-col sm:flex-row gap-3 mb-4">
+            <div class="flex-1 relative">
+              <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" id="adminUserSearch" oninput="renderAdminUserTable()" placeholder="ค้นหาตามชื่อ-สกุล, เบอร์มือถือ, หรือกลุ่มงาน..." class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+            </div>
+            <div class="w-full sm:w-52">
+              <select id="adminUserRoleFilter" onchange="renderAdminUserTable()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                <option value="all">แสดงทุกบทบาทและสถานะ</option>
+                <option value="pendingEdit">รอตรวจสอบคำขอแก้ไข</option>
+                <option value="pending">รออนุมัติการใช้งาน</option>
+                <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+                <option value="assistant">ผู้ช่วย Admin</option>
+                <option value="user">ผู้ใช้งานทั่วไป</option>
+                <option value="suspended">บัญชีที่ถูกระงับ</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Users Table -->
+          <div class="border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm divide-y divide-slate-100">
+                <thead class="bg-slate-100/70 text-slate-600 text-xs font-semibold">
+                  <tr>
+                    <th class="p-3.5 text-left">บุคลากร</th>
+                    <th class="p-3.5 text-left">ตำแหน่ง & กลุ่มงาน</th>
+                    <th class="p-3.5 text-left">บทบาท / สถานะ</th>
+                    <th class="p-3.5 text-center">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="userTableBody" class="bg-white divide-y divide-slate-100 text-slate-700"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 5: System Maintenance & Danger Zone -->
+      <div id="adminPanel-maintenance" class="admin-panel hidden space-y-6 super-admin-only">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+          <div class="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+              <i class="fas fa-heart-pulse"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800">สถานะและความสมบูรณ์ของระบบ (System Health)</h3>
+              <p class="text-xs text-slate-400">ตรวจสอบเวอร์ชันและการเชื่อมต่อกับฐานข้อมูล Google Sheet</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+              <span class="text-xs text-slate-400">เวอร์ชันระบบ:</span>
+              <p class="text-base font-bold text-indigo-600 mt-1">V24.0 (NOPH Core)</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+              <span class="text-xs text-slate-400">ฐานข้อมูล Google Sheet:</span>
+              <p class="text-base font-bold text-emerald-600 mt-1"><i class="fas fa-check-circle mr-1"></i> เชื่อมต่อเรียบร้อย</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+              <span class="text-xs text-slate-400">Web App API:</span>
+              <p class="text-base font-bold text-blue-600 mt-1"><i class="fas fa-bolt mr-1"></i> GAS Active</p>
+            </div>
+          </div>
+
+          <!-- Danger Zone Card -->
+          <div class="p-6 bg-rose-50/60 rounded-2xl border-2 border-rose-200">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fas fa-triangle-exclamation"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-base font-bold text-rose-800">พื้นที่อันตราย (Danger Zone)</h4>
+                <p class="text-xs text-rose-700 mt-1 leading-relaxed">
+                  การล้างฐานข้อมูลจะทำการลบสถิติการใช้งาน คำขอปริ้นสี และประวัติการแชททั้งหมดออกจากระบบอย่างถาวร 
+                  <span class="font-bold underline">(ระบบจะยังคงรักษาบัญชีผู้ใช้ กลุ่มงาน และการตั้งค่าไว้)</span>
+                </p>
+                <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  <button type="button" onclick="secureClearDatabaseUI()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md shadow-rose-500/20 transition flex items-center gap-2">
+                    <i class="fas fa-trash-can"></i> <span>ล้างฐานข้อมูลสถิติทั้งหมด (Safe Prompt)</span>
+                  </button>
+                  <span class="text-[11px] text-rose-500">* ต้องพิมพ์คำว่า DELETE เพื่อยืนยัน</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
+    
     <div id="view-report" class="view-section hidden">
       <h2 class="text-2xl font-semibold mb-6">ออกรายงาน</h2>
       <div class="bg-white rounded-lg shadow p-6 mb-6">
@@ -2110,6 +2355,197 @@
       }
     }
 
+    
+    // 🎛️ Admin Console Tab Switcher
+    function switchAdminTab(tabName) {
+      const tabs = ['rates', 'alerts', 'groups', 'users', 'maintenance'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('adminTabBtn-' + t);
+        const panel = document.getElementById('adminPanel-' + t);
+        if (btn) {
+          if (t === tabName) {
+            btn.className = 'admin-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition bg-indigo-600 text-white shadow-sm shadow-indigo-500/20';
+          } else {
+            btn.className = 'admin-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+          }
+        }
+        if (panel) {
+          if (t === tabName) {
+            panel.classList.remove('hidden');
+          } else {
+            panel.classList.add('hidden');
+          }
+        }
+      });
+      if (tabName === 'users') {
+        renderAdminUserTable();
+      }
+    }
+
+    function togglePasswordVisibility(fieldId) {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        field.type = field.type === 'password' ? 'text' : 'password';
+      }
+    }
+
+    async function testTelegramPing() {
+      const token = document.getElementById('setTgToken') ? document.getElementById('setTgToken').value.trim() : '';
+      const chatId = document.getElementById('setTgChatId') ? document.getElementById('setTgChatId').value.trim() : '';
+      
+      if (!token || !chatId) {
+        return Swal.fire('แจ้งเตือน', 'กรุณาระบุทั้ง Bot Token และ Group Chat ID ให้ครบถ้วนก่อนทดสอบ', 'warning');
+      }
+
+      showLoading("กำลังทดสอบส่งข้อความไปยัง Telegram...");
+      try {
+        const text = "🔔 *ทดสอบการเชื่อมต่อระบบสำเร็จ!*\n📍 ระบบจัดการเครื่องพิมพ์และถ่ายเอกสาร สสจ.นครนายก (V24.0)\n⏰ เวลา: " + new Date().toLocaleString('th-TH');
+        const url = "https://api.telegram.org/bot" + token + "/sendMessage";
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'Markdown' })
+        });
+        const json = await res.json();
+        hideLoading();
+        if (json.ok) {
+          Swal.fire('สำเร็จ!', 'ส่งข้อความทดสอบเข้ากลุ่ม Telegram เรียบร้อยแล้ว กรุณาเปิดเช็คในแอป Telegram ครับ', 'success');
+        } else {
+          Swal.fire('Telegram แจ้งเตือนข้อผิดพลาด', json.description || 'ไม่สามารถส่งข้อความได้ กรุณาตรวจ Token และ Chat ID', 'error');
+        }
+      } catch (err) {
+        hideLoading();
+        Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อ Telegram API ได้: ' + err.message, 'error');
+      }
+    }
+
+    function secureClearDatabaseUI() {
+      Swal.fire({
+        title: 'ยืนยันการล้างฐานข้อมูลสถิติ?',
+        html: '<div class="text-left text-xs text-rose-700 bg-rose-50 p-3 rounded-lg border border-rose-200 mb-3"><i class="fas fa-exclamation-circle mr-1"></i> สถิติการใช้งาน ยอดพิมพ์ และประวัติแชทจะถูกล้างทั้งหมด แต่บัญชีผู้ใช้และการตั้งค่าจะยังคงอยู่</div><p class="text-xs text-slate-600 mb-2 font-medium">พิมพ์คำว่า <b>DELETE</b> เพื่อยืนยัน:</p>',
+        input: 'text',
+        inputPlaceholder: 'พิมพ์ DELETE ที่นี่',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        confirmButtonText: 'ล้างฐานข้อมูลทันที',
+        cancelButtonText: 'ยกเลิก',
+        preConfirm: (val) => {
+          if (val !== 'DELETE') {
+            Swal.showValidationMessage('กรุณาพิมพ์คำว่า DELETE ให้ถูกต้อง');
+            return false;
+          }
+          return true;
+        }
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          clearDatabaseUI();
+        }
+      });
+    }
+
+    // Modern User Management Table Renderer with Search & Filter
+    function renderAdminUserTable() {
+      const tb = document.getElementById('userTableBody');
+      if (!tb || !allUsersCache) return;
+
+      const search = (document.getElementById('adminUserSearch') ? document.getElementById('adminUserSearch').value.trim().toLowerCase() : '');
+      const roleFilter = (document.getElementById('adminUserRoleFilter') ? document.getElementById('adminUserRoleFilter').value : 'all');
+
+      const filtered = allUsersCache.filter(u => {
+        const matchSearch = !search || 
+          (u.name && u.name.toLowerCase().includes(search)) || 
+          (u.mobile && u.mobile.includes(search)) || 
+          (u.group && u.group.toLowerCase().includes(search)) ||
+          (u.position && u.position.toLowerCase().includes(search));
+        const matchRole = (roleFilter === 'all') || 
+          (roleFilter === 'pending' && u.status === 'pending') ||
+          (roleFilter === 'pendingEdit' && u.pendingEdit) ||
+          (roleFilter === 'suspended' && u.status === 'suspended') ||
+          (u.role === roleFilter);
+        return matchSearch && matchRole;
+      });
+
+      tb.innerHTML = '';
+      if (filtered.length === 0) {
+        tb.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium"><i class="fas fa-user-slash mr-2 text-base text-slate-300"></i>ไม่พบรายชื่อบุคลากรที่ตรงกับเงื่อนไขการค้นหา</td></tr>';
+        return;
+      }
+
+      filtered.forEach(function(u) {
+        let roleBadge = '';
+        if (u.pendingEdit) {
+          roleBadge += '<span class="px-2 py-0.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 mb-1 mr-1"><i class="fas fa-edit"></i> ขอแก้ไข</span>';
+        }
+        if (u.status === 'pending') {
+          roleBadge += '<span class="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 mb-1">รออนุมัติ</span>';
+        } else if (u.status === 'suspended') {
+          roleBadge += '<span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 mb-1"><i class="fas fa-ban"></i> ระงับสิทธิ์</span>';
+        } else {
+          let rName = 'ผู้ใช้งานทั่วไป';
+          let rClass = 'bg-slate-100 text-slate-700 border-slate-200';
+          if (u.role === 'admin') {
+            rName = 'ผู้ดูแลระบบ (Admin)';
+            rClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+          } else if (u.role === 'assistant') {
+            rName = 'ผู้ช่วย Admin';
+            rClass = 'bg-blue-50 text-blue-700 border-blue-200';
+          } else if (u.role === 'observer') {
+            rName = 'ผู้สังเกตการณ์';
+            rClass = 'bg-purple-50 text-purple-700 border-purple-200';
+          }
+          roleBadge += `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold border ${rClass}">${rName}</span>`;
+        }
+
+        let actionBtns = `<div class="flex items-center justify-center gap-2">`;
+        if (u.pendingEdit) {
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="reviewProfileEdit(this.dataset.mobile)" class="p-1.5 rounded-lg text-purple-600 hover:bg-purple-50 border border-purple-200 transition" title="ตรวจสอบคำขอแก้ไขข้อมูล"><i class="fas fa-tasks"></i></button>`;
+        }
+        actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="viewUserPin(this.dataset.mobile)" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition" title="ดูรหัส PIN"><i class="fas fa-key"></i></button>`;
+        actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="openEditUserModal(this.dataset.mobile)" class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 border border-blue-200 transition" title="แก้ไขข้อมูลบุคลากร"><i class="fas fa-pen-to-square"></i></button>`;
+        if (u.status === 'pending') {
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'approve')" class="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition" title="อนุมัติการใช้งาน"><i class="fas fa-check"></i></button>`;
+        }
+        if (u.status !== 'pending' && u.role !== 'admin') {
+          if (u.status === 'suspended') {
+            actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition" title="ปลดระงับบัญชี"><i class="fas fa-unlock"></i></button>`;
+          } else {
+            actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'suspend')" class="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 border border-amber-200 transition" title="ระงับบัญชี"><i class="fas fa-ban"></i></button>`;
+          }
+        }
+        if (u.role !== 'admin') {
+          actionBtns += `<button data-mobile="${esc(u.mobile)}" onclick="actionUser(this.dataset.mobile, 'delete')" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 border border-rose-200 transition" title="ลบบัญชีผู้ใช้"><i class="fas fa-trash-can"></i></button>`;
+        }
+        actionBtns += `</div>`;
+
+        tb.innerHTML += `<tr class="hover:bg-slate-50/60 transition border-b border-slate-100">
+          <td class="p-3.5">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                ${esc(u.name ? u.name.charAt(0) : 'U')}
+              </div>
+              <div>
+                <div class="font-bold text-slate-800 text-xs md:text-sm">${esc(u.name)}</div>
+                <div class="text-[11px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+                  <i class="fas fa-phone-alt text-[9px]"></i> ${esc(u.mobile)}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="p-3.5">
+            <div class="text-xs font-medium text-slate-700">${esc(u.position || 'ไม่ระบุตำแหน่ง')}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">${esc(u.group || 'ไม่ระบุกลุ่มงาน')}</div>
+          </td>
+          <td class="p-3.5 align-middle">
+            ${roleBadge}
+          </td>
+          <td class="p-3.5 align-middle text-center">
+            ${actionBtns}
+          </td>
+        </tr>`;
+      });
+    }
+
     async function loadAdminData() {
       const setBwEl = document.getElementById('setBw');
       if(setBwEl) setBwEl.value = globalData.settings.cost_bw || 1; 
@@ -2137,8 +2573,8 @@
         allUsersCache = res.data.users; 
         tempGroups = res.data.groups || []; 
         renderGroupTable();
-        
-        const tb = document.getElementById('userTableBody'); 
+        renderAdminUserTable();
+        const tb = null; 
         if(!tb) return;
         tb.innerHTML = "";
         
