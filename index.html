@@ -129,13 +129,15 @@
           <i class="fas fa-sign-in-alt"></i> <span>เข้าสู่ระบบ</span>
         </button>
 
-        <div id="userProfileCapsule" class="hidden flex items-center gap-2 bg-slate-800 border border-slate-700/80 px-2.5 py-1 rounded-full text-slate-200">
-          <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
-            <i class="fas fa-user"></i>
+        <div id="userProfileCapsule" class="hidden flex items-center gap-2">
+          <div class="flex items-center gap-2 bg-slate-800/90 border border-slate-700/80 px-3 py-1.5 rounded-full text-slate-200 shadow-sm">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+              <i class="fas fa-user"></i>
+            </div>
+            <span id="userNameDisplay" class="text-xs font-medium max-w-[120px] md:max-w-[170px] truncate text-slate-200"></span>
           </div>
-          <span id="userNameDisplay" class="text-xs font-medium max-w-[130px] md:max-w-[170px] truncate text-slate-200"></span>
-          <button id="navLogoutBtn" onclick="logout()" class="text-slate-400 hover:text-rose-400 p-1 rounded-full hover:bg-slate-700/50 transition ml-0.5" title="ออกจากระบบ">
-            <i class="fas fa-power-off text-xs"></i>
+          <button id="navLogoutBtn" onclick="logout()" class="flex items-center gap-1.5 text-xs text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-600 px-3 py-1.5 rounded-full border border-rose-500/30 transition shadow-sm font-semibold cursor-pointer" title="ออกจากระบบ">
+            <i class="fas fa-sign-out-alt"></i> <span class="hidden sm:inline">ออกจากระบบ</span>
           </button>
         </div>
 
@@ -168,6 +170,13 @@
       </div>
       <div class="py-2 px-3 rounded-lg text-slate-200 hover:bg-slate-800 flex items-center gap-2.5 cursor-pointer text-sm" onclick="switchView('report'); toggleMobileMenu();">
         <i class="fas fa-file-pdf w-5 text-rose-400"></i> ออกรายงาน
+      </div>
+      <!-- Mobile Logout Section -->
+      <div class="pt-2 mt-2 border-t border-slate-800 hidden auth-only">
+        <div id="mobileUserDisplay" class="text-xs text-slate-400 px-3 py-1 mb-1 truncate font-medium"></div>
+        <button onclick="logout(); toggleMobileMenu();" class="w-full text-left py-2.5 px-3 rounded-xl bg-rose-500/15 text-rose-300 hover:bg-rose-600 hover:text-white border border-rose-500/30 flex items-center gap-2.5 cursor-pointer text-sm font-semibold transition shadow-sm">
+          <i class="fas fa-sign-out-alt w-5 text-rose-400"></i> <span>ออกจากระบบ</span>
+        </button>
       </div>
     </div>
   </nav>
@@ -1361,7 +1370,7 @@
         else if(currentUser.role === 'observer') roleDisplay = ' (Observer)';
         
         const userProfileCapsule = document.getElementById('userProfileCapsule');
-        if(userProfileCapsule) userProfileCapsule.classList.add('hidden');
+        if(userProfileCapsule) userProfileCapsule.classList.remove('hidden');
         const userNameDisplay = document.getElementById('userNameDisplay');
         const navLogoutBtn = document.getElementById('navLogoutBtn');
         const navLoginBtn = document.getElementById('navLoginBtn');
@@ -1369,6 +1378,10 @@
         if(userNameDisplay) {
            userNameDisplay.innerText = currentUser.name + roleDisplay;
            userNameDisplay.classList.remove('hidden'); 
+        }
+        const mobileUserDisplay = document.getElementById('mobileUserDisplay');
+        if(mobileUserDisplay) {
+           mobileUserDisplay.innerText = '👤 ผู้ใช้งาน: ' + currentUser.name + roleDisplay;
         }
         if(navLogoutBtn) navLogoutBtn.classList.remove('hidden'); 
         if(navLoginBtn) navLoginBtn.classList.add('hidden');
@@ -1385,6 +1398,8 @@
         } 
       } else {
         currentUser = null;
+        const userProfileCapsule = document.getElementById('userProfileCapsule');
+        if(userProfileCapsule) userProfileCapsule.classList.add('hidden');
         const userNameDisplay = document.getElementById('userNameDisplay');
         const navLogoutBtn = document.getElementById('navLogoutBtn');
         const navLoginBtn = document.getElementById('navLoginBtn');
